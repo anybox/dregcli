@@ -24,7 +24,11 @@ class Client(object):
         """
         :return list of Repository instances
         """
-        url = str(Path(self.url) / self._api_version / self._catalog)
+        url = str(
+            Path(self.url) /
+            self._api_version /
+            self._catalog
+        )
         self.display('GET', url)
 
         r = requests.get(url)
@@ -53,8 +57,12 @@ class Repository(RegistryComponent):
         """
         :return list of tags (each tag an str)
         """
-        url = str(Path(self.client.url)
-            / self.client._api_version / self.name / self._tags_list)
+        url = str(
+            Path(self.client.url) /
+            self.client._api_version /
+            self.name /
+            self._tags_list
+        )
         self.client.display('GET', url)
 
         r = requests.get(url)

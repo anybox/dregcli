@@ -9,6 +9,16 @@ def fixture_registry_url():
     return 'localhost:5001'
 
 
+@pytest.fixture()
+def fixture_catalog_url():
+    return '/v2/_catalog'
+
+
+@pytest.fixture()
+def fixture_registories():
+    return {"repositories":["my-alpine"]}
+
+
 class TestClient:
     def test_init(self, fixture_registry_url):
         def assert_client(verbose):
@@ -48,21 +58,24 @@ class TestClient:
                 )
             assert str(excinfo.value) == "Status code error 404"
 
-    def test_catalog_200(self, fixture_registry_url):
-        repositories = ["library/alpine", "library/python"]
+    @pytest.mark.usefixtures('fixture_catalog_url', 'fixture_registories')
+    def test_catalog_200(
+        self,
+        fixture_registry_url,
+        fixture_catalog_url,
+        fixture_registories):
         mock_res = mock.MagicMock()
         mock_res.status_code = 200
-        mock_res.json = mock.MagicMock(return_value={
-            "repositories": repositories,
-        })
+        mock_res.json = mock.MagicMock(return_value=fixture_registories)
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
             client = Client(fixture_registry_url, verbose=False)
             res = client.catalog()
             mo.assert_called_once_with(
-                fixture_registry_url + '/v2/_catalog',
+                fixture_registry_url + fixture_catalog_url,
             )
-            assert isinstance(res, list) and len(res) == len(repositories) \
-                and all([type(r) == Repository for r in res]) \
-                and all([r.client == client for r in res]) \
-                and [str(r) for r in res] == repositories
+            assert isinstance(res, list) and len(res) \
+                == len(fixture_registories['repositories']) and \
+                all([type(r) == Repository for r in res]) and \
+                all([r.client == client for r in res]) and \
+                [str(r) for r in res] == fixture_registories['repositories']

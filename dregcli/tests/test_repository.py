@@ -11,22 +11,17 @@ def fixture_registry_url():
 
 @pytest.fixture()
 def fixture_alpine_repo():
-    return 'library/alpine'
+    return 'my-alpine'
+
 
 @pytest.fixture()
 def fixture_alpine_tags_url():
-    return '/v2/library/alpine/tags/list'
+    return '/v2/my-alpine/tags/list'
+
 
 @pytest.fixture()
 def fixture_alpine_tags_json():
-    return {
-        "name":"library/alpine",
-        "tags": [
-                    "2.6","2.7",
-                    "3.1","3.2","3.3","3.4","3.5","3.6","3.7","3.8",
-                    "edge","latest",
-                ],
-    }
+    return {"name":"my-alpine","tags":["3.8"]}
 
 
 class TestRepository:
@@ -77,5 +72,5 @@ class TestRepository:
             mo.assert_called_once_with(
                 fixture_registry_url + fixture_alpine_tags_url
             )
-            assert isinstance(res, list) \
-                and res == fixture_alpine_tags_json['tags']
+            assert isinstance(res, list) and \
+                res == fixture_alpine_tags_json['tags']
