@@ -54,6 +54,9 @@ class RegistryComponent(object):
 class Repository(RegistryComponent):
     _tags_list = 'tags/list'
     _manifests = 'manifests'
+    _manifests_headers = {
+        "Accept": "application/vnd.docker.distribution.manifest.v2+json",
+    }
 
     def tags(self):
         """
@@ -87,7 +90,7 @@ class Repository(RegistryComponent):
         )
         self.client.display('GET', url)
 
-        r = requests.get(url)
+        r = requests.get(url, headers=self._manifests_headers)
         if r.status_code != 200:
             msg = "Status code error {code}".format(code=r.status_code)
             raise DRegCliException(msg)

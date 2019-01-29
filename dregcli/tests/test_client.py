@@ -16,7 +16,7 @@ def fixture_catalog_url():
 
 @pytest.fixture()
 def fixture_registories():
-    return {"repositories":["my-alpine"]}
+    return {"repositories": ["my-alpine"]}
 
 
 class TestClient:
@@ -63,7 +63,8 @@ class TestClient:
         self,
         fixture_registry_url,
         fixture_catalog_url,
-        fixture_registories):
+        fixture_registories
+    ):
         mock_res = mock.MagicMock()
         mock_res.status_code = 200
         mock_res.json = mock.MagicMock(return_value=fixture_registories)
