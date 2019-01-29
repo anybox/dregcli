@@ -58,6 +58,7 @@ class Repository(RegistryComponent):
     _manifests_headers = {
         "Accept": "application/vnd.docker.distribution.manifest.v2+json",
     }
+    _manifest_response_header_digest = 'Docker-Content-Digest'
 
     def tags(self):
         """
@@ -100,7 +101,19 @@ class Repository(RegistryComponent):
             self.client,
             "{repo}:{tag}".format(repo=self.name, tag=tag)
         )
+
+        # image digest: grap the image digest from the header response
+        digest = r.headers.get(self._manifest_response_header_digest, False)
+        if not digest:
+            msg = "No image digest in response header {digest_header}".format(
+                digest_header=self._manifest_response_header_digest
+            )
+            raise DRegCliException(msg)
+        image.digest = digest
+
+        # manifests data
         image.data = r.json()
+
         return image
 
 

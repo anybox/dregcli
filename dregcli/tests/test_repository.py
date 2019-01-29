@@ -38,6 +38,12 @@ def fixture_alpine_image_url():
 
 
 @pytest.fixture()
+def fixture_alpine_image_digest():
+    return "sha256:3d2e482b82608d153a374df3357c0291589" \
+           "a61cc194ec4a9ca2381073a17f58e"
+
+
+@pytest.fixture()
 def fixture_alpine_image_json():
     return {
         "schemaVersion": 2,
@@ -145,6 +151,7 @@ class TestRepositoryImage:
         'fixture_alpine_repo',
         'fixture_alpine_image_tag',
         'fixture_alpine_image_url',
+        'fixture_alpine_image_digest',
         'fixture_alpine_image_json'
     )
     def test_200(
@@ -153,6 +160,7 @@ class TestRepositoryImage:
         fixture_alpine_repo,
         fixture_alpine_image_tag,
         fixture_alpine_image_url,
+        fixture_alpine_image_digest,
         fixture_alpine_image_json
     ):
         mock_res = mock.MagicMock()
@@ -160,6 +168,15 @@ class TestRepositoryImage:
         mock_res.json = mock.MagicMock(
             return_value=fixture_alpine_image_json
         )
+
+        # mock response headers
+        response_headers = {}
+        response_headers[Repository._manifest_response_header_digest] = \
+            fixture_alpine_image_digest
+        mock_res.headers.__getitem__.side_effect = response_headers.__getitem__
+        mock_res.headers.get.side_effect = response_headers.get  # mock get
+        mock_res.headers.__iter__.side_effect = response_headers.__iter__
+
         expected_image_name = "{repo}:{tag}".format(
             repo=fixture_alpine_repo,
             tag=fixture_alpine_image_tag
@@ -176,4 +193,5 @@ class TestRepositoryImage:
                 headers=Repository._manifests_headers
             )
             assert type(res) == Image and res.name == expected_image_name and \
+                res.digest == fixture_alpine_image_digest and \
                 res.data == fixture_alpine_image_json
