@@ -41,11 +41,12 @@ class Client(object):
 
 
 class RegistryComponent(object):
-    def __init__(self, client, name):
+    def __init__(self, client, name, digest='', data=dict()):
         super().__init__()
         self.client = client
         self.name = name
-        self.data = dict()
+        self.digest = digest
+        self.data = data
 
     def __str__(self):
         return self.name or ''
@@ -95,4 +96,13 @@ class Repository(RegistryComponent):
             msg = "Status code error {code}".format(code=r.status_code)
             raise DRegCliException(msg)
 
-        return r.json()
+        image = Image(
+            self.client,
+            "{repo}:{tag}".format(repo=self.name, tag=tag)
+        )
+        image.data = r.json()
+        return image
+
+
+class Image(RegistryComponent):
+    pass

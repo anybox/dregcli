@@ -1,6 +1,6 @@
 import pytest
 
-from dregcli.dregcli import DRegCliException, Client, Repository
+from dregcli.dregcli import DRegCliException, Client, Repository, Image
 from unittest import mock
 
 
@@ -160,6 +160,10 @@ class TestRepositoryImage:
         mock_res.json = mock.MagicMock(
             return_value=fixture_alpine_image_json
         )
+        expected_image_name = "{repo}:{tag}".format(
+            repo=fixture_alpine_repo,
+            tag=fixture_alpine_image_tag
+        )
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
             repository = Repository(
@@ -171,5 +175,5 @@ class TestRepositoryImage:
                 fixture_registry_url + fixture_alpine_image_url,
                 headers=Repository._manifests_headers
             )
-            assert isinstance(res, dict) and \
-                res == fixture_alpine_image_json
+            assert type(res) == Image and res.name == expected_image_name and \
+                res.data == fixture_alpine_image_json
