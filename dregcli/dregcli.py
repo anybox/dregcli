@@ -45,13 +45,15 @@ class RegistryComponent(object):
         super().__init__()
         self.client = client
         self.name = name
+        self.data = dict()
 
     def __str__(self):
         return self.name or ''
 
 
 class Repository(RegistryComponent):
-    _tags_list = "tags/list"
+    _tags_list = 'tags/list'
+    _manifests = 'manifests'
 
     def tags(self):
         """
@@ -71,3 +73,23 @@ class Repository(RegistryComponent):
             raise DRegCliException(msg)
 
         return r.json().get("tags", [])
+
+    def image(self, tag):
+        """
+        get image data from tag
+        """
+        url = str(
+            Path(self.client.url) /
+            self.client._api_version /
+            self.name /
+            self._manifests /
+            tag
+        )
+        self.client.display('GET', url)
+
+        r = requests.get(url)
+        if r.status_code != 200:
+            msg = "Status code error {code}".format(code=r.status_code)
+            raise DRegCliException(msg)
+
+        return r.json()
