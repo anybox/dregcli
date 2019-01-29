@@ -1,36 +1,60 @@
 import pytest
 
-from dregcli.dregcli import Client
+from dregcli.dregcli import DRegCliException, Client
 from unittest import mock
 
 
 @pytest.fixture(scope="module")
-def registry_url():
+def fixture_registry_url():
     return 'localhost:5001'
 
 
 class TestClient:
-    def test_init(self, registry_url):
+    def test_init(self, fixture_registry_url):
         def assert_client(verbose):
-            assert client.url == registry_url
+            assert client.url == fixture_registry_url
             assert client.verbose == verbose
             assert isinstance(client.request_kwargs, dict) \
                 and not client.request_kwargs
 
-        client = Client(registry_url)
+        client = Client(fixture_registry_url)
         assert_client(False)
-        client = Client(registry_url, verbose=False)
+        client = Client(fixture_registry_url, verbose=False)
         assert_client(False)
-        client = Client(registry_url, verbose=True)
+        client = Client(fixture_registry_url, verbose=True)
         assert_client(True)
 
-    def test_display(self, capsys):
-        client = Client(registry_url, verbose=True)
+    def test_display(self, fixture_registry_url, capsys):
+        client = Client(fixture_registry_url, verbose=True)
         client.display("hello", "world")
         captured = capsys.readouterr()
         assert captured.out == "hello world\n"
 
-        client = Client(registry_url, verbose=False)
+        client = Client(fixture_registry_url, verbose=False)
         client.display("hello")
         captured = capsys.readouterr()
         assert captured.out == ""
+
+    def test_catalog_200(self, fixture_registry_url):
+        mock_res = mock.MagicMock()
+        mock_res.status_code = 200
+
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            client = Client(fixture_registry_url, verbose=False)
+            client.catalog()
+            mo.assert_called_once_with(
+                fixture_registry_url + '/v2/_catalog',
+            )
+
+    def test_catalog_404(self, fixture_registry_url):
+        mock_res = mock.MagicMock()
+        mock_res.status_code = 404
+
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            with pytest.raises(DRegCliException) as excinfo:
+                client = Client(fixture_registry_url, verbose=False)
+                client.catalog()
+                mo.assert_called_once_with(
+                    fixture_registry_url + '/v2/_catalog',
+                )
+            assert str(excinfo.value) == "Status code error 404"
