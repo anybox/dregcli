@@ -18,8 +18,9 @@ setup(
     name='dregcli',
     version=version,
     description="Docker registry API v2 client, and console tool",
-    long_description= \
-        """This is a command line utility tool for docker registry API v2""",
+    long_description="""
+    This is a command line utility tool for docker registry API v2
+    """,
     classifiers=[],
     author='Vincent GREINER',
     author_email='vgreiner@anybox.fr',

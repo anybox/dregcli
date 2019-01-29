@@ -13,5 +13,5 @@ $ pip install --upgrade pip
 $ pip install -r requirements.txt
 $ pip install -r requirements.tests.txt
 $ python setup.py develop
-$ py.test --pep8 --cov=cdreg_py --cov-report=html --lf --nf --ff -v
+$ py.test --pep8 --cov=dregcli --cov-report=html --lf --nf --ff -v
 ```
