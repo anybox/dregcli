@@ -1,0 +1,6 @@
+.pytest_cache/
+dregcli.egg-info/
+htmlcov/
+.coverage
+.gitignore
+.travis.yml
