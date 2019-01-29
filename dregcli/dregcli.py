@@ -21,10 +21,45 @@ class Client(object):
             print(*args)
 
     def catalog(self):
-        url = Path(self.url) / self._api_version / self._catalog
+        """
+        :return list of Repository instances
+        """
+        url = str(Path(self.url) / self._api_version / self._catalog)
         self.display('GET', url)
 
         r = requests.get(url)
         if r.status_code != 200:
             msg = "Status code error {code}".format(code=r.status_code)
             raise DRegCliException(msg)
+
+        repositories = r.json().get("repositories", [])
+        return [Repository(self, repo) for repo in repositories]
+
+
+class RegistryComponent(object):
+    def __init__(self, client, name):
+        super().__init__()
+        self.client = client
+        self.name = name
+
+    def __str__(self):
+        return self.name or ''
+
+
+class Repository(RegistryComponent):
+    _tags_list = "tags/list"
+
+    def tags(self):
+        """
+        :return list of tags (each tag an str)
+        """
+        url = str(Path(self.client.url)
+            / self.client._api_version / self.name / self._tags_list)
+        self.client.display('GET', url)
+
+        r = requests.get(url)
+        if r.status_code != 200:
+            msg = "Status code error {code}".format(code=r.status_code)
+            raise DRegCliException(msg)
+
+        return r.json().get("tags", [])

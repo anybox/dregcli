@@ -1,6 +1,6 @@
 import pytest
 
-from dregcli.dregcli import DRegCliException, Client
+from dregcli.dregcli import DRegCliException, Client, Repository
 from unittest import mock
 
 
@@ -35,17 +35,6 @@ class TestClient:
         captured = capsys.readouterr()
         assert captured.out == ""
 
-    def test_catalog_200(self, fixture_registry_url):
-        mock_res = mock.MagicMock()
-        mock_res.status_code = 200
-
-        with mock.patch('requests.get', return_value=mock_res) as mo:
-            client = Client(fixture_registry_url, verbose=False)
-            client.catalog()
-            mo.assert_called_once_with(
-                fixture_registry_url + '/v2/_catalog',
-            )
-
     def test_catalog_404(self, fixture_registry_url):
         mock_res = mock.MagicMock()
         mock_res.status_code = 404
@@ -58,3 +47,22 @@ class TestClient:
                     fixture_registry_url + '/v2/_catalog',
                 )
             assert str(excinfo.value) == "Status code error 404"
+
+    def test_catalog_200(self, fixture_registry_url):
+        repositories = ["library/alpine", "library/python"]
+        mock_res = mock.MagicMock()
+        mock_res.status_code = 200
+        mock_res.json = mock.MagicMock(return_value={
+            "repositories": repositories,
+        })
+
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            client = Client(fixture_registry_url, verbose=False)
+            res = client.catalog()
+            mo.assert_called_once_with(
+                fixture_registry_url + '/v2/_catalog',
+            )
+            assert isinstance(res, list) and len(res) == len(repositories) \
+                and all([type(r) == Repository for r in res]) \
+                and all([r.client == client for r in res]) \
+                and [str(r) for r in res] == repositories
