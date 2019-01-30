@@ -129,7 +129,7 @@ class TestRepositoryImage:
         res = repository.image(tag)
         mo.assert_called_once_with(
             expected_url,
-            headers=Repository._manifests_headers
+            headers=Repository.Meta.manifests_headers
         )
         return res
 
@@ -183,7 +183,7 @@ class TestRepositoryImage:
 
         # mock response headers
         response_headers = {}
-        response_headers[Repository._manifest_response_header_digest] = \
+        response_headers[Repository.Meta.manifest_response_header_digest] = \
             fixture_alpine_image_digest
         mock_res.headers.__getitem__.side_effect = response_headers.__getitem__
         mock_res.headers.get.side_effect = response_headers.get  # mock get

@@ -7,8 +7,9 @@ class DRegCliException(RuntimeError):
 
 
 class Client(object):
-    _api_version = 'v2'
-    _catalog = '_catalog'
+    class Meta:
+        api_version = 'v2'
+        catalog = '_catalog'
 
     def __init__(self, url, verbose=False):
         super().__init__()
@@ -26,8 +27,8 @@ class Client(object):
         """
         url = str(
             Path(self.url) /
-            self._api_version /
-            self._catalog
+            self.Meta.api_version /
+            self.Meta.catalog
         )
         self.display('GET', url)
 
@@ -53,12 +54,13 @@ class RegistryComponent(object):
 
 
 class Repository(RegistryComponent):
-    _tags_list = 'tags/list'
-    _manifests = 'manifests'
-    _manifests_headers = {
-        "Accept": "application/vnd.docker.distribution.manifest.v2+json",
-    }
-    _manifest_response_header_digest = 'Docker-Content-Digest'
+    class Meta:
+        tags_list = 'tags/list'
+        manifests = 'manifests'
+        manifests_headers = {
+            "Accept": "application/vnd.docker.distribution.manifest.v2+json",
+        }
+        manifest_response_header_digest = 'Docker-Content-Digest'
 
     def tags(self):
         """
@@ -66,9 +68,9 @@ class Repository(RegistryComponent):
         """
         url = str(
             Path(self.client.url) /
-            self.client._api_version /
+            Client.Meta.api_version /
             self.name /
-            self._tags_list
+            self.Meta.tags_list
         )
         self.client.display('GET', url)
 
@@ -85,26 +87,27 @@ class Repository(RegistryComponent):
         """
         url = str(
             Path(self.client.url) /
-            self.client._api_version /
+            Client.Meta.api_version /
             self.name /
-            self._manifests /
+            self.Meta.manifests /
             tag
         )
         self.client.display('GET', url)
 
         r = requests.get(
             url,
-            headers=self._manifests_headers  # important: accept header
+            headers=self.Meta.manifests_headers  # important: accept header
         )
         if r.status_code != 200:
             msg = "Status code error {code}".format(code=r.status_code)
             raise DRegCliException(msg)
 
         # image digest: grap the image digest from the header response
-        digest = r.headers.get(self._manifest_response_header_digest, False)
+        digest = r.headers.get(self.Meta.manifest_response_header_digest,
+                               False)
         if not digest:
             msg = "No image digest in response header {digest_header}".format(
-                digest_header=self._manifest_response_header_digest
+                digest_header=self.Meta.manifest_response_header_digest
             )
             raise DRegCliException(msg)
 
@@ -132,16 +135,17 @@ class Image(RegistryComponent):
         """
         url = str(
             Path(self.client.url) /
-            self.client._api_version /
+            Client.Meta.api_version /
             self.name /
-            Repository._manifests /
+            Repository.Meta.manifests /
             self.digest
         )
         self.client.display('DELETE', url)
 
         r = requests.delete(
             url,
-            headers=Repository._manifests_headers  # important: accept header
+            # important: accept header
+            headers=Repository.Meta.manifests_headers
         )
         if r.status_code != 200:
             msg = "Status code error {code}".format(code=r.status_code)
