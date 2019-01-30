@@ -6,7 +6,7 @@ from dregcli.dregcli import DRegCliException, Client, Repository
 
 @pytest.fixture(scope="module")
 def fixture_registry_url():
-    return 'localhost:5001'
+    return 'http://localhost:5001'
 
 
 @pytest.fixture()
@@ -77,13 +77,15 @@ class TestClient:
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
             client = Client(fixture_registry_url, verbose=False)
-            res = self.catalog(
+            repositories = self.catalog(
                 mo,
                 client,
                 fixture_registry_url + '/v2/_catalog'
             )
-            assert isinstance(res, list) and len(res) \
-                == len(fixture_registories['repositories']) and \
-                all([type(r) == Repository for r in res]) and \
-                all([r.client == client for r in res]) and \
-                [str(r) for r in res] == fixture_registories['repositories']
+            expected_repos = fixture_registories['repositories']
+            assert isinstance(repositories, list) and \
+                len(repositories) == len(expected_repos) and \
+                all([type(r) == Repository for r in repositories]) and \
+                all([r.client == client for r in repositories]) and  \
+                [r.name for r in repositories] == expected_repos and \
+                [str(r) for r in repositories] == expected_repos

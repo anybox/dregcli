@@ -6,7 +6,7 @@ from dregcli.dregcli import DRegCliException, Client, Repository, Image
 
 @pytest.fixture(scope="module")
 def fixture_registry_url():
-    return 'localhost:5001'
+    return 'http://localhost:5001'
 
 
 @pytest.fixture()
@@ -113,14 +113,14 @@ class TestRepositoryTag:
         mock_res.json = mock.MagicMock(return_value=fixture_alpine_tags_json)
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
-            res = self.tags(
+            tags = self.tags(
                 mo,
                 Client(fixture_registry_url),
                 fixture_alpine_repo,
                 fixture_registry_url + fixture_alpine_tags_url
             )
-            assert isinstance(res, list) and \
-                res == fixture_alpine_tags_json['tags']
+            assert isinstance(tags, list) and \
+                tags == fixture_alpine_tags_json['tags']
 
 
 class TestRepositoryImage:
@@ -195,15 +195,19 @@ class TestRepositoryImage:
         )
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
-            res = self.image(
+            image = self.image(
                 mo,
                 Client(fixture_registry_url),
                 fixture_alpine_repo,
                 fixture_alpine_image_tag,
                 fixture_registry_url + fixture_alpine_image_url
             )
-            assert type(res) == Image and \
-                res.name == fixture_alpine_repo and \
-                res.tag == fixture_alpine_image_tag and \
-                res.digest == fixture_alpine_image_digest and \
-                res.data == fixture_alpine_image_json
+            assert type(image) == Image and \
+                image.name == fixture_alpine_repo and \
+                image.tag == fixture_alpine_image_tag and \
+                image.digest == fixture_alpine_image_digest and \
+                image.data == fixture_alpine_image_json and \
+                str(image) == "{repo}:{tag}".format(
+                    repo=fixture_alpine_repo,
+                    tag=fixture_alpine_image_tag
+                )

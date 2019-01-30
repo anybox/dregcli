@@ -6,7 +6,7 @@ from dregcli.dregcli import DRegCliException, Client, Repository, Image
 
 @pytest.fixture(scope="module")
 def fixture_registry_url():
-    return 'localhost:5001'
+    return 'http://localhost:5001'
 
 
 @pytest.fixture()
@@ -87,7 +87,7 @@ class TestImageDelete:
         'fixture_alpine_digest',
         'fixture_alpine_delete_url'
     )
-    def test_200(
+    def test_202(
         self,
         fixture_registry_url,
         fixture_alpine_repo,
@@ -96,7 +96,7 @@ class TestImageDelete:
         fixture_alpine_delete_url,
     ):
         mock_res = mock.MagicMock()
-        mock_res.status_code = 200
+        mock_res.status_code = 202  # 202 for delete
 
         with mock.patch('requests.delete', return_value=mock_res) as mo:
             self.delete(

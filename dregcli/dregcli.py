@@ -147,6 +147,6 @@ class Image(RegistryComponent):
             # important: accept header
             headers=Repository.Meta.manifests_headers
         )
-        if r.status_code != 200:
+        if r.status_code != 202:  # for delete 202
             msg = "Status code error {code}".format(code=r.status_code)
             raise DRegCliException(msg)

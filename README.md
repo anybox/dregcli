@@ -18,7 +18,7 @@ python setup.py develop
 ### unit tests
 
 ```bash
-py.test --pep8 --cov=dregcli --cov-report=html --lf --nf --ff -v --ignore dregcli/tests_integration/
+py.test --pep8 --cov=dregcli --cov-report=html -v --ignore dregcli/tests_integration/
 ```
 
 ### integration tests

@@ -9,7 +9,7 @@ docker pull alpine:3.8
 docker tag alpine:3.8 localhost:${port}/my-alpine:3.8
 docker push localhost:${port}/my-alpine:3.8
 
-${DREGCLI_VENV}/bin/py.test --pep8 --lf --nf --ff -v dregcli/tests_integration/
+${DREGCLI_VENV}/bin/py.test --pep8 -v dregcli/tests_integration/
 
 docker stop ${containerName}
 docker rm ${containerName}
