@@ -6,7 +6,7 @@ from dregcli.dregcli import DRegCliException, Client, Repository
 
 @pytest.fixture(scope="module")
 def fixture_registry_url():
-    return 'http://localhost:5001'
+    return 'localhost:5001'
 
 
 @pytest.fixture()
