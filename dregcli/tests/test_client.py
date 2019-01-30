@@ -1,7 +1,7 @@
+from unittest import mock
 import pytest
 
 from dregcli.dregcli import DRegCliException, Client, Repository
-from unittest import mock
 
 
 @pytest.fixture(scope="module")
@@ -20,6 +20,11 @@ def fixture_registories():
 
 
 class TestClient:
+    def catalog(self, mo, client, expected_url):
+        res = client.catalog()
+        mo.assert_called_once_with(expected_url)
+        return res
+
     def test_init(self, fixture_registry_url):
         def assert_client(verbose):
             assert client.url == fixture_registry_url
@@ -52,9 +57,10 @@ class TestClient:
         with mock.patch('requests.get', return_value=mock_res) as mo:
             with pytest.raises(DRegCliException) as excinfo:
                 client = Client(fixture_registry_url, verbose=False)
-                client.catalog()
-                mo.assert_called_once_with(
-                    fixture_registry_url + '/v2/_catalog',
+                self.catalog(
+                    mo,
+                    client,
+                    fixture_registry_url + '/v2/_catalog'
                 )
             assert str(excinfo.value) == "Status code error 404"
 
@@ -71,9 +77,10 @@ class TestClient:
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
             client = Client(fixture_registry_url, verbose=False)
-            res = client.catalog()
-            mo.assert_called_once_with(
-                fixture_registry_url + fixture_catalog_url,
+            res = self.catalog(
+                mo,
+                client,
+                fixture_registry_url + '/v2/_catalog'
             )
             assert isinstance(res, list) and len(res) \
                 == len(fixture_registories['repositories']) and \

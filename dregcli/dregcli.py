@@ -92,15 +92,13 @@ class Repository(RegistryComponent):
         )
         self.client.display('GET', url)
 
-        r = requests.get(url, headers=self._manifests_headers)
+        r = requests.get(
+            url,
+            headers=self._manifests_headers  # important: accept header
+        )
         if r.status_code != 200:
             msg = "Status code error {code}".format(code=r.status_code)
             raise DRegCliException(msg)
-
-        image = Image(
-            self.client,
-            "{repo}:{tag}".format(repo=self.name, tag=tag)
-        )
 
         # image digest: grap the image digest from the header response
         digest = r.headers.get(self._manifest_response_header_digest, False)
@@ -109,13 +107,42 @@ class Repository(RegistryComponent):
                 digest_header=self._manifest_response_header_digest
             )
             raise DRegCliException(msg)
-        image.digest = digest
 
-        # manifests data
-        image.data = r.json()
-
-        return image
+        return Image(
+            self.client,
+            self.name,
+            tag,
+            digest=digest,
+            data=r.json()
+        )
 
 
 class Image(RegistryComponent):
-    pass
+    def __init__(self, client, name, tag, digest='', data=dict()):
+        super().__init__(client, name, digest=digest, data=data)
+        self.tag = tag
+
+    def __str__(self):
+        return "{name}:{tag}".format(name=self.name, tag=self.tag)
+
+    def delete(self):
+        """
+        delete image
+        IMPORTANT: all other related tags to image will be removed
+        """
+        url = str(
+            Path(self.client.url) /
+            self.client._api_version /
+            self.name /
+            Repository._manifests /
+            self.digest
+        )
+        self.client.display('DELETE', url)
+
+        r = requests.delete(
+            url,
+            headers=Repository._manifests_headers  # important: accept header
+        )
+        if r.status_code != 200:
+            msg = "Status code error {code}".format(code=r.status_code)
+            raise DRegCliException(msg)
