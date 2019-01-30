@@ -9,7 +9,7 @@ class DRegCliException(RuntimeError):
 class Client(object):
     class Meta:
         api_version = 'v2'
-        catalog = '_catalog'
+        repositories = '_catalog'
 
     def __init__(self, url, verbose=False):
         super().__init__()
@@ -21,14 +21,14 @@ class Client(object):
         if self.verbose:
             print(*args)
 
-    def catalog(self):
+    def repositories(self):
         """
         :return list of Repository instances
         """
         url = str(
             Path(self.url) /
             self.Meta.api_version /
-            self.Meta.catalog
+            self.Meta.repositories
         )
         self.display('GET', url)
 

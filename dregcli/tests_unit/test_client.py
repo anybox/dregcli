@@ -10,7 +10,7 @@ def fixture_registry_url():
 
 
 @pytest.fixture()
-def fixture_catalog_url():
+def fixture_repositories_url():
     return '/v2/_catalog'
 
 
@@ -20,8 +20,8 @@ def fixture_registories():
 
 
 class TestClient:
-    def catalog(self, mo, client, expected_url):
-        res = client.catalog()
+    def repositories(self, mo, client, expected_url):
+        res = client.repositories()
         mo.assert_called_once_with(expected_url)
         return res
 
@@ -50,25 +50,30 @@ class TestClient:
         captured = capsys.readouterr()
         assert captured.out == ""
 
-    def test_catalog_404(self, fixture_registry_url):
+    @pytest.mark.usefixtures('fixture_repositories_url')
+    def test_repositories_404(
+        self,
+        fixture_registry_url,
+        fixture_repositories_url
+    ):
         mock_res = mock.MagicMock()
         mock_res.status_code = 404
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
             with pytest.raises(DRegCliException) as excinfo:
                 client = Client(fixture_registry_url, verbose=False)
-                self.catalog(
+                self.repositories(
                     mo,
                     client,
-                    fixture_registry_url + '/v2/_catalog'
+                    fixture_registry_url + fixture_repositories_url
                 )
             assert str(excinfo.value) == "Status code error 404"
 
-    @pytest.mark.usefixtures('fixture_catalog_url', 'fixture_registories')
-    def test_catalog_200(
+    @pytest.mark.usefixtures('fixture_repositories_url', 'fixture_registories')
+    def test_repositories_200(
         self,
         fixture_registry_url,
-        fixture_catalog_url,
+        fixture_repositories_url,
         fixture_registories
     ):
         mock_res = mock.MagicMock()
@@ -77,10 +82,10 @@ class TestClient:
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
             client = Client(fixture_registry_url, verbose=False)
-            repositories = self.catalog(
+            repositories = self.repositories(
                 mo,
                 client,
-                fixture_registry_url + '/v2/_catalog'
+                fixture_registry_url + fixture_repositories_url
             )
             expected_repos = fixture_registories['repositories']
             assert isinstance(repositories, list) and \

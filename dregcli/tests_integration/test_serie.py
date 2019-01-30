@@ -31,8 +31,8 @@ def fixture_digest():
 
 class TestClient:
     @pytest.mark.usefixtures('fixture_repository')
-    def test_catalog(self, fixture_client, fixture_repository):
-        repositories = fixture_client.catalog()
+    def test_repositories(self, fixture_client, fixture_repository):
+        repositories = fixture_client.repositories()
         assert isinstance(repositories, list) and \
             len(repositories) == 1 and \
             repositories[0].name == fixture_repository
@@ -40,7 +40,7 @@ class TestClient:
 
 class TestRepoImage:
     def get_repo(self, client):
-        return client.catalog()[0]
+        return client.repositories()[0]
 
     @pytest.mark.usefixtures('fixture_tags')
     def test_tags(self, fixture_client, fixture_tags):
