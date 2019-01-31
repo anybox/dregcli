@@ -1,4 +1,5 @@
 from unittest import mock
+import json
 import pytest
 
 from dregcli.console import main as console_main
@@ -21,6 +22,20 @@ class TestConsole:
         with mock.patch(
             'sys.argv',
             ['dregcli', 'reps', fixture_registry_url]
+        ):
+            console_main()
+            captured = capsys.readouterr()
+            assert captured.out == "\n".join(expected_out)
+
+    def test_reps_json(self, fixture_registry_url, capsys):
+        expected_out = [
+            json.dumps({'result': ['my-alpine']}),
+            '',
+        ]
+
+        with mock.patch(
+            'sys.argv',
+            ['dregcli', 'reps', fixture_registry_url, '-j']
         ):
             console_main()
             captured = capsys.readouterr()
