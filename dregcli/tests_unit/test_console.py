@@ -98,6 +98,8 @@ class TestConsoleCommandLine:
                     fixture_repository,
                     fixture_tag,
                     False,
+                    False,
+                    False,
                     False
                 )
 
@@ -122,6 +124,8 @@ class TestConsoleCommandLine:
                     fixture_repository,
                     fixture_tag,
                     True,
+                    False,
+                    False,
                     False
                 )
 
@@ -145,6 +149,60 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     fixture_tag,
+                    False,
+                    True,
+                    False,
+                    False
+                )
+
+        # delete
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                fixture_tag,
+                '-d',
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.ImageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    fixture_tag,
+                    False,
+                    False,
+                    True,
+                    False
+                )
+
+        # always yes
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                fixture_tag,
+                '-y',
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.ImageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    fixture_tag,
+                    False,
+                    False,
                     False,
                     True
                 )

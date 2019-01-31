@@ -26,7 +26,7 @@ class RepositoriesCommandHandler(CommandHandler):
             if json_output:
                 res = json.dumps({"result": repositories})
             else:
-                res = ", ".join(repositories)
+                res = ",".join(repositories)
         except DRegCliException as e:
             res = str(e)
             if json_output:
@@ -47,7 +47,7 @@ class TagsCommandHandler(CommandHandler):
             if json_output:
                 res = json.dumps({'result': tags})
             else:
-                res = ", ".join(tags)
+                res = ",".join(tags)
         except DRegCliException as e:
             res = str(e)
             if json_output:
@@ -59,24 +59,48 @@ class ImageCommandHandler(CommandHandler):
     class Meta:
         command = "image"
 
-    def run(self, url, repo, tag, manifest, json_output):
+    def run(self, url, repo, tag, manifest, json_output, delete, yes):
         super().run(url, json_output)
+
+        if delete and (manifest or json_output):
+            print('--delete is incomtatible with --manifest or --json')
+            exit(-1)
 
         try:
             repository = Repository(self.client, repo)
             image = repository.image(tag)
-            if json_output:
-                res = json.dumps({'result': {'digest': image.digest}})
-                if manifest:
-                    res['result']['data'] = image.data
+
+            if delete:
+                confirm = yes and 'yes' or \
+                    input("Please type 'yes' word to confirm")
+                if confirm == 'yes':
+                    image.delete()
+                    if json_output:
+                        res = json.dumps({
+                            'result': {
+                                'digest': image.digest,
+                                'message': 'deleted',
+                            }
+                        })
+                    else:
+                        res = "{digest}\ndeleted".format(digest=image.digest)
+                else:
+                    exit(-1)
             else:
-                res = image.digest
-                if manifest:  # add manifest json in std out
-                    res += "\n" + json.dumps(image.data)
+                if json_output:
+                    res = {'result': {'digest': image.digest}}
+                    if manifest:
+                        res['result']['manifest'] = image.data
+                    res = json.dumps(res)
+                else:
+                    res = image.digest
+                    if manifest:  # add manifest json in std out
+                        res += "\n" + json.dumps(image.data)
         except DRegCliException as e:
             res = str(e)
             if json_output:
                 res = json.dumps({'error': res})
+            exit(-1)
         print(res)
 
 
@@ -152,9 +176,21 @@ def main():
         action='store_true',
         help='Json output'
     )
+    subparser_image.add_argument(
+        '-d', '--delete',
+        action='store_true',
+        help='Delete image (incompatible with --manifest or --json)'
+    )
+    subparser_image.add_argument(
+        '-y', '--yes',
+        action='store_true',
+        help='Always yes. Be careful with delete'
+    )
     subparser_image.set_defaults(
         func=lambda args: ImageCommandHandler().run(
-            args.url, args.repo, args.tag, args.manifest, args.json)
+            args.url, args.repo, args.tag, args.manifest, args.json,
+            args.delete, args.yes
+        )
     )
 
     arguments = parser.parse_args()

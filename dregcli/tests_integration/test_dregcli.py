@@ -16,12 +16,14 @@ def fixture_client(fixture_registry_url):
 
 @pytest.fixture()
 def fixture_repository():
-    return "my-alpine"
+    return 'my-alpine'
 
 
 @pytest.fixture()
 def fixture_tags():
-    return ["3.8"]
+    # FYI: through test_console.py testing, latest tag was removed
+    # we pass from ['latest', '3.8'] to ['3.8']
+    return ['3.8']
 
 
 class TestClient:
@@ -51,7 +53,8 @@ class TestRepoImage:
         fixture_repository,
         fixture_tags,
     ):
-        tag = fixture_tags[0]
+        tag = fixture_tags[0]  # FYI in test_console latest tag was deleted
+
         image = self.get_repo(fixture_client).image(tag)
         assert image and image.name == fixture_repository and \
             image.tag == tag and \
@@ -70,7 +73,7 @@ class TestRepoImage:
             self.get_repo(fixture_client).image(tag)
         assert str(excinfo.value) == msg404
 
-        # after delete, no tag left
+        # after delete, tag removed, the last so no other tag remains
         assert self.get_repo(fixture_client).tags() is None
 
         # after delete, repo should still be here in catalog

@@ -18,15 +18,15 @@ def fixture_repository():
 
 @pytest.fixture(scope="module")
 def fixture_tags():
-    return ['3.8']
+    return ['latest', '3.8']
 
 
 class TestConsole:
-    def test_reps(self, fixture_registry_url, capsys):
+    def test_reps(self, fixture_registry_url, fixture_repository, capsys):
         expected_out = [
             'reps',
-            'GET http://localhost:5001/v2/_catalog',
-            'my-alpine',
+            'GET {url}/v2/_catalog'.format(url=fixture_registry_url),
+            fixture_repository,
         ]
 
         with mock.patch(
@@ -57,9 +57,11 @@ class TestConsole:
     ):
         expected_out = [
             'tags',
-            'GET http://localhost:5001/v2/{repo}/tags/list'.format(
-                repo=fixture_repository),
-            '3.8',
+            'GET {url}/v2/{repo}/tags/list'.format(
+                url=fixture_registry_url,
+                repo=fixture_repository
+            ),
+            ','.join(fixture_tags),
         ]
 
         with mock.patch(
@@ -94,10 +96,15 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
+        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[1] is deleted
+
         expected_out = [
             'image',
-            'GET http://localhost:5001/v2/{repo}/manifests/{tag}'.format(
-                repo=fixture_repository, tag=fixture_tags[0]),
+            'GET {url}/v2/{repo}/manifests/{tag}'.format(
+                url=fixture_registry_url,
+                repo=fixture_repository,
+                tag=tag
+            ),
         ]
 
         with mock.patch(
@@ -107,7 +114,7 @@ class TestConsole:
                 'image',
                 fixture_registry_url,
                 fixture_repository,
-                fixture_tags[0],
+                tag,
             ]
         ):
             console_main()
@@ -117,10 +124,14 @@ class TestConsole:
                 out_lines[:2] == expected_out and \
                 tools.check_sha256(out_lines[2])
 
+        # with manifest
         expected_out = [
             'image',
-            'GET http://localhost:5001/v2/{repo}/manifests/{tag}'.format(
-                repo=fixture_repository, tag=fixture_tags[0]),
+            'GET {url}/v2/{repo}/manifests/{tag}'.format(
+                url=fixture_registry_url,
+                repo=fixture_repository,
+                tag=tag
+            ),
         ]
 
         with mock.patch(
@@ -130,7 +141,7 @@ class TestConsole:
                 'image',
                 fixture_registry_url,
                 fixture_repository,
-                fixture_tags[0],
+                tag,
                 '-m'
             ]
         ):
@@ -148,6 +159,8 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
+        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[1] is deleted
+
         with mock.patch(
             'sys.argv',
             [
@@ -155,7 +168,7 @@ class TestConsole:
                 'image',
                 fixture_registry_url,
                 fixture_repository,
-                fixture_tags[0],
+                tag,
                 '-j',
             ]
         ):
@@ -165,3 +178,76 @@ class TestConsole:
                 list(out_json.keys()) == ['result'] and \
                 list(out_json['result'].keys()) == ['digest'] and \
                 tools.check_sha256(out_json['result']['digest'])
+
+        # with manifest
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                tag,
+                '-j',
+                '-m',
+            ]
+        ):
+            console_main()
+            out_json = json.loads(tools.get_output_lines(capsys)[0])
+            assert out_json and isinstance(out_json, dict) and \
+                list(out_json.keys()) == ['result'] and \
+                sorted(list(out_json['result'].keys())) \
+                == ['digest', 'manifest'] and \
+                tools.check_sha256(out_json['result']['digest'])
+
+    def test_image_delete(
+        self,
+        fixture_registry_url,
+        fixture_repository,
+        fixture_tags,
+        capsys
+    ):
+        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[1] is deleted
+
+        expected_out = [
+            'image',
+            'GET {url}/v2/{repo}/manifests/{tag}'.format(
+                url=fixture_registry_url,
+                repo=fixture_repository,
+                tag=tag
+            ),
+
+        ]
+        expected_delete_prefix = \
+            'DELETE {url}/v2/{repo}/manifests/'.format(
+                url=fixture_registry_url,
+                repo=fixture_repository
+            )
+
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                tag,
+                '-d',
+                '-y'
+            ]
+        ):
+            console_main()
+            out_lines = tools.get_output_lines(capsys)
+            # 5 lines: command, get image request, delete request,
+            #          then digest and 'deleted' message
+            delete_digest = out_lines[2][len(expected_delete_prefix):]
+            digest = out_lines[3]
+            assert len(out_lines) == 5 and \
+                out_lines[:2] == expected_out and \
+                out_lines[2].startswith(expected_delete_prefix) and \
+                tools.check_sha256(delete_digest) and \
+                tools.check_sha256(digest) and \
+                out_lines[4] == 'deleted'
+
+    # TODO: require another tag to delete, the 2nd, then 3rd in test_dregcli
+    # def test_image_delete_json(
