@@ -2,6 +2,7 @@ from unittest import mock
 import json
 import pytest
 
+from . import tools
 from dregcli.console import main as console_main
 
 
@@ -26,7 +27,6 @@ class TestConsole:
             'reps',
             'GET http://localhost:5001/v2/_catalog',
             'my-alpine',
-            ''
         ]
 
         with mock.patch(
@@ -34,22 +34,19 @@ class TestConsole:
             ['dregcli', 'reps', fixture_registry_url]
         ):
             console_main()
-            captured = capsys.readouterr()
-            assert captured.out == "\n".join(expected_out)
+            out_lines = tools.get_output_lines(capsys)
+            assert out_lines == expected_out
 
     def test_reps_json(self, fixture_registry_url, fixture_repository, capsys):
-        expected_out = [
-            json.dumps({'result': [fixture_repository]}),
-            '',
-        ]
+        expected_json = {'result': [fixture_repository]}
 
         with mock.patch(
             'sys.argv',
             ['dregcli', 'reps', fixture_registry_url, '-j']
         ):
             console_main()
-            captured = capsys.readouterr()
-            assert captured.out == "\n".join(expected_out)
+            out_json = json.loads(tools.get_output_lines(capsys)[0])
+            assert out_json == expected_json
 
     def test_tags(
         self,
@@ -63,7 +60,6 @@ class TestConsole:
             'GET http://localhost:5001/v2/{repo}/tags/list'.format(
                 repo=fixture_repository),
             '3.8',
-            ''
         ]
 
         with mock.patch(
@@ -71,8 +67,8 @@ class TestConsole:
             ['dregcli', 'tags', fixture_registry_url, fixture_repository]
         ):
             console_main()
-            captured = capsys.readouterr()
-            assert captured.out == "\n".join(expected_out)
+            out_lines = tools.get_output_lines(capsys)
+            assert out_lines == expected_out
 
     def test_tags_json(
             self,
@@ -81,15 +77,91 @@ class TestConsole:
             fixture_tags,
             capsys
     ):
-        expected_out = [
-            json.dumps({'result': fixture_tags}),
-            ''
-        ]
+        expected_json = {'result': fixture_tags}
 
         with mock.patch(
             'sys.argv',
             ['dregcli', 'tags', fixture_registry_url, fixture_repository, '-j']
         ):
             console_main()
-            captured = capsys.readouterr()
-            assert captured.out == "\n".join(expected_out)
+            out_json = json.loads(tools.get_output_lines(capsys)[0])
+            assert out_json == expected_json
+
+    def test_image(
+        self,
+        fixture_registry_url,
+        fixture_repository,
+        fixture_tags,
+        capsys
+    ):
+        expected_out = [
+            'image',
+            'GET http://localhost:5001/v2/{repo}/manifests/{tag}'.format(
+                repo=fixture_repository, tag=fixture_tags[0]),
+        ]
+
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                fixture_tags[0],
+            ]
+        ):
+            console_main()
+            out_lines = tools.get_output_lines(capsys)
+            # 3 lines, command, request and digest
+            assert len(out_lines) == 3 and \
+                out_lines[:2] == expected_out and \
+                tools.check_sha256(out_lines[2])
+
+        expected_out = [
+            'image',
+            'GET http://localhost:5001/v2/{repo}/manifests/{tag}'.format(
+                repo=fixture_repository, tag=fixture_tags[0]),
+        ]
+
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                fixture_tags[0],
+                '-m'
+            ]
+        ):
+            console_main()
+            out_lines = tools.get_output_lines(capsys)
+            # as we ask for manifest, we have more than 3 out_lines
+            assert len(out_lines) > 3 and \
+                out_lines[:2] == expected_out and \
+                tools.check_sha256(out_lines[2])
+
+    def test_image_json(
+        self,
+        fixture_registry_url,
+        fixture_repository,
+        fixture_tags,
+        capsys
+    ):
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                fixture_tags[0],
+                '-j',
+            ]
+        ):
+            console_main()
+            out_json = json.loads(tools.get_output_lines(capsys)[0])
+            assert out_json and isinstance(out_json, dict) and \
+                list(out_json.keys()) == ['result'] and \
+                list(out_json['result'].keys()) == ['digest'] and \
+                tools.check_sha256(out_json['result']['digest'])

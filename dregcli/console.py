@@ -45,9 +45,34 @@ class TagsCommandHandler(CommandHandler):
             repository = Repository(self.client, repo)
             tags = list(map(str, repository.tags()))
             if json_output:
-                res = json.dumps({"result": tags})
+                res = json.dumps({'result': tags})
             else:
                 res = ", ".join(tags)
+        except DRegCliException as e:
+            res = str(e)
+            if json_output:
+                res = json.dumps({'error': res})
+        print(res)
+
+
+class ImageCommandHandler(CommandHandler):
+    class Meta:
+        command = "image"
+
+    def run(self, url, repo, tag, manifest, json_output):
+        super().run(url, json_output)
+
+        try:
+            repository = Repository(self.client, repo)
+            image = repository.image(tag)
+            if json_output:
+                res = json.dumps({'result': {'digest': image.digest}})
+                if manifest:
+                    res['result']['data'] = image.data
+            else:
+                res = image.digest
+                if manifest:  # add manifest json in std out
+                    res += "\n" + json.dumps(image.data)
         except DRegCliException as e:
             res = str(e)
             if json_output:
@@ -60,7 +85,6 @@ def main():
         prog="dregcli",
         description="Docker registry API v2 client",
     )
-
     subparsers = parser.add_subparsers(help='sub-commands')
 
     subparser_repositories = subparsers.add_parser(
@@ -68,7 +92,7 @@ def main():
     )
     subparser_repositories.add_argument(
         'url',
-        help='Url in the form protocol://host:port '
+        help='Url in the form protocol://host:port, '
              'example: http://localhost:5001'
     )
     subparser_repositories.add_argument(
@@ -81,17 +105,16 @@ def main():
     )
 
     subparser_tags = subparsers.add_parser(
-        'tags', help='List repositories'
+        'tags', help='List repository tags'
     )
     subparser_tags.add_argument(
         'url',
-        help='Url in the form protocol://host:port '
+        help='Url in the form protocol://host:port, '
              'example: http://localhost:5001'
     )
     subparser_tags.add_argument(
         'repo',
-        help='Repository '
-             'example: library/alpine'
+        help='Repository, example: library/alpine'
     )
     subparser_tags.add_argument(
         '-j', '--json',
@@ -101,6 +124,37 @@ def main():
     subparser_tags.set_defaults(
         func=lambda args: TagsCommandHandler().run(
             args.url, args.repo, args.json)
+    )
+
+    subparser_image = subparsers.add_parser(
+        'image', help='get image digest/manifest, delete image'
+    )
+    subparser_image.add_argument(
+        'url',
+        help='Url in the form protocol://host:port, '
+             'example: http://localhost:5001'
+    )
+    subparser_image.add_argument(
+        'repo',
+        help='Repository, example: library/alpine'
+    )
+    subparser_image.add_argument(
+        'tag',
+        help='Tag, example: 3.8'
+    )
+    subparser_image.add_argument(
+        '-m', '--manifest',
+        action='store_true',
+        help='Output image manifest'
+    )
+    subparser_image.add_argument(
+        '-j', '--json',
+        action='store_true',
+        help='Json output'
+    )
+    subparser_image.set_defaults(
+        func=lambda args: ImageCommandHandler().run(
+            args.url, args.repo, args.tag, args.manifest, args.json)
     )
 
     arguments = parser.parse_args()

@@ -14,6 +14,11 @@ def fixture_repository():
     return 'my-alpine'
 
 
+@pytest.fixture(scope="module")
+def fixture_tag():
+    return '3.8'
+
+
 class TestConsoleCommandLine:
     def test_reps(self, fixture_registry_url, capsys):
         with mock.patch(
@@ -26,7 +31,7 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(fixture_registry_url, False)
 
-    def test_reps_json(self, fixture_registry_url, capsys):
+        # json
         with mock.patch(
             'sys.argv',
             ['dregcli', 'reps', fixture_registry_url, '-j']
@@ -52,7 +57,7 @@ class TestConsoleCommandLine:
                     False
                 )
 
-    def test_tags_json(self, fixture_registry_url, fixture_repository, capsys):
+        # json
         with mock.patch(
             'sys.argv',
             ['dregcli', 'tags', fixture_registry_url, fixture_repository, '-j']
@@ -64,5 +69,82 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     fixture_repository,
+                    True
+                )
+
+    def test_image(
+        self,
+        fixture_registry_url,
+        fixture_repository,
+        fixture_tag,
+        capsys
+    ):
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                fixture_tag,
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.ImageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    fixture_tag,
+                    False,
+                    False
+                )
+
+        # manifest
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                fixture_tag,
+                '-m',
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.ImageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    fixture_tag,
+                    True,
+                    False
+                )
+
+        # json
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                fixture_tag,
+                '-j',
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.ImageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    fixture_tag,
+                    False,
                     True
                 )

@@ -1,5 +1,6 @@
 import pytest
 
+from . import tools
 from dregcli.dregcli import DRegCliException, Client
 
 
@@ -23,12 +24,6 @@ def fixture_tags():
     return ["3.8"]
 
 
-@pytest.fixture()
-def fixture_digest():
-    return "sha256:3d2e482b82608d153a374df3357c02" \
-           "91589a61cc194ec4a9ca2381073a17f58e"
-
-
 class TestClient:
     @pytest.mark.usefixtures('fixture_repository')
     def test_repositories(self, fixture_client, fixture_repository):
@@ -49,20 +44,18 @@ class TestRepoImage:
     @pytest.mark.usefixtures(
         'fixture_repository',
         'fixture_tags',
-        'fixture_digest'
     )
     def test_image(
         self,
         fixture_client,
         fixture_repository,
         fixture_tags,
-        fixture_digest
     ):
         tag = fixture_tags[0]
         image = self.get_repo(fixture_client).image(tag)
-        assert image and image.name == fixture_repository \
-            and image.tag == tag and \
-            image.digest == fixture_digest
+        assert image and image.name == fixture_repository and \
+            image.tag == tag and \
+            tools.check_sha256(image.digest)
 
         image.delete()
 
