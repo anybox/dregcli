@@ -5,9 +5,13 @@ from dregcli.dregcli import DRegCliException, Client, Repository
 
 
 class CommandHandler(object):
-    def run(self, json_output):
+    def __init__(self):
+        self.client = None
+
+    def run(self, url, json_output):
         if not json_output:
             print(self.Meta.command)
+        self.client = Client(url, verbose=not json_output)
 
 
 class RepositoriesCommandHandler(CommandHandler):
@@ -15,15 +19,35 @@ class RepositoriesCommandHandler(CommandHandler):
         command = "reps"
 
     def run(self, url, json_output):
-        super().run(json_output)
+        super().run(url, json_output)
 
-        client = Client(url, verbose=not json_output)
         try:
-            repositories = list(map(str, client.repositories()))
+            repositories = list(map(str, self.client.repositories()))
             if json_output:
                 res = json.dumps({"result": repositories})
             else:
                 res = ", ".join(repositories)
+        except DRegCliException as e:
+            res = str(e)
+            if json_output:
+                res = json.dumps({'error': res})
+        print(res)
+
+
+class TagsCommandHandler(CommandHandler):
+    class Meta:
+        command = "tags"
+
+    def run(self, url, repo, json_output):
+        super().run(url, json_output)
+
+        try:
+            repository = Repository(self.client, repo)
+            tags = list(map(str, repository.tags()))
+            if json_output:
+                res = json.dumps({"result": tags})
+            else:
+                res = ", ".join(tags)
         except DRegCliException as e:
             res = str(e)
             if json_output:
@@ -54,6 +78,29 @@ def main():
     )
     subparser_repositories.set_defaults(
         func=lambda args: RepositoriesCommandHandler().run(args.url, args.json)
+    )
+
+    subparser_tags = subparsers.add_parser(
+        'tags', help='List repositories'
+    )
+    subparser_tags.add_argument(
+        'url',
+        help='Url in the form protocol://host:port '
+             'example: http://localhost:5001'
+    )
+    subparser_tags.add_argument(
+        'repo',
+        help='Repository '
+             'example: library/alpine'
+    )
+    subparser_tags.add_argument(
+        '-j', '--json',
+        action='store_true',
+        help='Json output'
+    )
+    subparser_tags.set_defaults(
+        func=lambda args: TagsCommandHandler().run(
+            args.url, args.repo, args.json)
     )
 
     arguments = parser.parse_args()
