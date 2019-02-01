@@ -18,6 +18,26 @@ class RepositoriesCommandHandler(CommandHandler):
     class Meta:
         command = "reps"
 
+    @classmethod
+    def set_parser(cls, subparsers):
+        subparser_repositories = subparsers.add_parser(
+            'reps', help='List repositories'
+        )
+        subparser_repositories.add_argument(
+            'url',
+            help='Url in the form protocol://host:port, '
+                 'example: http://localhost:5001'
+        )
+        subparser_repositories.add_argument(
+            '-j', '--json',
+            action='store_true',
+            help='Json output'
+        )
+        subparser_repositories.set_defaults(
+            func=lambda args: cls().run(args.url, args.json)
+        )
+        return subparser_repositories
+
     def run(self, url, json_output):
         super().run(url, json_output)
 
@@ -37,6 +57,31 @@ class RepositoriesCommandHandler(CommandHandler):
 class TagsCommandHandler(CommandHandler):
     class Meta:
         command = "tags"
+
+    @classmethod
+    def set_parser(cls, subparsers):
+        subparser_tags = subparsers.add_parser(
+            'tags', help='List repository tags'
+        )
+        subparser_tags.add_argument(
+            'url',
+            help='Url in the form protocol://host:port, '
+                 'example: http://localhost:5001'
+        )
+        subparser_tags.add_argument(
+            'repo',
+            help='Repository, example: library/alpine'
+        )
+        subparser_tags.add_argument(
+            '-j', '--json',
+            action='store_true',
+            help='Json output'
+        )
+        subparser_tags.set_defaults(
+            func=lambda args: cls().run(
+                args.url, args.repo, args.json)
+        )
+        return subparser_tags
 
     def run(self, url, repo, json_output):
         super().run(url, json_output)
@@ -58,6 +103,52 @@ class TagsCommandHandler(CommandHandler):
 class ImageCommandHandler(CommandHandler):
     class Meta:
         command = "image"
+
+    @classmethod
+    def set_parser(cls, subparsers):
+        subparser_image = subparsers.add_parser(
+            'image', help='get image digest/manifest, delete image'
+        )
+        subparser_image.add_argument(
+            'url',
+            help='Url in the form protocol://host:port, '
+                 'example: http://localhost:5001'
+        )
+        subparser_image.add_argument(
+            'repo',
+            help='Repository, example: library/alpine'
+        )
+        subparser_image.add_argument(
+            'tag',
+            help='Tag, example: 3.8'
+        )
+        subparser_image.add_argument(
+            '-m', '--manifest',
+            action='store_true',
+            help='Output image manifest'
+        )
+        subparser_image.add_argument(
+            '-j', '--json',
+            action='store_true',
+            help='Json output'
+        )
+        subparser_image.add_argument(
+            '-d', '--delete',
+            action='store_true',
+            help='Delete image (incompatible with --manifest or --json)'
+        )
+        subparser_image.add_argument(
+            '-y', '--yes',
+            action='store_true',
+            help='Always yes. Be careful with delete'
+        )
+        subparser_image.set_defaults(
+            func=lambda args: cls().run(
+                args.url, args.repo, args.tag, args.manifest, args.json,
+                args.delete, args.yes
+            )
+        )
+        return subparser_image
 
     def run(self, url, repo, tag, manifest, json_output, delete, yes):
         super().run(url, json_output)
@@ -107,6 +198,37 @@ class GarbageCommandHandler(CommandHandler):
     class Meta:
         command = "garbage"
 
+    @classmethod
+    def set_parser(cls, subparsers):
+        subparser_garbage = subparsers.add_parser(
+            'garbage', help='garbage image tags'
+        )
+        subparser_garbage.add_argument(
+            'url',
+            help='Url in the form protocol://host:port, '
+                 'example: http://localhost:5001'
+        )
+        subparser_garbage.add_argument(
+            'repo',
+            help='Repository, example: library/alpine'
+        )
+        subparser_garbage.add_argument(
+            '-n', '--null',
+            action='store_true',
+            help='Do no run actions and feedbacks actions that will be done'
+        )
+        subparser_garbage.add_argument(
+            '-j', '--json',
+            action='store_true',
+            help='Json output'
+        )
+        subparser_garbage.set_defaults(
+            func=lambda args: GarbageCommandHandler().run(
+                args.url, args.repo, args.null, args.json
+            )
+        )
+        return subparser_garbage
+
     def run(self, url, repo, null, json_output):
         super().run(url, json_output)
 
@@ -131,115 +253,10 @@ def main():
     )
     subparsers = parser.add_subparsers(help='sub-commands')
 
-    subparser_repositories = subparsers.add_parser(
-        'reps', help='List repositories'
-    )
-    subparser_repositories.add_argument(
-        'url',
-        help='Url in the form protocol://host:port, '
-             'example: http://localhost:5001'
-    )
-    subparser_repositories.add_argument(
-        '-j', '--json',
-        action='store_true',
-        help='Json output'
-    )
-    subparser_repositories.set_defaults(
-        func=lambda args: RepositoriesCommandHandler().run(args.url, args.json)
-    )
-
-    subparser_tags = subparsers.add_parser(
-        'tags', help='List repository tags'
-    )
-    subparser_tags.add_argument(
-        'url',
-        help='Url in the form protocol://host:port, '
-             'example: http://localhost:5001'
-    )
-    subparser_tags.add_argument(
-        'repo',
-        help='Repository, example: library/alpine'
-    )
-    subparser_tags.add_argument(
-        '-j', '--json',
-        action='store_true',
-        help='Json output'
-    )
-    subparser_tags.set_defaults(
-        func=lambda args: TagsCommandHandler().run(
-            args.url, args.repo, args.json)
-    )
-
-    subparser_image = subparsers.add_parser(
-        'image', help='get image digest/manifest, delete image'
-    )
-    subparser_image.add_argument(
-        'url',
-        help='Url in the form protocol://host:port, '
-             'example: http://localhost:5001'
-    )
-    subparser_image.add_argument(
-        'repo',
-        help='Repository, example: library/alpine'
-    )
-    subparser_image.add_argument(
-        'tag',
-        help='Tag, example: 3.8'
-    )
-    subparser_image.add_argument(
-        '-m', '--manifest',
-        action='store_true',
-        help='Output image manifest'
-    )
-    subparser_image.add_argument(
-        '-j', '--json',
-        action='store_true',
-        help='Json output'
-    )
-    subparser_image.add_argument(
-        '-d', '--delete',
-        action='store_true',
-        help='Delete image (incompatible with --manifest or --json)'
-    )
-    subparser_image.add_argument(
-        '-y', '--yes',
-        action='store_true',
-        help='Always yes. Be careful with delete'
-    )
-    subparser_image.set_defaults(
-        func=lambda args: ImageCommandHandler().run(
-            args.url, args.repo, args.tag, args.manifest, args.json,
-            args.delete, args.yes
-        )
-    )
-
-    subparser_garbage = subparsers.add_parser(
-        'garbage', help='garbage image tags'
-    )
-    subparser_garbage.add_argument(
-        'url',
-        help='Url in the form protocol://host:port, '
-             'example: http://localhost:5001'
-    )
-    subparser_garbage.add_argument(
-        'repo',
-        help='Repository, example: library/alpine'
-    )
-    subparser_garbage.add_argument(
-        '-n', '--null',
-        action='store_true',
-        help='Do no run actions and feedbacks actions that will be done'
-    )
-    subparser_garbage.add_argument(
-        '-j', '--json',
-        action='store_true',
-        help='Json output'
-    )
-    subparser_garbage.set_defaults(
-        func=lambda args: GarbageCommandHandler().run(
-            args.url, args.repo, args.null, args.json
-        )
-    )
+    RepositoriesCommandHandler.set_parser(subparsers)
+    TagsCommandHandler.set_parser(subparsers)
+    ImageCommandHandler.set_parser(subparsers)
+    GarbageCommandHandler.set_parser(subparsers)
 
     arguments = parser.parse_args()
     if hasattr(arguments, 'func'):
