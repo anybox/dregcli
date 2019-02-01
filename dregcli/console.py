@@ -103,6 +103,27 @@ class ImageCommandHandler(CommandHandler):
         print(res)
 
 
+class GarbageCommandHandler(CommandHandler):
+    class Meta:
+        command = "garbage"
+
+    def run(self, url, repo, null, json_output):
+        super().run(url, json_output)
+
+        try:
+            repository = Repository(self.client, repo)
+            # TODO
+            if json_output:
+                res = json.dumps({'result': True})
+            else:
+                res = ''
+        except DRegCliException as e:
+            res = str(e)
+            if json_output:
+                res = json.dumps({'error': res})
+        print(res)
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="dregcli",
@@ -189,6 +210,34 @@ def main():
         func=lambda args: ImageCommandHandler().run(
             args.url, args.repo, args.tag, args.manifest, args.json,
             args.delete, args.yes
+        )
+    )
+
+    subparser_garbage = subparsers.add_parser(
+        'garbage', help='garbage image tags'
+    )
+    subparser_garbage.add_argument(
+        'url',
+        help='Url in the form protocol://host:port, '
+             'example: http://localhost:5001'
+    )
+    subparser_garbage.add_argument(
+        'repo',
+        help='Repository, example: library/alpine'
+    )
+    subparser_garbage.add_argument(
+        '-n', '--null',
+        action='store_true',
+        help='Do no run actions and feedbacks actions that will be done'
+    )
+    subparser_garbage.add_argument(
+        '-j', '--json',
+        action='store_true',
+        help='Json output'
+    )
+    subparser_garbage.set_defaults(
+        func=lambda args: GarbageCommandHandler().run(
+            args.url, args.repo, args.null, args.json
         )
     )
 

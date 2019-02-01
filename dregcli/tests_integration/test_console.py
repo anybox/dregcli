@@ -319,3 +319,44 @@ class TestConsole:
                 console_main()
                 out_json = json.loads(tools.get_output_lines(capsys)[0])
                 assert out_json == expected_json
+
+    def test_garbage(
+        self,
+        fixture_registry_url,
+        fixture_repository,
+        capsys
+    ):
+        # TODO
+
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '-n',
+            ]
+        ):
+            console_main()
+
+    def test_garbage_json(
+        self,
+        fixture_registry_url,
+        fixture_repository,
+        capsys
+    ):
+        # TODO
+        expected_json = {}
+
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '-n',
+            ]
+        ):
+            console_main()

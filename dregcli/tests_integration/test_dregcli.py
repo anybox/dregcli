@@ -78,3 +78,14 @@ class TestRepoImage:
 
         # after delete, repo should still be here in catalog
         assert self.get_repo(fixture_client).name == fixture_repository
+
+    @pytest.mark.usefixtures(
+        'fixture_repository',
+    )
+    def test_garbage(
+        self,
+        fixture_client,
+        fixture_repository,
+    ):
+        # TODO
+        pass

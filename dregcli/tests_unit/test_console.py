@@ -20,7 +20,7 @@ def fixture_tag():
 
 
 class TestConsoleCommandLine:
-    def test_reps(self, fixture_registry_url, capsys):
+    def test_reps(self, fixture_registry_url):
         with mock.patch(
             'sys.argv',
             ['dregcli', 'reps', fixture_registry_url]
@@ -42,7 +42,7 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(fixture_registry_url, True)
 
-    def test_tags(self, fixture_registry_url, fixture_repository, capsys):
+    def test_tags(self, fixture_registry_url, fixture_repository):
         with mock.patch(
             'sys.argv',
             ['dregcli', 'tags', fixture_registry_url, fixture_repository]
@@ -76,8 +76,7 @@ class TestConsoleCommandLine:
         self,
         fixture_registry_url,
         fixture_repository,
-        fixture_tag,
-        capsys
+        fixture_tag
     ):
         with mock.patch(
             'sys.argv',
@@ -203,6 +202,75 @@ class TestConsoleCommandLine:
                     fixture_tag,
                     False,
                     False,
+                    False,
+                    True
+                )
+
+    def test_garbage(
+        self,
+        fixture_registry_url,
+        fixture_repository
+    ):
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.GarbageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    False,
+                    False
+                )
+
+        # null
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '-n'
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.GarbageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    True,
+                    False
+                )
+
+        # json
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '-j'
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.GarbageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
                     False,
                     True
                 )
