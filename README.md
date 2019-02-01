@@ -2,6 +2,12 @@
 
 WIP: Docker registry API v2 client, and console tool
 
+## auth
+
+for non anonymous auth, you should set DREGCLI_LOGIN and DREGCLI_PASSWORD env variables
+
+DISCLAIMER: for now this is basic auth to get auth token, you must be in HTTPS !
+
 ## dev virtualenv
 
 ```bash

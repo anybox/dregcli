@@ -1,4 +1,5 @@
 from path import Path
+import os
 import requests
 
 
@@ -10,12 +11,23 @@ class Client(object):
     class Meta:
         api_version = 'v2'
         repositories = '_catalog'
+        auth_response_get_token_header = 'Www-Authenticate'
+        auth_bearer_pattern = "Bearer {token}"
 
     def __init__(self, url, verbose=False):
         super().__init__()
         self.url = url
         self.verbose = verbose
         self.request_kwargs = dict()
+
+        self.auth = False
+        if os.environ.get('DREGCLI_LOGIN', False) and \
+            os.environ.get('DREGCLI_PWD'):
+            self.auth = {
+                'login': os.environ.get('DREGCLI_LOGIN'),
+                'password': os.environ.get('DREGCLI_PWD'),
+                'token': '',
+            }
 
     def display(self, *args):
         if self.verbose:
@@ -30,15 +42,87 @@ class Client(object):
             self.Meta.api_version /
             self.Meta.repositories
         )
-        self.display('GET', url)
 
-        r = requests.get(url)
-        if r.status_code != 200:
-            msg = "Status code error {code}".format(code=r.status_code)
+        response = self._request(url, headers={})
+
+        repositories = response.json().get("repositories", [])
+        return [Repository(self, repo) for repo in repositories]
+
+    def _request(self, url, headers={}, method=False, verb=False):
+        method = method or requests.get
+        verb = verb or 'GET'
+        self.display(verb, url)
+
+        response = method(url, headers=headers)
+        if response.status_code != 200:
+            msg = "Status code error {code}".format(code=response.status_code)
             raise DRegCliException(msg)
 
-        repositories = r.json().get("repositories", [])
-        return [Repository(self, repo) for repo in repositories]
+        if self._auth_get_token(response):
+            # auth: request again with token
+            response2 = requests.get(
+                url,
+                headers=self.decorate_headers(headers)
+            )
+            if response2.status_code != 200:
+                msg = "Status code error {code}".format(
+                    code=response2.status_code
+                )
+                raise DRegCliException(msg)
+
+            return response2
+        else:
+            return response
+
+    def _auth_get_token(self, response):
+        """get token workflow (from current response)"""
+        if not self.auth:
+            return False
+
+        #< Www-Authenticate: Bearer realm="https://docker-registry.tools.groupelesechos.fr/v2/token",service="docker-registry.tools.groupelesechos.fr",scope="registry:catalog:*"
+        www_authenticate = response.headers.get(
+            self.Meta.auth_response_get_token_header, '')
+        if not www_authenticate:
+            raise DRegCliException(
+                'Auth: response header {} missing'.format(
+                    header=self.Meta.auth_response_get_token_header
+                )
+            )
+        www_authenticate_str = www_authenticate.split('Bearer ')[0]
+        www_authenticate_parts = www_authenticate_str.split(',')
+        realm = www_authenticate_parts[0].split('=')[0].strip('"')
+        service = www_authenticate_parts[1].split('=')[0].strip('"')
+        scope = www_authenticate_parts[2].split('=')[0].strip('"')
+
+        get_token_url = str(Path(self.url) / realm)
+        headers = {
+            'Authorization': "Basic {login}:{password}".format(
+                login=self.auth['login'],
+                password=self.auth['password'],
+            ),
+            "service": response.headers.get('service'),
+            "scope": response.headers.get('scope'),
+        }
+        get_token_response = requests.get(get_token_url, headers=headers)
+        if get_token_response.status_code != 200:
+            self.auth['token'] = ''
+            msg = "Get token request: status code error {code}".format(
+                code=get_token_response.status_code
+            )
+            raise DRegCliException(msg)
+
+        self.auth['token'] = get_token_response.json().get('token', False)
+        if not self.token:
+            msg = "Get token request: no token found in response"
+            raise DRegCliException(msg)
+
+        return self.auth['token']
+
+    def _auth_decorate_headers(self, headers):
+        """decorate headers (auth bearer)"""
+        if self.auth and self.auth['token']:
+            headers['Authorization'] = self.Meta.auth_bearer_pattern.format(
+                self.auth['token'])
 
 
 class RegistryComponent(object):
@@ -72,14 +156,9 @@ class Repository(RegistryComponent):
             self.name /
             self.Meta.tags_list
         )
-        self.client.display('GET', url)
 
-        r = requests.get(url)
-        if r.status_code != 200:
-            msg = "Status code error {code}".format(code=r.status_code)
-            raise DRegCliException(msg)
-
-        return r.json().get("tags", [])
+        response = self._request(url, headers={})
+        return response.json().get("tags", [])
 
     def image(self, tag):
         """
@@ -92,19 +171,16 @@ class Repository(RegistryComponent):
             self.Meta.manifests /
             tag
         )
-        self.client.display('GET', url)
 
-        r = requests.get(
-            url,
-            headers=self.Meta.manifests_headers  # important: accept header
-        )
-        if r.status_code != 200:
-            msg = "Status code error {code}".format(code=r.status_code)
-            raise DRegCliException(msg)
+        headers = self.Meta.manifests_headers  # important: accept header
+        response = self._request(url, headers=headers)
+                raise DRegCliException(msg)
 
         # image digest: grap the image digest from the header response
-        digest = r.headers.get(self.Meta.manifest_response_header_digest,
-                               False)
+        digest = response.headers.get(
+            self.Meta.manifest_response_header_digest,
+            False
+        )
         if not digest:
             msg = "No image digest in response header {digest_header}".format(
                 digest_header=self.Meta.manifest_response_header_digest
@@ -140,13 +216,7 @@ class Image(RegistryComponent):
             Repository.Meta.manifests /
             self.digest
         )
-        self.client.display('DELETE', url)
 
-        r = requests.delete(
-            url,
-            # important: accept header
-            headers=Repository.Meta.manifests_headers
-        )
-        if r.status_code != 202:  # for delete 202
-            msg = "Status code error {code}".format(code=r.status_code)
-            raise DRegCliException(msg)
+        headers = Repository.Meta.manifests_headers  # important: accept header
+        response = self._request(url, headers=headers, method=requests.delete,
+            verb='DELETE')
