@@ -18,7 +18,7 @@ def fixture_repository():
 
 @pytest.fixture(scope="module")
 def fixture_tags():
-    return ['latest', '3.8']
+    return ['latest', '3.7', '3.8']
 
 
 class TestConsole:
@@ -96,7 +96,7 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
-        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[1] is deleted
+        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[2] is deleted
 
         expected_out = [
             'image',
@@ -159,7 +159,7 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
-        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[1] is deleted
+        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[2] is deleted
 
         with mock.patch(
             'sys.argv',
@@ -207,7 +207,7 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
-        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[1] is deleted
+        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[2] is deleted
 
         expected_out = [
             'image',
@@ -249,5 +249,33 @@ class TestConsole:
                 tools.check_sha256(digest) and \
                 out_lines[4] == 'deleted'
 
-    # TODO: require another tag to delete, the 2nd, then 3rd in test_dregcli
-    # def test_image_delete_json(
+    def test_image_delete_json(
+        self,
+        fixture_registry_url,
+        fixture_repository,
+        fixture_tags,
+        capsys
+    ):
+        tag = fixture_tags[1]  # FYI in test_dregcli fixture_tags[2] is deleted
+
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'image',
+                fixture_registry_url,
+                fixture_repository,
+                tag,
+                '-d',
+                '-y',
+                '-j',
+            ]
+        ):
+            console_main()
+            out_json = json.loads(tools.get_output_lines(capsys)[0])
+            assert out_json and isinstance(out_json, dict) and \
+                list(out_json.keys()) == ['result'] and \
+                sorted(list(out_json['result'].keys())) == [
+                    'digest', 'message'] and \
+                tools.check_sha256(out_json['result']['digest']) and \
+                out_json['result']['message'] == 'deleted'

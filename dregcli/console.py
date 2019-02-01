@@ -62,8 +62,8 @@ class ImageCommandHandler(CommandHandler):
     def run(self, url, repo, tag, manifest, json_output, delete, yes):
         super().run(url, json_output)
 
-        if delete and (manifest or json_output):
-            print('--delete is incomtatible with --manifest or --json')
+        if delete and manifest:
+            print('--delete is incompatible with --manifest')
             exit(-1)
 
         try:
