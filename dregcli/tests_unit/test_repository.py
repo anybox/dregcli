@@ -1,6 +1,7 @@
 from unittest import mock
 import pytest
 
+from . import tools
 from dregcli.dregcli import DRegCliException, Client, Repository, Image
 
 
@@ -85,6 +86,7 @@ class TestRepositoryTag:
     ):
         mock_res = mock.MagicMock()
         mock_res.status_code = 404
+        msg404 = tools.get_error_status_message(404)
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
             with pytest.raises(DRegCliException) as excinfo:
@@ -94,7 +96,7 @@ class TestRepositoryTag:
                     fixture_alpine_repo,
                     fixture_registry_url + fixture_alpine_tags_url
                 )
-            assert str(excinfo.value) == "Status code error 404"
+            assert str(excinfo.value) == msg404
 
     @pytest.mark.usefixtures(
         'fixture_alpine_repo',

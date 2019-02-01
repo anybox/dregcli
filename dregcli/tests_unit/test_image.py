@@ -1,6 +1,7 @@
 from unittest import mock
 import pytest
 
+from . import tools
 from dregcli.dregcli import DRegCliException, Client, Repository, Image
 
 
@@ -68,6 +69,7 @@ class TestImageDelete:
     ):
         mock_res = mock.MagicMock()
         mock_res.status_code = 404
+        msg404 = tools.get_error_status_message(404)
 
         with mock.patch('requests.delete', return_value=mock_res) as mo:
             with pytest.raises(DRegCliException) as excinfo:
@@ -79,7 +81,7 @@ class TestImageDelete:
                     fixture_alpine_digest,
                     fixture_alpine_delete_url
                 )
-            assert str(excinfo.value) == "Status code error 404"
+            assert str(excinfo.value) == msg404
 
     @pytest.mark.usefixtures(
         'fixture_alpine_repo',

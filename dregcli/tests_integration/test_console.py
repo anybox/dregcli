@@ -249,6 +249,25 @@ class TestConsole:
                 tools.check_sha256(digest) and \
                 out_lines[4] == 'deleted'
 
+            # after delete, same image action should 404 (no more manifest)
+            with mock.patch(
+                'sys.argv',
+                [
+                    'dregcli',
+                    'image',
+                    fixture_registry_url,
+                    fixture_repository,
+                    tag,
+                    '-d',
+                    '-y'
+                ]
+            ):
+                expected_out_404 = expected_out.copy()
+                expected_out_404.append(tools.get_error_status_message(404))
+
+                console_main()
+                assert tools.get_output_lines(capsys) == expected_out_404
+
     def test_image_delete_json(
         self,
         fixture_registry_url,
@@ -279,3 +298,24 @@ class TestConsole:
                     'digest', 'message'] and \
                 tools.check_sha256(out_json['result']['digest']) and \
                 out_json['result']['message'] == 'deleted'
+
+            # after delete, same image action should 404 (no more manifest)
+            with mock.patch(
+                'sys.argv',
+                [
+                    'dregcli',
+                    'image',
+                    fixture_registry_url,
+                    fixture_repository,
+                    tag,
+                    '-d',
+                    '-y',
+                    '-j',
+                ]
+            ):
+                msg404 = tools.get_error_status_message(404)
+                expected_json = {'error': msg404}
+
+                console_main()
+                out_json = json.loads(tools.get_output_lines(capsys)[0])
+                assert out_json == expected_json

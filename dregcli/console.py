@@ -64,7 +64,7 @@ class ImageCommandHandler(CommandHandler):
 
         if delete and manifest:
             print('--delete is incompatible with --manifest')
-            exit(-1)
+            return
 
         try:
             repository = Repository(self.client, repo)
@@ -85,7 +85,7 @@ class ImageCommandHandler(CommandHandler):
                     else:
                         res = "{digest}\ndeleted".format(digest=image.digest)
                 else:
-                    exit(-1)
+                    return
             else:
                 if json_output:
                     res = {'result': {'digest': image.digest}}
@@ -100,7 +100,6 @@ class ImageCommandHandler(CommandHandler):
             res = str(e)
             if json_output:
                 res = json.dumps({'error': res})
-            exit(-1)
         print(res)
 
 

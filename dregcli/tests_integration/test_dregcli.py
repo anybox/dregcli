@@ -63,7 +63,7 @@ class TestRepoImage:
         image.delete()
 
         # after delete, same image delete should 404 (no more manifest)
-        msg404 = "Status code error 404"
+        msg404 = tools.get_error_status_message(404)
         with pytest.raises(DRegCliException) as excinfo:
             image.delete()
         assert str(excinfo.value) == msg404
