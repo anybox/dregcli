@@ -70,96 +70,32 @@ def fixture_alpine_image_json():
     }
 
 
-class TestRepositoryTag:
-    def tags(self, mo, client, repo, expected_url):
-        repository = Repository(client, repo)
-        res = repository.tags()
-        mo.assert_called_once_with(expected_url, headers={})
-        return res
-
-    @pytest.mark.usefixtures('fixture_alpine_repo', 'fixture_alpine_tags_url')
-    def test_404(
-        self,
-        fixture_registry_url,
-        fixture_alpine_repo,
-        fixture_alpine_tags_url
-    ):
-        mock_res = mock.MagicMock()
-        mock_res.status_code = 404
-        msg404 = tools.get_error_status_message(404)
-
-        with mock.patch('requests.get', return_value=mock_res) as mo:
-            with pytest.raises(DRegCliException) as excinfo:
-                self.tags(
-                    mo,
-                    Client(fixture_registry_url),
-                    fixture_alpine_repo,
-                    fixture_registry_url + fixture_alpine_tags_url
-                )
-            assert str(excinfo.value) == msg404
-
+class TestRepository:
     @pytest.mark.usefixtures(
         'fixture_alpine_repo',
         'fixture_alpine_tags_url',
         'fixture_alpine_tags_json'
     )
-    def test_200(
+    def test_tags(
         self,
         fixture_registry_url,
         fixture_alpine_repo,
         fixture_alpine_tags_url,
         fixture_alpine_tags_json
     ):
+        expected_url = fixture_registry_url + fixture_alpine_tags_url
         mock_res = mock.MagicMock()
         mock_res.status_code = 200
         mock_res.json = mock.MagicMock(return_value=fixture_alpine_tags_json)
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
-            tags = self.tags(
-                mo,
+            repository = Repository(
                 Client(fixture_registry_url),
-                fixture_alpine_repo,
-                fixture_registry_url + fixture_alpine_tags_url
+                fixture_alpine_repo
             )
+            tags = repository.tags()
             assert isinstance(tags, list) and \
                 tags == fixture_alpine_tags_json['tags']
-
-
-class TestRepositoryImage:
-    def image(self, mo, client, repo, tag, expected_url):
-        repository = Repository(client, repo)
-        res = repository.image(tag)
-        mo.assert_called_once_with(
-            expected_url,
-            headers=Repository.Meta.manifests_headers
-        )
-        return res
-
-    @pytest.mark.usefixtures(
-        'fixture_alpine_repo',
-        'fixture_alpine_image_tag',
-        'fixture_alpine_image_url',
-    )
-    def test_404(
-        self,
-        fixture_registry_url,
-        fixture_alpine_repo,
-        fixture_alpine_image_tag,
-        fixture_alpine_image_url
-    ):
-        mock_res = mock.MagicMock()
-        mock_res.status_code = 404
-
-        with mock.patch('requests.get', return_value=mock_res) as mo:
-            with pytest.raises(DRegCliException) as excinfo:
-                self.image(
-                    mo,
-                    Client(fixture_registry_url),
-                    fixture_alpine_repo,
-                    fixture_alpine_image_tag,
-                    fixture_registry_url + fixture_alpine_image_url
-                )
-            assert str(excinfo.value) == "Status code error 404"
 
     @pytest.mark.usefixtures(
         'fixture_alpine_repo',
@@ -168,7 +104,7 @@ class TestRepositoryImage:
         'fixture_alpine_image_digest',
         'fixture_alpine_image_json'
     )
-    def test_200(
+    def test_image(
         self,
         fixture_registry_url,
         fixture_alpine_repo,
@@ -177,6 +113,7 @@ class TestRepositoryImage:
         fixture_alpine_image_digest,
         fixture_alpine_image_json
     ):
+        expected_url = fixture_registry_url + fixture_alpine_image_url
         mock_res = mock.MagicMock()
         mock_res.status_code = 200
         mock_res.json = mock.MagicMock(
@@ -197,12 +134,14 @@ class TestRepositoryImage:
         )
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
-            image = self.image(
-                mo,
+            repository = Repository(
                 Client(fixture_registry_url),
-                fixture_alpine_repo,
-                fixture_alpine_image_tag,
-                fixture_registry_url + fixture_alpine_image_url
+                fixture_alpine_repo
+            )
+            image = repository.image(fixture_alpine_image_tag)
+            mo.assert_called_once_with(
+                expected_url,
+                headers=Repository.Meta.manifests_headers
             )
             assert type(image) == Image and \
                 image.name == fixture_alpine_repo and \

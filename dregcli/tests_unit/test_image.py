@@ -39,57 +39,14 @@ def fixture_alpine_delete_url(
     )
 
 
-class TestImageDelete:
-    def delete(self, mo, client, repo, tag, digest, expected_url):
-        image = Image(
-            client,
-            repo,
-            tag,
-            digest=digest
-        )
-        image.delete()
-        mo.assert_called_once_with(
-            expected_url,
-            headers=Repository.Meta.manifests_headers,
-        )
-
+class TestImage:
     @pytest.mark.usefixtures(
         'fixture_alpine_repo',
         'fixture_alpine_tag',
         'fixture_alpine_digest',
         'fixture_alpine_delete_url'
     )
-    def test_404(
-        self,
-        fixture_registry_url,
-        fixture_alpine_repo,
-        fixture_alpine_tag,
-        fixture_alpine_digest,
-        fixture_alpine_delete_url,
-    ):
-        mock_res = mock.MagicMock()
-        mock_res.status_code = 404
-        msg404 = tools.get_error_status_message(404)
-
-        with mock.patch('requests.delete', return_value=mock_res) as mo:
-            with pytest.raises(DRegCliException) as excinfo:
-                self.delete(
-                    mo,
-                    Client(fixture_registry_url),
-                    fixture_alpine_repo,
-                    fixture_alpine_tag,
-                    fixture_alpine_digest,
-                    fixture_alpine_delete_url
-                )
-            assert str(excinfo.value) == msg404
-
-    @pytest.mark.usefixtures(
-        'fixture_alpine_repo',
-        'fixture_alpine_tag',
-        'fixture_alpine_digest',
-        'fixture_alpine_delete_url'
-    )
-    def test_202(
+    def test_delete(
         self,
         fixture_registry_url,
         fixture_alpine_repo,
@@ -101,11 +58,14 @@ class TestImageDelete:
         mock_res.status_code = 202  # 202 for delete
 
         with mock.patch('requests.delete', return_value=mock_res) as mo:
-            self.delete(
-                mo,
+            image = Image(
                 Client(fixture_registry_url),
                 fixture_alpine_repo,
                 fixture_alpine_tag,
-                fixture_alpine_digest,
-                fixture_alpine_delete_url
+                digest=fixture_alpine_digest
+            )
+            image.delete()
+            mo.assert_called_once_with(
+                fixture_alpine_delete_url,
+                headers=Repository.Meta.manifests_headers,
             )

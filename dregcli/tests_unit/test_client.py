@@ -122,8 +122,9 @@ class TestClient:
 
         # expected code mismatch
         expected_code = 202
-        mock_res.status_code = 404  # other result than expected code
-        msg404 = tools.get_error_status_message(404)
+        other_code = 404    # other result than expected code
+        other_code_msg = tools.get_error_status_message(other_code)
+        mock_res.status_code = other_code
         with mock.patch('requests.get', return_value=mock_res) as mo:
             with pytest.raises(DRegCliException) as excinfo:
                 res = client._request(
@@ -136,30 +137,10 @@ class TestClient:
                 )
                 assert res.status_code == expected_code and \
                     res.json() == fixture_registories
-            assert str(excinfo.value) == msg404
-
-    @pytest.mark.usefixtures('fixture_repositories_url')
-    def test_repositories_404(
-        self,
-        fixture_registry_url,
-        fixture_repositories_url
-    ):
-        mock_res = mock.MagicMock()
-        mock_res.status_code = 404
-        msg404 = tools.get_error_status_message(404)
-
-        with mock.patch('requests.get', return_value=mock_res) as mo:
-            with pytest.raises(DRegCliException) as excinfo:
-                client = Client(fixture_registry_url, verbose=False)
-                self.repositories(
-                    mo,
-                    client,
-                    fixture_registry_url + fixture_repositories_url
-                )
-            assert str(excinfo.value) == msg404
+            assert str(excinfo.value) == other_code_msg
 
     @pytest.mark.usefixtures('fixture_repositories_url', 'fixture_registories')
-    def test_repositories_200(
+    def test_repositories(
         self,
         fixture_registry_url,
         fixture_repositories_url,
