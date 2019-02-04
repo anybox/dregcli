@@ -50,7 +50,7 @@ class TestImageDelete:
         image.delete()
         mo.assert_called_once_with(
             expected_url,
-            headers=Repository.Meta.manifests_headers
+            headers=Repository.Meta.manifests_headers,
         )
 
     @pytest.mark.usefixtures(

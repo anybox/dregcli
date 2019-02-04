@@ -20,10 +20,20 @@ def fixture_registories():
     return {"repositories": ["my-alpine"]}
 
 
+@pytest.fixture(scope="module")
+def fixture_auth_login():
+    return 'foobar'
+
+
+@pytest.fixture(scope="module")
+def fixture_auth_password():
+    return 'foobar2000'
+
+
 class TestClient:
     def repositories(self, mo, client, expected_url):
         res = client.repositories()
-        mo.assert_called_once_with(expected_url)
+        mo.assert_called_once_with(expected_url, headers={})
         return res
 
     def test_init(self, fixture_registry_url):
@@ -96,3 +106,8 @@ class TestClient:
                 all([r.client == client for r in repositories]) and  \
                 [r.name for r in repositories] == expected_repos and \
                 [str(r) for r in repositories] == expected_repos
+
+
+class TestAuth:
+    # TODO
+    pass

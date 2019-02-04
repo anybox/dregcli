@@ -74,7 +74,7 @@ class TestRepositoryTag:
     def tags(self, mo, client, repo, expected_url):
         repository = Repository(client, repo)
         res = repository.tags()
-        mo.assert_called_once_with(expected_url)
+        mo.assert_called_once_with(expected_url, headers={})
         return res
 
     @pytest.mark.usefixtures('fixture_alpine_repo', 'fixture_alpine_tags_url')

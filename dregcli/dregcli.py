@@ -21,11 +21,12 @@ class Client(object):
         self.request_kwargs = dict()
 
         self.auth = False
-        if os.environ.get('DREGCLI_LOGIN', False) and \
-            os.environ.get('DREGCLI_PWD'):
+        login = os.environ.get('DREGCLI_LOGIN', False)
+        pwd = os.environ.get('DREGCLI_PWD', False)
+        if login and pwd:
             self.auth = {
-                'login': os.environ.get('DREGCLI_LOGIN'),
-                'password': os.environ.get('DREGCLI_PWD'),
+                'login': login,
+                'password': pwd,
                 'token': '',
             }
 
@@ -48,13 +49,20 @@ class Client(object):
         repositories = response.json().get("repositories", [])
         return [Repository(self, repo) for repo in repositories]
 
-    def _request(self, url, headers={}, method=False, verb=False):
+    def _request(
+        self,
+        url,
+        headers={},
+        method=False,
+        verb=False,
+        expected_code=200
+    ):
         method = method or requests.get
         verb = verb or 'GET'
         self.display(verb, url)
 
         response = method(url, headers=headers)
-        if response.status_code != 200:
+        if response.status_code != expected_code:
             msg = "Status code error {code}".format(code=response.status_code)
             raise DRegCliException(msg)
 
@@ -64,7 +72,7 @@ class Client(object):
                 url,
                 headers=self.decorate_headers(headers)
             )
-            if response2.status_code != 200:
+            if response2.status_code != expected_code:
                 msg = "Status code error {code}".format(
                     code=response2.status_code
                 )
@@ -79,7 +87,9 @@ class Client(object):
         if not self.auth:
             return False
 
-        #< Www-Authenticate: Bearer realm="https://docker-registry.tools.groupelesechos.fr/v2/token",service="docker-registry.tools.groupelesechos.fr",scope="registry:catalog:*"
+        # < Www-Authenticate: Bearer realm="https://host/v2/token",
+        # service="docker-registry.tools.groupelesechos.fr",
+        # scope="registry:catalog:*"
         www_authenticate = response.headers.get(
             self.Meta.auth_response_get_token_header, '')
         if not www_authenticate:
@@ -157,7 +167,7 @@ class Repository(RegistryComponent):
             self.Meta.tags_list
         )
 
-        response = self._request(url, headers={})
+        response = self.client._request(url, headers={})
         return response.json().get("tags", [])
 
     def image(self, tag):
@@ -173,8 +183,7 @@ class Repository(RegistryComponent):
         )
 
         headers = self.Meta.manifests_headers  # important: accept header
-        response = self._request(url, headers=headers)
-                raise DRegCliException(msg)
+        response = self.client._request(url, headers=headers)
 
         # image digest: grap the image digest from the header response
         digest = response.headers.get(
@@ -192,7 +201,7 @@ class Repository(RegistryComponent):
             self.name,
             tag,
             digest=digest,
-            data=r.json()
+            data=response.json()
         )
 
 
@@ -218,5 +227,10 @@ class Image(RegistryComponent):
         )
 
         headers = Repository.Meta.manifests_headers  # important: accept header
-        response = self._request(url, headers=headers, method=requests.delete,
-            verb='DELETE')
+        response = self.client._request(
+            url,
+            headers=headers,
+            method=requests.delete,
+            verb='DELETE',
+            expected_code=202
+        )
