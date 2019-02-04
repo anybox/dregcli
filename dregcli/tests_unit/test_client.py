@@ -1,3 +1,4 @@
+import requests
 from unittest import mock
 import pytest
 
@@ -60,6 +61,82 @@ class TestClient:
         client.display("hello")
         captured = capsys.readouterr()
         assert captured.out == ""
+
+    @pytest.mark.usefixtures('fixture_repositories_url', 'fixture_registories')
+    def test_request(
+        self,
+        fixture_registry_url,
+        fixture_repositories_url,
+        fixture_registories
+    ):
+        expected_url = fixture_registry_url + fixture_repositories_url
+        expected_code = 200
+
+        client = Client(fixture_registry_url, verbose=False)
+        headers = {}
+
+        # default
+        mock_res = mock.MagicMock()
+        mock_res.json = mock.MagicMock(return_value=fixture_registories)
+        mock_res.status_code = 200
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            res = client._request(expected_url)
+            mo.assert_called_once_with(expected_url, headers=headers)
+            assert res.status_code == expected_code and \
+                res.json() == fixture_registories
+
+        # headers
+        headers = {'foobar': 'foobar2000'}
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            res = client._request(expected_url, headers=headers)
+            mo.assert_called_once_with(expected_url, headers=headers)
+            assert res.status_code == expected_code and \
+                res.json() == fixture_registories
+
+        # method
+        headers = {}
+        with mock.patch('requests.post', return_value=mock_res) as mo:
+            res = client._request(
+                expected_url,
+                method=requests.post,
+                verb='POST'
+            )
+            mo.assert_called_once_with(
+                expected_url,
+                headers=headers,
+            )
+            assert res.status_code == expected_code and \
+                res.json() == fixture_registories
+
+        # expected_code matching
+        expected_code = 202
+        mock_res.status_code = expected_code
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            res = client._request(expected_url, expected_code=expected_code)
+            mo.assert_called_once_with(
+                expected_url,
+                headers=headers,
+            )
+            assert res.status_code == expected_code and \
+                res.json() == fixture_registories
+
+        # expected code mismatch
+        expected_code = 202
+        mock_res.status_code = 404  # other result than expected code
+        msg404 = tools.get_error_status_message(404)
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            with pytest.raises(DRegCliException) as excinfo:
+                res = client._request(
+                    expected_url,
+                    expected_code=expected_code
+                )
+                mo.assert_called_once_with(
+                    expected_url,
+                    headers=headers,
+                )
+                assert res.status_code == expected_code and \
+                    res.json() == fixture_registories
+            assert str(excinfo.value) == msg404
 
     @pytest.mark.usefixtures('fixture_repositories_url')
     def test_repositories_404(
