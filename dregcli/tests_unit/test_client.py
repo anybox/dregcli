@@ -1,3 +1,4 @@
+import os
 import requests
 from unittest import mock
 import pytest
@@ -21,14 +22,18 @@ def fixture_registories():
     return {"repositories": ["my-alpine"]}
 
 
-@pytest.fixture(scope="module")
-def fixture_auth_login():
-    return 'foobar'
+@pytest.fixture()
+def fixture_auth():
+    return {
+        'login': 'foobar',
+        'password': 'foobar2000',
+        'token': ''
+    }
 
 
-@pytest.fixture(scope="module")
-def fixture_auth_password():
-    return 'foobar2000'
+@pytest.fixture()
+def fixture_auth_token():
+    return 'mytoken123456789'
 
 
 class TestClient:
@@ -167,5 +172,105 @@ class TestClient:
 
 
 class TestAuth:
-    # TODO
-    pass
+    @pytest.mark.usefixtures('fixture_auth_token')
+    def test_decorate_headers(self, fixture_registry_url, fixture_auth_token):
+        client = Client(fixture_registry_url, verbose=False)
+        client.auth = {'token': fixture_auth_token}
+
+        headers = {'foobar': 'foobar2000'}
+        expected_headers = headers.copy()
+        expected_headers['Authorization'] = \
+            Client.Meta.auth_bearer_pattern.format(token=fixture_auth_token)
+
+        client._auth_decorate_headers(headers)
+        assert headers == expected_headers
+
+    @pytest.mark.usefixtures('fixture_auth', 'fixture_auth_token')
+    def test_get_token(
+        self,
+        fixture_auth,
+        fixture_auth_token
+    ):
+        expected_realm = "https://myhost/v2/token"
+        expected_service = "docker-registry.myhost.com"
+        expected_scope = "registry:catalog:*"
+
+        authenticate_header_val = \
+            'Bearer realm="{realm}",' \
+            'service="{service}",' \
+            'scope="{scope}"'.format(
+                realm=expected_realm,
+                service=expected_service,
+                scope=expected_scope
+            )
+        headers = {'Www-Authenticate': authenticate_header_val}
+
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 200
+        mock_response.headers = headers
+
+        auth_get_token_inner_get_result = mock.MagicMock()
+        auth_get_token_inner_get_result.status_code = 200
+        auth_get_token_inner_get_result.json = mock.MagicMock(
+            return_value={'token': fixture_auth_token}
+        )
+
+        client = Client(fixture_registry_url, verbose=False)
+        client.auth = fixture_auth
+
+        with mock.patch('requests.get',
+                        return_value=auth_get_token_inner_get_result) as mo:
+            client._auth_get_token(mock_response)
+            assert 'token' in client.auth and \
+                client.auth['token'] == fixture_auth_token
+
+        no_token_msg = "Get token request: no token found in response"
+        auth_get_token_inner_get_result.json = mock.MagicMock(
+            return_value={'token': ''}
+        )
+        with mock.patch('requests.get',
+                        return_value=auth_get_token_inner_get_result) as mo:
+            with pytest.raises(DRegCliException) as excinfo:
+                client._auth_get_token(mock_response)
+            assert str(excinfo.value) == no_token_msg
+
+        # no token use case
+        auth_get_token_inner_get_result.json = mock.MagicMock(
+            return_value={}
+        )
+        with mock.patch('requests.get',
+                        return_value=auth_get_token_inner_get_result) as mo:
+            with pytest.raises(DRegCliException) as excinfo:
+                client._auth_get_token(mock_response)
+            assert str(excinfo.value) == no_token_msg
+
+    @pytest.mark.usefixtures(
+        'fixture_repositories_url',
+        'fixture_auth',
+        'fixture_auth_token'
+    )
+    def test_request(
+        self,
+        fixture_registry_url,
+        fixture_repositories_url,
+        fixture_auth,
+        fixture_auth_token
+    ):
+        expected_url = fixture_registry_url + fixture_repositories_url
+        expected_code = 200
+
+        client = Client(fixture_registry_url, verbose=False)
+        client.auth = fixture_auth
+        client._auth_get_token = mock.MagicMock(
+            return_value=fixture_auth_token
+        )
+        client.decorate_headers = mock.MagicMock(return_value={})
+
+        # default
+        mock_res = mock.MagicMock()
+        mock_res.json = mock.MagicMock(return_value=fixture_registories)
+        mock_res.status_code = 200
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            res = client._request(expected_url)
+            assert res.status_code == expected_code and \
+                res.json() == fixture_registories

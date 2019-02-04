@@ -11,6 +11,8 @@ class Client(object):
     class Meta:
         api_version = 'v2'
         repositories = '_catalog'
+        auth_env_login = 'DREGCLI_LOGIN'
+        auth_env_password = 'DREGCLI_PWD'
         auth_response_get_token_header = 'Www-Authenticate'
         auth_bearer_pattern = "Bearer {token}"
 
@@ -21,8 +23,8 @@ class Client(object):
         self.request_kwargs = dict()
 
         self.auth = False
-        login = os.environ.get('DREGCLI_LOGIN', False)
-        pwd = os.environ.get('DREGCLI_PWD', False)
+        login = os.environ.get(self.Meta.auth_env_login, False)
+        pwd = os.environ.get(self.Meta.auth_env_password, False)
         if login and pwd:
             self.auth = {
                 'login': login,
@@ -88,7 +90,7 @@ class Client(object):
             return False
 
         # < Www-Authenticate: Bearer realm="https://host/v2/token",
-        # service="docker-registry.tools.groupelesechos.fr",
+        # service="docker-registry.host.fr",
         # scope="registry:catalog:*"
         www_authenticate = response.headers.get(
             self.Meta.auth_response_get_token_header, '')
@@ -98,11 +100,12 @@ class Client(object):
                     header=self.Meta.auth_response_get_token_header
                 )
             )
-        www_authenticate_str = www_authenticate.split('Bearer ')[0]
+
+        www_authenticate_str = www_authenticate.split('Bearer ')[1]
         www_authenticate_parts = www_authenticate_str.split(',')
-        realm = www_authenticate_parts[0].split('=')[0].strip('"')
-        service = www_authenticate_parts[1].split('=')[0].strip('"')
-        scope = www_authenticate_parts[2].split('=')[0].strip('"')
+        realm = www_authenticate_parts[0].split('=')[1].strip('"')
+        service = www_authenticate_parts[1].split('=')[1].strip('"')
+        scope = www_authenticate_parts[2].split('=')[1].strip('"')
 
         get_token_url = str(Path(self.url) / realm)
         headers = {
@@ -122,7 +125,7 @@ class Client(object):
             raise DRegCliException(msg)
 
         self.auth['token'] = get_token_response.json().get('token', False)
-        if not self.token:
+        if not self.auth['token']:
             msg = "Get token request: no token found in response"
             raise DRegCliException(msg)
 
@@ -132,7 +135,7 @@ class Client(object):
         """decorate headers (auth bearer)"""
         if self.auth and self.auth['token']:
             headers['Authorization'] = self.Meta.auth_bearer_pattern.format(
-                self.auth['token'])
+                token=self.auth['token'])
 
 
 class RegistryComponent(object):
