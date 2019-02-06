@@ -29,7 +29,26 @@ class TestConsoleCommandLine:
                 'dregcli.console.RepositoriesCommandHandler.run'
             ) as mo:
                 console_main()
-                mo.assert_called_once_with(fixture_registry_url, False)
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    False,
+                    user=None
+                )
+
+        # user
+        with mock.patch(
+            'sys.argv',
+            ['dregcli', '-u', 'login:pwd', 'reps', fixture_registry_url]
+        ):
+            with mock.patch(
+                'dregcli.console.RepositoriesCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    False,
+                    user='login:pwd'
+                )
 
         # json
         with mock.patch(
@@ -40,7 +59,11 @@ class TestConsoleCommandLine:
                 'dregcli.console.RepositoriesCommandHandler.run'
             ) as mo:
                 console_main()
-                mo.assert_called_once_with(fixture_registry_url, True)
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    True,
+                    user=None
+                )
 
     def test_tags(self, fixture_registry_url, fixture_repository):
         with mock.patch(
@@ -54,7 +77,8 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     fixture_repository,
-                    False
+                    False,
+                    user=None
                 )
 
         # json
@@ -69,7 +93,8 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     fixture_repository,
-                    True
+                    True,
+                    user=None
                 )
 
     def test_image(
@@ -99,7 +124,8 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     False,
-                    False
+                    False,
+                    user=None,
                 )
 
         # manifest
@@ -125,7 +151,8 @@ class TestConsoleCommandLine:
                     True,
                     False,
                     False,
-                    False
+                    False,
+                    user=None
                 )
 
         # json
@@ -151,7 +178,8 @@ class TestConsoleCommandLine:
                     False,
                     True,
                     False,
-                    False
+                    False,
+                    user=None
                 )
 
         # delete
@@ -177,7 +205,8 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     True,
-                    False
+                    False,
+                    user=None
                 )
 
         # always yes
@@ -203,7 +232,8 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     False,
-                    True
+                    True,
+                    user=None
                 )
 
     def test_garbage(
@@ -228,7 +258,8 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     False,
-                    False
+                    False,
+                    user=None
                 )
 
         # null
@@ -250,7 +281,8 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     True,
-                    False
+                    False,
+                    user=None
                 )
 
         # json
@@ -272,5 +304,6 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     False,
-                    True
+                    True,
+                    user=None
                 )

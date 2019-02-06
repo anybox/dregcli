@@ -8,7 +8,7 @@ class CommandHandler(object):
     def __init__(self):
         self.client = None
 
-    def run(self, url, json_output):
+    def run(self, url, json_output, user=False):
         if not json_output:
             print(self.Meta.command)
         self.client = Client(url, verbose=not json_output)
@@ -34,12 +34,12 @@ class RepositoriesCommandHandler(CommandHandler):
             help='Json output'
         )
         subparser_repositories.set_defaults(
-            func=lambda args: cls().run(args.url, args.json)
+            func=lambda args: cls().run(args.url, args.json, user=args.user)
         )
         return subparser_repositories
 
-    def run(self, url, json_output):
-        super().run(url, json_output)
+    def run(self, url, json_output, user=False):
+        super().run(url, json_output, user=user)
 
         try:
             repositories = list(map(str, self.client.repositories()))
@@ -79,12 +79,12 @@ class TagsCommandHandler(CommandHandler):
         )
         subparser_tags.set_defaults(
             func=lambda args: cls().run(
-                args.url, args.repo, args.json)
+                args.url, args.repo, args.json, user=args.user)
         )
         return subparser_tags
 
-    def run(self, url, repo, json_output):
-        super().run(url, json_output)
+    def run(self, url, repo, json_output, user=False):
+        super().run(url, json_output, user=user)
 
         try:
             repository = Repository(self.client, repo)
@@ -145,13 +145,15 @@ class ImageCommandHandler(CommandHandler):
         subparser_image.set_defaults(
             func=lambda args: cls().run(
                 args.url, args.repo, args.tag, args.manifest, args.json,
-                args.delete, args.yes
+                args.delete, args.yes,
+                user=args.user
             )
         )
         return subparser_image
 
-    def run(self, url, repo, tag, manifest, json_output, delete, yes):
-        super().run(url, json_output)
+    def run(self, url, repo, tag, manifest, json_output, delete, yes,
+            user=False):
+        super().run(url, json_output, user=user)
 
         if delete and manifest:
             print('--delete is incompatible with --manifest')
@@ -224,13 +226,13 @@ class GarbageCommandHandler(CommandHandler):
         )
         subparser_garbage.set_defaults(
             func=lambda args: GarbageCommandHandler().run(
-                args.url, args.repo, args.null, args.json
+                args.url, args.repo, args.null, args.json, user=args.user
             )
         )
         return subparser_garbage
 
-    def run(self, url, repo, null, json_output):
-        super().run(url, json_output)
+    def run(self, url, repo, null, json_output, user=False):
+        super().run(url, json_output, user=user)
 
         try:
             repository = Repository(self.client, repo)
@@ -250,6 +252,10 @@ def main():
     parser = argparse.ArgumentParser(
         prog="dregcli",
         description="Docker registry API v2 client",
+    )
+    parser.add_argument(
+        '-u', '--user',
+        help='user credentials login:password'
     )
     subparsers = parser.add_subparsers(help='sub-commands')
 
