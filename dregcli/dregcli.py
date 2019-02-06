@@ -18,22 +18,24 @@ class Client(object):
         auth_response_get_token_header = 'Www-Authenticate'
         auth_bearer_pattern = "Bearer {token}"
 
-    def __init__(self, url, remote_type='', verbose=False):
+    def __init__(self, url, verbose=False):
         super().__init__()
         self.url = url
-        self.remote_type = remote_type or self.Meta.remote_type_registry
         self.verbose = verbose
         self.request_kwargs = dict()
-
         self.auth = False
-        login = os.environ.get(self.Meta.auth_env_login, False)
-        pwd = os.environ.get(self.Meta.auth_env_password, False)
-        if login and pwd:
-            self.auth = {
-                'login': login,
-                'password': pwd,
-                'token': '',
-            }
+
+    def set_auth(self, login, password, remote_type=False):
+        self.auth = {
+            'login': login,
+            'password': password,
+            'token': '',
+            'remote_type': remote_type or self.Meta.remote_type_registry,
+        }
+        return self.auth
+
+    def reset_auth(self):
+        self.auth = False
 
     def display(self, *args):
         if self.verbose:
@@ -121,7 +123,7 @@ class Client(object):
             "service": service,
             "scope": scope,
         }
-        if self.remote_type == self.Meta.remote_type_gitlab:
+        if self.auth['remote_type'] == self.Meta.remote_type_gitlab:
             get_token_headers.update({
                 'client_id': 'docker',
                 'offline_token': 'true',

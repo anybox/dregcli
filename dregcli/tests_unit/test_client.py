@@ -27,7 +27,8 @@ def fixture_auth():
     return {
         'login': 'foobar',
         'password': 'foobar2000',
-        'token': ''
+        'token': '',
+        'remote_type': Client.Meta.remote_type_registry,
     }
 
 
@@ -43,11 +44,10 @@ class TestClient:
         return res
 
     def test_init(self, fixture_registry_url):
-        def assert_client(verbose, remote_type=False):
-            remote_type = remote_type or Client.Meta.remote_type_registry
+        def assert_client(verbose):
             assert client.url == fixture_registry_url
             assert client.verbose == verbose
-            assert client.remote_type == remote_type
+            assert not client.auth
             assert isinstance(client.request_kwargs, dict) \
                 and not client.request_kwargs
 
@@ -57,9 +57,6 @@ class TestClient:
         assert_client(False)
         client = Client(fixture_registry_url, verbose=True)
         assert_client(True)
-        client = Client(fixture_registry_url,
-                        remote_type=Client.Meta.remote_type_gitlab)
-        assert_client(False, remote_type=Client.Meta.remote_type_gitlab)
 
     def test_display(self, fixture_registry_url, capsys):
         client = Client(fixture_registry_url, verbose=True)
@@ -177,6 +174,32 @@ class TestClient:
 
 
 class TestAuth:
+    @pytest.mark.usefixtures('fixture_auth')
+    def test_set_auth(self, fixture_registry_url, fixture_auth):
+        client = Client(fixture_registry_url)
+        client.set_auth(
+            fixture_auth.get('login'),
+            fixture_auth.get('password')
+        )
+        assert client.auth == fixture_auth
+
+        expected_auth = fixture_auth.copy()
+        expected_auth['remote_type'] = Client.Meta.remote_type_gitlab
+        client.set_auth(
+            fixture_auth.get('login'),
+            fixture_auth.get('password'),
+            remote_type=expected_auth['remote_type']
+        )
+        assert client.auth == fixture_auth
+
+    @pytest.mark.usefixtures('fixture_auth')
+    def test_set_auth(self, fixture_registry_url, fixture_auth):
+        client = Client(fixture_registry_url)
+        client.auth = fixture_auth
+
+        client.reset_auth()
+        assert not client.auth and isinstance(client.auth, bool)
+
     @pytest.mark.usefixtures('fixture_auth_token')
     def test_decorate_headers(self, fixture_registry_url, fixture_auth_token):
         client = Client(fixture_registry_url, verbose=False)
