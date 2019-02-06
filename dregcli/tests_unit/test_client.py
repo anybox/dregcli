@@ -43,23 +43,23 @@ class TestClient:
         return res
 
     def test_init(self, fixture_registry_url):
-        def assert_client(verbose, remote_type):
+        def assert_client(verbose, remote_type=False):
             remote_type = remote_type or Client.Meta.remote_type_registry
             assert client.url == fixture_registry_url
             assert client.verbose == verbose
-            assert client.remote_type = remote_type
+            assert client.remote_type == remote_type
             assert isinstance(client.request_kwargs, dict) \
                 and not client.request_kwargs
 
         client = Client(fixture_registry_url)
-        assert_client(False)
+        assert_client(False, )
         client = Client(fixture_registry_url, verbose=False)
         assert_client(False)
         client = Client(fixture_registry_url, verbose=True)
         assert_client(True)
         client = Client(fixture_registry_url,
                         remote_type=Client.Meta.remote_type_gitlab)
-        assert_client(False, Client.Meta.remote_type_gitlab)
+        assert_client(False, remote_type=Client.Meta.remote_type_gitlab)
 
     def test_display(self, fixture_registry_url, capsys):
         client = Client(fixture_registry_url, verbose=True)
