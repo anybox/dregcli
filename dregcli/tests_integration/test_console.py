@@ -37,6 +37,21 @@ class TestConsole:
             out_lines = tools.get_output_lines(capsys)
             assert out_lines == expected_out
 
+    def test_reps_user(self, fixture_registry_url, fixture_repository, capsys):
+        expected_out = [
+            'reps',
+            'as user login',
+        ]
+
+        with mock.patch(
+            'sys.argv',
+            ['dregcli', '-u', 'login:pwd', 'reps', fixture_registry_url]
+        ):
+            console_main()
+            out_lines = tools.get_output_lines(capsys)
+            # we should have 'as user login' at 2nd line
+            assert out_lines[:2] == expected_out
+
     def test_reps_json(self, fixture_registry_url, fixture_repository, capsys):
         expected_json = {'result': [fixture_repository]}
 

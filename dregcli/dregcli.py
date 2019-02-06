@@ -26,6 +26,7 @@ class Client(object):
         self.auth = False
 
     def set_auth(self, login, password, remote_type=False):
+        self.display('as user', login)
         self.auth = {
             'login': login,
             'password': password,
@@ -104,7 +105,7 @@ class Client(object):
             self.Meta.auth_response_get_token_header, '')
         if not www_authenticate:
             raise DRegCliException(
-                'Auth: response header {} missing'.format(
+                'Auth: response header {header} missing'.format(
                     header=self.Meta.auth_response_get_token_header
                 )
             )

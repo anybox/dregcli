@@ -12,6 +12,9 @@ class CommandHandler(object):
         if not json_output:
             print(self.Meta.command)
         self.client = Client(url, verbose=not json_output)
+        if user:
+            login, password = user.split(':')
+            self.client.set_auth(login, password)
 
 
 class RepositoriesCommandHandler(CommandHandler):
