@@ -10,15 +10,18 @@ class DRegCliException(RuntimeError):
 class Client(object):
     class Meta:
         api_version = 'v2'
+        remote_type_registry = 'registry'
+        remote_type_gitlab = 'gitlab'
         repositories = '_catalog'
         auth_env_login = 'DREGCLI_LOGIN'
         auth_env_password = 'DREGCLI_PWD'
         auth_response_get_token_header = 'Www-Authenticate'
         auth_bearer_pattern = "Bearer {token}"
 
-    def __init__(self, url, verbose=False):
+    def __init__(self, url, remote_type='', verbose=False):
         super().__init__()
         self.url = url
+        self.remote_type = remote_type or self.Meta.remote_type_registry
         self.verbose = verbose
         self.request_kwargs = dict()
 
@@ -65,11 +68,14 @@ class Client(object):
 
         response = method(url, headers=headers)
         if response.status_code != expected_code:
-            msg = "Status code error {code}".format(code=response.status_code)
-            raise DRegCliException(msg)
+            if not self.auth:  # raise only if no auth
+                msg = "Status code error {code}".format(
+                    code=response.status_code
+                )
+                raise DRegCliException(msg)
 
         if self._auth_get_token(response):
-            # auth: request again with token
+            # auth: request again with token obtained through previous response
             response2 = requests.get(
                 url,
                 headers=self.decorate_headers(headers)
@@ -107,16 +113,21 @@ class Client(object):
         service = www_authenticate_parts[1].split('=')[1].strip('"')
         scope = www_authenticate_parts[2].split('=')[1].strip('"')
 
-        get_token_url = str(Path(self.url) / realm)
-        headers = {
+        get_token_headers = {
             'Authorization': "Basic {login}:{password}".format(
                 login=self.auth['login'],
                 password=self.auth['password'],
             ),
-            "service": response.headers.get('service'),
-            "scope": response.headers.get('scope'),
+            "service": service,
+            "scope": scope,
         }
-        get_token_response = requests.get(get_token_url, headers=headers)
+        if self.remote_type == self.Meta.remote_type_gitlab:
+            get_token_headers.update({
+                'client_id': 'docker',
+                'offline_token': 'true',
+            })
+
+        get_token_response = requests.get(realm, headers=get_token_headers)
         if get_token_response.status_code != 200:
             self.auth['token'] = ''
             msg = "Get token request: status code error {code}".format(
