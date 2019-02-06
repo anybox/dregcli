@@ -8,13 +8,15 @@ class CommandHandler(object):
     def __init__(self):
         self.client = None
 
-    def run(self, url, json_output, user=False):
+    def run(self, url, json_output, user=False, gitlab=False):
         if not json_output:
             print(self.Meta.command)
         self.client = Client(url, verbose=not json_output)
         if user:
             login, password = user.split(':')
-            self.client.set_auth(login, password)
+            remote_type = gitlab and Client.Meta.remote_type_gitlab \
+                or Client.Meta.remote_type_registry
+            self.client.set_auth(login, password, remote_type=remote_type)
 
 
 class RepositoriesCommandHandler(CommandHandler):
@@ -37,12 +39,15 @@ class RepositoriesCommandHandler(CommandHandler):
             help='Json output'
         )
         subparser_repositories.set_defaults(
-            func=lambda args: cls().run(args.url, args.json, user=args.user)
+            func=lambda args: cls().run(
+                args.url, args.json,
+                user=args.user, gitlab=args.gitlab
+            )
         )
         return subparser_repositories
 
-    def run(self, url, json_output, user=False):
-        super().run(url, json_output, user=user)
+    def run(self, url, json_output, user=False, gitlab=False):
+        super().run(url, json_output, user=user, gitlab=gitlab)
 
         try:
             repositories = list(map(str, self.client.repositories()))
@@ -82,12 +87,14 @@ class TagsCommandHandler(CommandHandler):
         )
         subparser_tags.set_defaults(
             func=lambda args: cls().run(
-                args.url, args.repo, args.json, user=args.user)
+                args.url, args.repo, args.json,
+                user=args.user, gitlab=args.gitlab
+            )
         )
         return subparser_tags
 
-    def run(self, url, repo, json_output, user=False):
-        super().run(url, json_output, user=user)
+    def run(self, url, repo, json_output, user=False, gitlab=False):
+        super().run(url, json_output, user=user, gitlab=gitlab)
 
         try:
             repository = Repository(self.client, repo)
@@ -149,14 +156,14 @@ class ImageCommandHandler(CommandHandler):
             func=lambda args: cls().run(
                 args.url, args.repo, args.tag, args.manifest, args.json,
                 args.delete, args.yes,
-                user=args.user
+                user=args.user, gitlab=args.gitlab
             )
         )
         return subparser_image
 
     def run(self, url, repo, tag, manifest, json_output, delete, yes,
-            user=False):
-        super().run(url, json_output, user=user)
+            user=False, gitlab=False):
+        super().run(url, json_output, user=user, gitlab=gitlab)
 
         if delete and manifest:
             print('--delete is incompatible with --manifest')
@@ -229,13 +236,14 @@ class GarbageCommandHandler(CommandHandler):
         )
         subparser_garbage.set_defaults(
             func=lambda args: GarbageCommandHandler().run(
-                args.url, args.repo, args.null, args.json, user=args.user
+                args.url, args.repo, args.null, args.json,
+                user=args.user, gitlab=args.gitlab
             )
         )
         return subparser_garbage
 
-    def run(self, url, repo, null, json_output, user=False):
-        super().run(url, json_output, user=user)
+    def run(self, url, repo, null, json_output, user=False, gitlab=False):
+        super().run(url, json_output, user=user, gitlab=gitlab)
 
         try:
             repository = Repository(self.client, repo)
@@ -259,6 +267,11 @@ def main():
     parser.add_argument(
         '-u', '--user',
         help='user credentials login:password'
+    )
+    parser.add_argument(
+        '--gitlab',
+        action='store_true',
+        help='remote is a gitlab registry'
     )
     subparsers = parser.add_subparsers(help='sub-commands')
 

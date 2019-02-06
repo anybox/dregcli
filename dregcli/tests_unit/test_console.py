@@ -32,7 +32,8 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     False,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
         # user
@@ -47,7 +48,24 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     False,
-                    user='login:pwd'
+                    user='login:pwd',
+                    gitlab=False
+                )
+
+        # gitlab
+        with mock.patch(
+            'sys.argv',
+            ['dregcli', '--gitlab', 'reps', fixture_registry_url]
+        ):
+            with mock.patch(
+                'dregcli.console.RepositoriesCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    False,
+                    user=None,
+                    gitlab=True
                 )
 
         # json
@@ -62,7 +80,8 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     True,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
     def test_tags(self, fixture_registry_url, fixture_repository):
@@ -78,7 +97,8 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     False,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
         # json
@@ -94,7 +114,8 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     True,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
     def test_image(
@@ -126,6 +147,7 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     user=None,
+                    gitlab=False
                 )
 
         # manifest
@@ -152,7 +174,8 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     False,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
         # json
@@ -179,7 +202,8 @@ class TestConsoleCommandLine:
                     True,
                     False,
                     False,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
         # delete
@@ -206,7 +230,8 @@ class TestConsoleCommandLine:
                     False,
                     True,
                     False,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
         # always yes
@@ -233,7 +258,8 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     True,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
     def test_garbage(
@@ -259,7 +285,8 @@ class TestConsoleCommandLine:
                     fixture_repository,
                     False,
                     False,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
         # null
@@ -282,7 +309,8 @@ class TestConsoleCommandLine:
                     fixture_repository,
                     True,
                     False,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )
 
         # json
@@ -305,5 +333,6 @@ class TestConsoleCommandLine:
                     fixture_repository,
                     False,
                     True,
-                    user=None
+                    user=None,
+                    gitlab=False
                 )

@@ -26,7 +26,12 @@ class Client(object):
         self.auth = False
 
     def set_auth(self, login, password, remote_type=False):
-        self.display('as user', login)
+        remote_type = remote_type or self.Meta.remote_type_registry
+        self.display("{rt}: as user '{login}'".format(
+                rt=remote_type,
+                login=login
+            )
+        )
         self.auth = {
             'login': login,
             'password': password,
