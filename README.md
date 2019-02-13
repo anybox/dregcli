@@ -35,3 +35,19 @@ specify virtual env dir in DREGCLI_VENV then run start script
 export DREGCLI_VENV=~/venvs/dregcli
 dregcli/tests_integration/start.sh
 ```
+
+optionally specify host, login, password of any thirdparty docker registry, using:
+
+- DREGCLI_HOST
+- DREGCLI_LOGIN
+- DREGCLI_PASSWORD (for gitlab integrated docker registry, password could be any 'read_registry' scope user token)
+
+if these are set, a third party registry auth integration test is triggered
+
+```bash
+export DREGCLI_VENV=~/venvs/dregcli
+export DREGCLI_HOST=https://myhost
+export DREGCLI_LOGIN=myuser
+export DREGCLI_PASSWORD=mypassword
+dregcli/tests_integration/start.sh
+```

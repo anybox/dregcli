@@ -83,10 +83,10 @@ class Client(object):
                 raise DRegCliException(msg)
 
         if self._auth_get_token(response):
-            # auth: request again with token obtained through previous response
+            # auth: request again with token obtained through previous response            
             response2 = requests.get(
                 url,
-                headers=self.decorate_headers(headers)
+                headers=self._auth_decorate_headers(headers)
             )
             if response2.status_code != expected_code:
                 msg = "Status code error {code}".format(
@@ -121,21 +121,18 @@ class Client(object):
         service = www_authenticate_parts[1].split('=')[1].strip('"')
         scope = www_authenticate_parts[2].split('=')[1].strip('"')
 
-        get_token_headers = {
-            'Authorization': "Basic {login}:{password}".format(
-                login=self.auth['login'],
-                password=self.auth['password'],
-            ),
-            "service": service,
-            "scope": scope,
-        }
-        if self.auth['remote_type'] == self.Meta.remote_type_gitlab:
-            get_token_headers.update({
-                'client_id': 'docker',
-                'offline_token': 'true',
-            })
-
-        get_token_response = requests.get(realm, headers=get_token_headers)
+        get_token_url = "{realm}?service={service}&scope={scope}".format(
+            realm=realm,
+            service=service,
+            scope=scope,
+        )
+        get_token_response = requests.get(
+            get_token_url,
+            auth=requests.auth.HTTPBasicAuth(
+                self.auth['login'],
+                self.auth['password']
+            )
+        )
         if get_token_response.status_code != 200:
             self.auth['token'] = ''
             msg = "Get token request: status code error {code}".format(

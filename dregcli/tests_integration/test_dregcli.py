@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from . import tools
@@ -89,3 +90,34 @@ class TestRepoImage:
     ):
         # TODO
         pass
+
+
+class TestAuth:
+    """
+    following env vars are required for the auth integration env test
+        - DREGCLI_HOST
+        - DREGCLI_LOGIN
+        - DREGCLI_PASSWORD
+    """
+    def get_credentials(self):
+        self.host = os.environ.get('DREGCLI_HOST', False)
+        self.login = os.environ.get('DREGCLI_LOGIN', False)
+        self.pwd = os.environ.get('DREGCLI_PASSWORD', False)
+        self.active = self.host and self.login and self.pwd
+        return self.active
+
+    def get_client(self):
+        if self.active:
+            client = Client(self.host)
+            client.set_auth(self.login, self.pwd)
+        else:
+            client = None
+        return client
+
+    def test_auth(self):
+        if self.get_credentials():
+            # only flow test if test vars are set
+            client = self.get_client()
+            repositories = client.repositories()
+            assert repositories and isinstance(repositories, list) and \
+                len(repositories) > 0
