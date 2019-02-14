@@ -4,6 +4,7 @@ import pytest
 
 from . import tools
 from dregcli.console import main as console_main
+from dregcli.dregcli import DRegCliException, Client, Repository, Image
 
 
 @pytest.fixture(scope="module")
@@ -91,13 +92,14 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
-        expected_out = [
-            'tags',
-            'GET {url}/v2/{repo}/tags/list'.format(
-                url=fixture_registry_url,
-                repo=fixture_repository
-            ),
-            ','.join(fixture_tags),
+        # compute expected console result from expected fixture_tags
+        client = Client(fixture_registry_url, verbose=False)
+        repository = Repository(client, fixture_repository)
+        expected_tags_lines = [
+            "{tag}\t\t({dt})".format(
+                tag=t,
+                dt=repository.image(t).get_date()
+            ) for t in fixture_tags
         ]
 
         with mock.patch(
@@ -106,7 +108,13 @@ class TestConsole:
         ):
             console_main()
             out_lines = tools.get_output_lines(capsys)
-            assert out_lines == expected_out
+            assert out_lines[0] == 'tags' and \
+                out_lines[1] == 'GET {url}/v2/{repo}/tags/list'.format(
+                    url=fixture_registry_url,
+                    repo=fixture_repository
+                )
+            assert out_lines[len(expected_tags_lines)*-1:] \
+                == expected_tags_lines
 
     def test_tags_json(
             self,
@@ -115,7 +123,17 @@ class TestConsole:
             fixture_tags,
             capsys
     ):
-        expected_json = {'result': fixture_tags}
+        # compute expected json result from expected fixture_tags
+        client = Client(fixture_registry_url, verbose=False)
+        repository = Repository(client, fixture_repository)
+        expected_json = {
+            'result': [
+                {
+                    'tag': t,
+                    'date': repository.image(t).get_date()
+                } for t in fixture_tags
+            ],
+        }
 
         with mock.patch(
             'sys.argv',
