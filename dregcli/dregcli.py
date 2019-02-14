@@ -177,11 +177,14 @@ class RegistryComponent(object):
 class Repository(RegistryComponent):
     class Meta:
         tags_list = 'tags/list'
+
         manifests = 'manifests'
         manifests_headers = {
             "Accept": "application/vnd.docker.distribution.manifest.v2+json",
         }
         manifest_response_header_digest = 'Docker-Content-Digest'
+
+        blobs = 'blobs'
 
     def tags(self):
         """
@@ -243,9 +246,35 @@ class Image(RegistryComponent):
         super().__init__(client, name, digest=digest, data=data)
         self.tag = tag
         self.config_digest = self.data.get('config', {}).get('digest', '')
+        self.date = False
 
     def __str__(self):
         return "{name}:{tag}".format(name=self.name, tag=self.tag)
+
+    def get_date(self):
+        """
+        get image date from config blob
+        """
+        url = str(
+            Path(self.client.url) /
+            Client.Meta.api_version /
+            self.name /
+            Repository.Meta.blobs /
+            self.config_digest
+        )
+
+        headers = Repository.Meta.manifests_headers  # important: accept header
+        response = self.client._request(
+            url,
+            headers=headers,
+            expected_code=200
+        )
+
+        self.date = response.json().get('container_config',
+                                        {}).get('created', False)
+        if not self.date:
+            raise DRegCliException("Image date not found")
+        return self.date
 
     def delete(self):
         """

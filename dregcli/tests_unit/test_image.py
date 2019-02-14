@@ -27,6 +27,25 @@ def fixture_alpine_digest():
 
 
 @pytest.fixture()
+def fixture_config_payload():
+    return {'config': {'digest': 'config_digest'}}
+
+
+@pytest.fixture()
+def fixture_image_date():
+    return '2019-02-05T14:42:38.943601587Z'
+
+
+@pytest.fixture()
+def fixture_blob_payload(fixture_image_date):
+    return {
+        'container_config': {
+            'created': fixture_image_date,
+        },
+    }
+
+
+@pytest.fixture()
 def fixture_alpine_delete_url(
     fixture_registry_url,
     fixture_alpine_repo,
@@ -43,7 +62,8 @@ class TestImage:
     @pytest.mark.usefixtures(
         'fixture_alpine_repo',
         'fixture_alpine_tag',
-        'fixture_alpine_digest'
+        'fixture_alpine_digest',
+        'fixture_config_payload'
     )
     def test_init(
         self,
@@ -51,7 +71,7 @@ class TestImage:
         fixture_alpine_repo,
         fixture_alpine_tag,
         fixture_alpine_digest,
-        fixture_alpine_delete_url,
+        fixture_config_payload,
     ):
         data = {'config': {'digest': 'config_digest'}}
 
@@ -60,13 +80,62 @@ class TestImage:
             fixture_alpine_repo,
             fixture_alpine_tag,
             digest=fixture_alpine_digest,
-            data=data
+            data=fixture_config_payload
         )
         assert image and \
             image.data == data and \
             image.tag == fixture_alpine_tag and \
             image.digest == fixture_alpine_digest and \
-            image.config_digest == data['config']['digest']
+            image.config_digest == fixture_config_payload['config']['digest']
+
+    @pytest.mark.usefixtures(
+        'fixture_alpine_repo',
+        'fixture_alpine_tag',
+        'fixture_alpine_digest',
+        'fixture_config_payload',
+        'fixture_image_date',
+        'fixture_blob_payload'
+    )
+    def test_get_date(
+        self,
+        fixture_registry_url,
+        fixture_alpine_repo,
+        fixture_alpine_tag,
+        fixture_alpine_digest,
+        fixture_config_payload,
+        fixture_image_date,
+        fixture_blob_payload
+    ):
+        mock_res = mock.MagicMock()
+        mock_res.json = mock.MagicMock(return_value=fixture_blob_payload)
+        mock_res.status_code = 200
+
+        # get the date use case
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            image = Image(
+                Client(fixture_registry_url),
+                fixture_alpine_repo,
+                fixture_alpine_tag,
+                digest=fixture_alpine_digest,
+                data=fixture_config_payload
+            )
+            date = image.get_date()
+            assert date and date == fixture_image_date
+            assert image.date == date
+
+        # could not get the date use case
+        mock_res.json = mock.MagicMock(return_value={})
+        with mock.patch('requests.get', return_value=mock_res) as mo:
+            image = Image(
+                Client(fixture_registry_url),
+                fixture_alpine_repo,
+                fixture_alpine_tag,
+                digest=fixture_alpine_digest,
+                data=fixture_config_payload
+            )
+            with pytest.raises(DRegCliException) as excinfo:
+                image.get_date()
+            assert str(excinfo.value) == "Image date not found"
 
     @pytest.mark.usefixtures(
         'fixture_alpine_repo',
