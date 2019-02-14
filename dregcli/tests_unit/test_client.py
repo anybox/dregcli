@@ -206,12 +206,16 @@ class TestAuth:
         client.auth = {'token': fixture_auth_token}
 
         headers = {'foobar': 'foobar2000'}
+        original_headers = headers.copy()
         expected_headers = headers.copy()
         expected_headers['Authorization'] = \
             Client.Meta.auth_bearer_pattern.format(token=fixture_auth_token)
 
-        client._auth_decorate_headers(headers)
-        assert headers == expected_headers
+        decorated_headers = client._auth_decorate_headers(headers)
+        # header should be unchanged
+        assert headers == original_headers
+        # decorated headers should be the expected
+        decorated_headers == expected_headers
 
     @pytest.mark.usefixtures('fixture_auth', 'fixture_auth_token')
     def test_get_token(

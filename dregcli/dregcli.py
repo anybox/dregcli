@@ -83,7 +83,7 @@ class Client(object):
                 raise DRegCliException(msg)
 
         if self._auth_get_token(response):
-            # auth: request again with token obtained through previous response            
+            # auth: request again with token obtained through previous response
             response2 = requests.get(
                 url,
                 headers=self._auth_decorate_headers(headers)
@@ -148,10 +148,18 @@ class Client(object):
         return self.auth['token']
 
     def _auth_decorate_headers(self, headers):
-        """decorate headers (auth bearer)"""
+        """
+        decorate headers (auth bearer)
+        :return new headers
+        :rtype dict
+        """
+        new_headers = headers.copy()
+
         if self.auth and self.auth['token']:
-            headers['Authorization'] = self.Meta.auth_bearer_pattern.format(
-                token=self.auth['token'])
+            new_headers['Authorization'] = \
+                self.Meta.auth_bearer_pattern.format(token=self.auth['token'])
+
+        return new_headers
 
 
 class RegistryComponent(object):
