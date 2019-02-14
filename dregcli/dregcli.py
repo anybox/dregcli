@@ -1,4 +1,5 @@
 from path import Path
+import datetime
 import os
 import requests
 
@@ -251,6 +252,13 @@ class Image(RegistryComponent):
     def __str__(self):
         return "{name}:{tag}".format(name=self.name, tag=self.tag)
 
+    @staticmethod
+    def _parse_date(created_date_str):
+        return datetime.datetime.strptime(
+            created_date_str[:-4],
+            "%Y-%m-%dT%H:%M:%S.%f"
+        )
+
     def get_date(self):
         """
         get image date from config blob
@@ -270,9 +278,10 @@ class Image(RegistryComponent):
             expected_code=200
         )
 
-        self.date = response.json().get('created', False)
-        if not self.date:
+        created_date = response.json().get('created', False)
+        if not created_date:
             raise DRegCliException("Image date not found")
+        self.date = self._parse_date(created_date)
         return self.date
 
     def delete(self):

@@ -1,3 +1,4 @@
+import datetime
 from unittest import mock
 import pytest
 
@@ -33,12 +34,25 @@ def fixture_config_payload():
 
 @pytest.fixture()
 def fixture_image_date():
+    return datetime.datetime(
+        year=2019,
+        month=2,
+        day=5,
+        hour=14,
+        minute=42,
+        second=38,
+        microsecond=943601
+    )
+
+
+@pytest.fixture()
+def fixture_image_date_str():
     return '2019-02-05T14:42:38.943601587Z'
 
 
 @pytest.fixture()
-def fixture_blob_payload(fixture_image_date):
-    return {'created': fixture_image_date}
+def fixture_blob_payload(fixture_image_date_str):
+    return {'created': fixture_image_date_str}
 
 
 @pytest.fixture()

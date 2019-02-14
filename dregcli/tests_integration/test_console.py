@@ -3,7 +3,7 @@ import json
 import pytest
 
 from . import tools
-from dregcli.console import main as console_main
+from dregcli.console import main as console_main, CommandHandler
 from dregcli.dregcli import DRegCliException, Client, Repository, Image
 
 
@@ -98,7 +98,7 @@ class TestConsole:
         expected_tags_lines = [
             "{tag}\t\t({dt})".format(
                 tag=t,
-                dt=repository.image(t).get_date()
+                dt=CommandHandler().date2str(repository.image(t).get_date())
             ) for t in fixture_tags
         ]
 
@@ -130,7 +130,9 @@ class TestConsole:
             'result': [
                 {
                     'tag': t,
-                    'date': repository.image(t).get_date()
+                    'date': CommandHandler().date2str(
+                        repository.image(t).get_date()
+                    ),
                 } for t in fixture_tags
             ],
         }

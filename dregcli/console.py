@@ -1,12 +1,19 @@
 import argparse
+import datetime
 import json
 
 from dregcli.dregcli import DRegCliException, Client, Repository
 
 
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+
 class CommandHandler(object):
     def __init__(self):
         self.client = None
+
+    def date2str(self, dt):
+        return dt.strftime(DATE_FORMAT)
 
     def run(self, url, json_output, user=False, gitlab=False):
         if not json_output:
@@ -54,7 +61,7 @@ class RepositoriesCommandHandler(CommandHandler):
             if json_output:
                 res = json.dumps({"result": repositories})
             else:
-                res = ",".join(repositories)
+                res = "\n".join(repositories)
         except DRegCliException as e:
             res = str(e)
             if json_output:
@@ -106,11 +113,19 @@ class TagsCommandHandler(CommandHandler):
 
             if json_output:
                 res = json.dumps({
-                    'result': [{'tag': t, 'date': dates[t]} for t in tags]
+                    'result': [
+                        {
+                            'tag': t,
+                            'date': self.date2str(dates[t])
+                        } for t in tags
+                    ]
                 })
             else:
                 res = "\n".join([
-                    "{tag}\t\t({dt})".format(tag=t, dt=dates[t]) for t in tags
+                    "{tag}\t\t({dt})".format(
+                        tag=t,
+                        dt=self.date2str(dates[t])
+                    ) for t in tags
                 ])
         except DRegCliException as e:
             res = str(e)
