@@ -43,6 +43,34 @@ class TestImage:
     @pytest.mark.usefixtures(
         'fixture_alpine_repo',
         'fixture_alpine_tag',
+        'fixture_alpine_digest'
+    )
+    def test_init(
+        self,
+        fixture_registry_url,
+        fixture_alpine_repo,
+        fixture_alpine_tag,
+        fixture_alpine_digest,
+        fixture_alpine_delete_url,
+    ):
+        data = {'config': {'digest': 'config_digest'}}
+
+        image = Image(
+            Client(fixture_registry_url),
+            fixture_alpine_repo,
+            fixture_alpine_tag,
+            digest=fixture_alpine_digest,
+            data=data
+        )
+        assert image and \
+            image.data == data and \
+            image.tag == fixture_alpine_tag and \
+            image.digest == fixture_alpine_digest and \
+            image.config_digest == data['config']['digest']
+
+    @pytest.mark.usefixtures(
+        'fixture_alpine_repo',
+        'fixture_alpine_tag',
         'fixture_alpine_digest',
         'fixture_alpine_delete_url'
     )

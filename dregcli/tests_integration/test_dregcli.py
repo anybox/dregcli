@@ -58,8 +58,10 @@ class TestRepoImage:
 
         image = self.get_repo(fixture_client).image(tag)
         assert image and image.name == fixture_repository and \
+            image.data and isinstance(image.data, dict) and \
             image.tag == tag and \
-            tools.check_sha256(image.digest)
+            tools.check_sha256(image.digest) and \
+            tools.check_sha256(image.config_digest)
 
         image.delete()
 

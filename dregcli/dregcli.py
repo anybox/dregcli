@@ -233,9 +233,16 @@ class Repository(RegistryComponent):
 
 
 class Image(RegistryComponent):
+    """
+    Image
+    digest: manifest digest
+            from manifest Meta.manifest_response_header_digest response header
+    config_digest: from image config
+    """
     def __init__(self, client, name, tag, digest='', data=dict()):
         super().__init__(client, name, digest=digest, data=data)
         self.tag = tag
+        self.config_digest = self.data.get('config', {}).get('digest', '')
 
     def __str__(self):
         return "{name}:{tag}".format(name=self.name, tag=self.tag)
