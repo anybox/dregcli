@@ -38,11 +38,7 @@ def fixture_image_date():
 
 @pytest.fixture()
 def fixture_blob_payload(fixture_image_date):
-    return {
-        'container_config': {
-            'created': fixture_image_date,
-        },
-    }
+    return {'created': fixture_image_date}
 
 
 @pytest.fixture()

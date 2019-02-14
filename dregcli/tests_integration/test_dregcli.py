@@ -63,6 +63,11 @@ class TestRepoImage:
             tools.check_sha256(image.digest) and \
             tools.check_sha256(image.config_digest)
 
+        # get image date
+        image.get_date()
+        assert image.date
+
+        # delete flow
         image.delete()
 
         # after delete, same image delete should 404 (no more manifest)

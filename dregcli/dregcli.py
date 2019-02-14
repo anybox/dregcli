@@ -270,8 +270,7 @@ class Image(RegistryComponent):
             expected_code=200
         )
 
-        self.date = response.json().get('container_config',
-                                        {}).get('created', False)
+        self.date = response.json().get('created', False)
         if not self.date:
             raise DRegCliException("Image date not found")
         return self.date
