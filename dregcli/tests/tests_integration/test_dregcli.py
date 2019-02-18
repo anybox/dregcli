@@ -72,12 +72,13 @@ class TestRepoImage:
             self.get_repo(fixture_client).image(tag)
         assert str(excinfo.value) == msg404
 
-        # after delete, tag removed, 0, 1, 2 tags removed,
+        # after delete, tags 0, 1, 2 removed,
         # so the last remains
-        assert self.get_repo(fixture_client).tags() == [fixture_tags[-1]]
+        repo = self.get_repo(fixture_client)
+        assert repo.tags() == [fixture_tags[-1]]
 
         # after delete, repo should still be here in catalog
-        assert self.get_repo(fixture_client).name == fixture_repository
+        assert repo.name == fixture_repository
 
     @pytest.mark.usefixtures(
         'fixture_repository',

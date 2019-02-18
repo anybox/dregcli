@@ -12,12 +12,16 @@ from fixtures import (
     fixture_registry_url,
     fixture_repository,
     fixture_tags,
+    fixture_client,
 )
 from dregcli.console import main as console_main, CommandHandler
 from dregcli.dregcli import DRegCliException, Client, Repository, Image
 
 
 class TestConsole:
+    def get_repo(self, client):
+        return client.repositories()[0]
+
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
     def test_reps(self, fixture_registry_url, fixture_repository, capsys):
         expected_out = [
@@ -276,13 +280,15 @@ class TestConsole:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_repository',
-        'fixture_tags'
+        'fixture_tags',
+        'fixture_client'
     )
     def test_image_delete(
         self,
         fixture_registry_url,
         fixture_repository,
         fixture_tags,
+        fixture_client,
         capsys
     ):
         tag = fixture_tags[0]
@@ -346,16 +352,25 @@ class TestConsole:
                 console_main()
                 assert tools.get_output_lines(capsys) == expected_out_404
 
+            # after delete, tag 0 removed, so the other should remains
+            repo = self.get_repo(fixture_client)
+            assert repo.tags() == fixture_tags[1:]
+
+            # after delete, repo should still be here in catalog
+            assert repo.name == fixture_repository
+
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_repository',
-        'fixture_tags'
+        'fixture_tags',
+        'fixture_client'
     )
     def test_image_delete_json(
         self,
         fixture_registry_url,
         fixture_repository,
         fixture_tags,
+        fixture_client,
         capsys
     ):
         # FYI in test_image_delete  fixture_tags[0] was deleted
@@ -403,6 +418,13 @@ class TestConsole:
                 console_main()
                 out_json = json.loads(tools.get_output_lines(capsys)[0])
                 assert out_json == expected_json
+
+            # after delete, tag 0, 1 removed, so the other should remains
+            repo = self.get_repo(fixture_client)
+            assert repo.tags() == fixture_tags[2:]
+
+            # after delete, repo should still be here in catalog
+            assert repo.name == fixture_repository
 
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
     def test_garbage(
