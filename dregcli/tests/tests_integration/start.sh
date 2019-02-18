@@ -15,7 +15,7 @@ setImage 3.7
 setImage 3.8
 setImage latest
 
-${DREGCLI_VENV}/bin/py.test --pep8 -v dregcli/tests_integration/
+${DREGCLI_VENV}/bin/py.test --pep8 -v dregcli/tests/tests_integration/
 
 docker stop ${containerName}
 docker rm ${containerName}

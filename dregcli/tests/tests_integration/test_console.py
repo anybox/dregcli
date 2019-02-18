@@ -1,8 +1,13 @@
-from unittest import mock
 import json
+import os
+import sys
+from unittest import mock
 import pytest
 
-from . import tools
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
+)
+import tools
 from dregcli.console import main as console_main, CommandHandler
 from dregcli.dregcli import DRegCliException, Client, Repository, Image
 
@@ -111,9 +116,8 @@ class TestConsole:
             assert out_lines[0] == 'tags' and \
                 out_lines[1] == 'GET {url}/v2/{repo}/tags/list'.format(
                     url=fixture_registry_url,
-                    repo=fixture_repository
-                )
-            assert out_lines[len(expected_tags_lines)*-1:] \
+                    repo=fixture_repository)
+            assert out_lines[len(expected_tags_lines) * -1:] \
                 == expected_tags_lines
 
     def test_tags_json(

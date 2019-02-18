@@ -1,7 +1,11 @@
 import os
+import sys
 import pytest
 
-from . import tools
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
+)
+import tools
 from dregcli.dregcli import DRegCliException, Client
 
 

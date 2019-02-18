@@ -1,8 +1,13 @@
 import hashlib
+import os
+import sys
 from unittest import mock
 import pytest
 
-from . import tools
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
+)
+import tools
 
 
 class TestTools:
