@@ -4,32 +4,14 @@ from unittest import mock
 import pytest
 
 from . import tools
+from .fixtures import (
+    fixture_registry_url,
+    fixture_repositories_url,
+    fixture_repositories,
+    fixture_auth,
+    fixture_auth_token
+)
 from dregcli.dregcli import DRegCliException, Client, Repository
-
-
-@pytest.fixture(scope="module")
-def fixture_registry_url():
-    return 'http://localhost:5001'
-
-
-@pytest.fixture()
-def fixture_repositories_url():
-    return '/v2/_catalog'
-
-
-@pytest.fixture()
-def fixture_registories():
-    return {"repositories": ["my-alpine"]}
-
-
-@pytest.fixture()
-def fixture_auth():
-    return {
-        'login': 'foobar',
-        'password': 'foobar2000',
-        'token': '',
-        'remote_type': Client.Meta.remote_type_registry,
-    }
 
 
 @pytest.fixture()
@@ -43,6 +25,7 @@ class TestClient:
         mo.assert_called_once_with(expected_url, headers={})
         return res
 
+    @pytest.mark.usefixtures('fixture_registry_url')
     def test_init(self, fixture_registry_url):
         def assert_client(verbose):
             assert client.url == fixture_registry_url
@@ -58,6 +41,7 @@ class TestClient:
         client = Client(fixture_registry_url, verbose=True)
         assert_client(True)
 
+    @pytest.mark.usefixtures('fixture_registry_url')
     def test_display(self, fixture_registry_url, capsys):
         client = Client(fixture_registry_url, verbose=True)
         client.display("hello", "world")
@@ -69,12 +53,16 @@ class TestClient:
         captured = capsys.readouterr()
         assert captured.out == ""
 
-    @pytest.mark.usefixtures('fixture_repositories_url', 'fixture_registories')
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repositories_url',
+        'fixture_repositories'
+    )
     def test_request(
         self,
         fixture_registry_url,
         fixture_repositories_url,
-        fixture_registories
+        fixture_repositories
     ):
         expected_url = fixture_registry_url + fixture_repositories_url
         expected_code = 200
@@ -84,13 +72,13 @@ class TestClient:
 
         # default
         mock_res = mock.MagicMock()
-        mock_res.json = mock.MagicMock(return_value=fixture_registories)
+        mock_res.json = mock.MagicMock(return_value=fixture_repositories)
         mock_res.status_code = 200
         with mock.patch('requests.get', return_value=mock_res) as mo:
             res = client._request(expected_url)
             mo.assert_called_once_with(expected_url, headers=headers)
             assert res.status_code == expected_code and \
-                res.json() == fixture_registories
+                res.json() == fixture_repositories
 
         # headers
         headers = {'foobar': 'foobar2000'}
@@ -98,7 +86,7 @@ class TestClient:
             res = client._request(expected_url, headers=headers)
             mo.assert_called_once_with(expected_url, headers=headers)
             assert res.status_code == expected_code and \
-                res.json() == fixture_registories
+                res.json() == fixture_repositories
 
         # method
         headers = {}
@@ -113,7 +101,7 @@ class TestClient:
                 headers=headers,
             )
             assert res.status_code == expected_code and \
-                res.json() == fixture_registories
+                res.json() == fixture_repositories
 
         # expected_code matching
         expected_code = 202
@@ -125,7 +113,7 @@ class TestClient:
                 headers=headers,
             )
             assert res.status_code == expected_code and \
-                res.json() == fixture_registories
+                res.json() == fixture_repositories
 
         # expected code mismatch
         expected_code = 202
@@ -143,19 +131,23 @@ class TestClient:
                     headers=headers,
                 )
                 assert res.status_code == expected_code and \
-                    res.json() == fixture_registories
+                    res.json() == fixture_repositories
             assert str(excinfo.value) == other_code_msg
 
-    @pytest.mark.usefixtures('fixture_repositories_url', 'fixture_registories')
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repositories_url',
+        'fixture_repositories'
+    )
     def test_repositories(
         self,
         fixture_registry_url,
         fixture_repositories_url,
-        fixture_registories
+        fixture_repositories
     ):
         mock_res = mock.MagicMock()
         mock_res.status_code = 200
-        mock_res.json = mock.MagicMock(return_value=fixture_registories)
+        mock_res.json = mock.MagicMock(return_value=fixture_repositories)
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
             client = Client(fixture_registry_url, verbose=False)
@@ -164,7 +156,7 @@ class TestClient:
                 client,
                 fixture_registry_url + fixture_repositories_url
             )
-            expected_repos = fixture_registories['repositories']
+            expected_repos = fixture_repositories['repositories']
             assert isinstance(repositories, list) and \
                 len(repositories) == len(expected_repos) and \
                 all([type(r) == Repository for r in repositories]) and \
@@ -174,7 +166,7 @@ class TestClient:
 
 
 class TestAuth:
-    @pytest.mark.usefixtures('fixture_auth')
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_auth')
     def test_set_auth(self, fixture_registry_url, fixture_auth):
         client = Client(fixture_registry_url)
         client.set_auth(
@@ -192,7 +184,7 @@ class TestAuth:
         )
         assert client.auth == fixture_auth
 
-    @pytest.mark.usefixtures('fixture_auth')
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_auth')
     def test_set_auth(self, fixture_registry_url, fixture_auth):
         client = Client(fixture_registry_url)
         client.auth = fixture_auth
@@ -200,7 +192,7 @@ class TestAuth:
         client.reset_auth()
         assert not client.auth and isinstance(client.auth, bool)
 
-    @pytest.mark.usefixtures('fixture_auth_token')
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_auth_token')
     def test_decorate_headers(self, fixture_registry_url, fixture_auth_token):
         client = Client(fixture_registry_url, verbose=False)
         client.auth = {'token': fixture_auth_token}
@@ -277,7 +269,9 @@ class TestAuth:
             assert str(excinfo.value) == no_token_msg
 
     @pytest.mark.usefixtures(
+        'fixture_registry_url',
         'fixture_repositories_url',
+        'fixture_repositories',
         'fixture_auth',
         'fixture_auth_token'
     )
@@ -300,9 +294,9 @@ class TestAuth:
 
         # default
         mock_res = mock.MagicMock()
-        mock_res.json = mock.MagicMock(return_value=fixture_registories)
+        mock_res.json = mock.MagicMock(return_value=fixture_repositories)
         mock_res.status_code = 200
         with mock.patch('requests.get', return_value=mock_res) as mo:
             res = client._request(expected_url)
             assert res.status_code == expected_code and \
-                res.json() == fixture_registories
+                res.json() == fixture_repositories

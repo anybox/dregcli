@@ -1,25 +1,16 @@
 from unittest import mock
 import pytest
 
+from .fixtures import (
+    fixture_registry_url,
+    fixture_repositories,
+    fixture_tags
+)
 from dregcli.console import main as console_main
 
 
-@pytest.fixture(scope="module")
-def fixture_registry_url():
-    return 'http://localhost:5001'
-
-
-@pytest.fixture(scope="module")
-def fixture_repository():
-    return 'my-alpine'
-
-
-@pytest.fixture(scope="module")
-def fixture_tag():
-    return '3.8'
-
-
 class TestConsoleCommandLine:
+    @pytest.mark.usefixtures('fixture_registry_url')
     def test_reps(self, fixture_registry_url):
         with mock.patch(
             'sys.argv',
@@ -84,10 +75,16 @@ class TestConsoleCommandLine:
                     gitlab=False
                 )
 
-    def test_tags(self, fixture_registry_url, fixture_repository):
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repositories')
+    def test_tags(self, fixture_registry_url, fixture_repositories):
         with mock.patch(
             'sys.argv',
-            ['dregcli', 'tags', fixture_registry_url, fixture_repository]
+            [
+                'dregcli',
+                'tags',
+                fixture_registry_url,
+                fixture_repositories["repositories"][0],
+            ]
         ):
             with mock.patch(
                 'dregcli.console.TagsCommandHandler.run'
@@ -95,7 +92,7 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
+                    fixture_repositories["repositories"][0],
                     False,
                     user=None,
                     gitlab=False
@@ -104,7 +101,13 @@ class TestConsoleCommandLine:
         # json
         with mock.patch(
             'sys.argv',
-            ['dregcli', 'tags', fixture_registry_url, fixture_repository, '-j']
+            [
+                'dregcli',
+                'tags',
+                fixture_registry_url,
+                fixture_repositories["repositories"][0],
+                '-j',
+            ]
         ):
             with mock.patch(
                 'dregcli.console.TagsCommandHandler.run'
@@ -112,17 +115,22 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
+                    fixture_repositories["repositories"][0],
                     True,
                     user=None,
                     gitlab=False
                 )
 
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repositories',
+        'fixture_tags'
+    )
     def test_image(
         self,
         fixture_registry_url,
-        fixture_repository,
-        fixture_tag
+        fixture_repositories,
+        fixture_tags
     ):
         with mock.patch(
             'sys.argv',
@@ -130,8 +138,8 @@ class TestConsoleCommandLine:
                 'dregcli',
                 'image',
                 fixture_registry_url,
-                fixture_repository,
-                fixture_tag,
+                fixture_repositories["repositories"][0],
+                fixture_tags[0],
             ]
         ):
             with mock.patch(
@@ -140,8 +148,8 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
-                    fixture_tag,
+                    fixture_repositories["repositories"][0],
+                    fixture_tags[0],
                     False,
                     False,
                     False,
@@ -157,8 +165,8 @@ class TestConsoleCommandLine:
                 'dregcli',
                 'image',
                 fixture_registry_url,
-                fixture_repository,
-                fixture_tag,
+                fixture_repositories["repositories"][0],
+                fixture_tags[0],
                 '-m',
             ]
         ):
@@ -168,8 +176,8 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
-                    fixture_tag,
+                    fixture_repositories["repositories"][0],
+                    fixture_tags[0],
                     True,
                     False,
                     False,
@@ -185,8 +193,8 @@ class TestConsoleCommandLine:
                 'dregcli',
                 'image',
                 fixture_registry_url,
-                fixture_repository,
-                fixture_tag,
+                fixture_repositories["repositories"][0],
+                fixture_tags[0],
                 '-j',
             ]
         ):
@@ -196,8 +204,8 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
-                    fixture_tag,
+                    fixture_repositories["repositories"][0],
+                    fixture_tags[0],
                     False,
                     True,
                     False,
@@ -213,8 +221,8 @@ class TestConsoleCommandLine:
                 'dregcli',
                 'image',
                 fixture_registry_url,
-                fixture_repository,
-                fixture_tag,
+                fixture_repositories["repositories"][0],
+                fixture_tags[0],
                 '-d',
             ]
         ):
@@ -224,8 +232,8 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
-                    fixture_tag,
+                    fixture_repositories["repositories"][0],
+                    fixture_tags[0],
                     False,
                     False,
                     True,
@@ -241,8 +249,8 @@ class TestConsoleCommandLine:
                 'dregcli',
                 'image',
                 fixture_registry_url,
-                fixture_repository,
-                fixture_tag,
+                fixture_repositories["repositories"][0],
+                fixture_tags[0],
                 '-y',
             ]
         ):
@@ -252,8 +260,8 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
-                    fixture_tag,
+                    fixture_repositories["repositories"][0],
+                    fixture_tags[0],
                     False,
                     False,
                     False,
@@ -262,10 +270,11 @@ class TestConsoleCommandLine:
                     gitlab=False
                 )
 
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repositories')
     def test_garbage(
         self,
         fixture_registry_url,
-        fixture_repository
+        fixture_repositories
     ):
         with mock.patch(
             'sys.argv',
@@ -273,7 +282,7 @@ class TestConsoleCommandLine:
                 'dregcli',
                 'garbage',
                 fixture_registry_url,
-                fixture_repository,
+                fixture_repositories["repositories"][0],
             ]
         ):
             with mock.patch(
@@ -282,7 +291,7 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
+                    fixture_repositories["repositories"][0],
                     False,
                     False,
                     user=None,
@@ -296,7 +305,7 @@ class TestConsoleCommandLine:
                 'dregcli',
                 'garbage',
                 fixture_registry_url,
-                fixture_repository,
+                fixture_repositories["repositories"][0],
                 '-n'
             ]
         ):
@@ -306,7 +315,7 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
+                    fixture_repositories["repositories"][0],
                     True,
                     False,
                     user=None,
@@ -320,7 +329,7 @@ class TestConsoleCommandLine:
                 'dregcli',
                 'garbage',
                 fixture_registry_url,
-                fixture_repository,
+                fixture_repositories["repositories"][0],
                 '-j'
             ]
         ):
@@ -330,7 +339,7 @@ class TestConsoleCommandLine:
                 console_main()
                 mo.assert_called_once_with(
                     fixture_registry_url,
-                    fixture_repository,
+                    fixture_repositories["repositories"][0],
                     False,
                     True,
                     user=None,
