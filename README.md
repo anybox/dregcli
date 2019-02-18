@@ -24,7 +24,7 @@ python setup.py develop
 ### unit tests
 
 ```bash
-py.test --pep8 --cov=dregcli --cov-report=html -v --ignore dregcli/tests_integration/
+py.test --pep8 --cov=dregcli --cov-report=html -v --ignore dregcli/tests/tests_integration/
 ```
 
 ### integration tests
@@ -49,5 +49,5 @@ export DREGCLI_VENV=~/venvs/dregcli
 export DREGCLI_HOST=https://myhost
 export DREGCLI_LOGIN=myuser
 export DREGCLI_PASSWORD=mypassword
-dregcli/tests_integration/start.sh
+dregcli/tests/tests_integration/start.sh
 ```
