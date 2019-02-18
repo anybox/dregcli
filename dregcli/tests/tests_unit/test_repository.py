@@ -9,6 +9,7 @@ sys.path.append(
 import tools
 from fixtures import (
     fixture_registry_url,
+    fixture_repository,
     fixture_repositories,
     fixture_tags,
     fixture_digest,
@@ -23,14 +24,14 @@ from dregcli.dregcli import DRegCliException, Client, Repository, Image
 class TestRepository:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
-        'fixture_repositories',
+        'fixture_repository',
         'fixture_tags_url',
         'fixture_tags_json'
     )
     def test_tags(
         self,
         fixture_registry_url,
-        fixture_repositories,
+        fixture_repository,
         fixture_tags_url,
         fixture_tags_json
     ):
@@ -42,7 +43,7 @@ class TestRepository:
         with mock.patch('requests.get', return_value=mock_res) as mo:
             repository = Repository(
                 Client(fixture_registry_url),
-                fixture_repositories["repositories"][0]
+                fixture_repository
             )
             tags = repository.tags()
             assert isinstance(tags, list) and \
@@ -50,7 +51,7 @@ class TestRepository:
 
     @pytest.mark.usefixtures(
         'fixture_registry_url',
-        'fixture_repositories',
+        'fixture_repository',
         'fixture_tags',
         'fixture_digest',
         'fixture_image_url',
@@ -59,7 +60,7 @@ class TestRepository:
     def test_image(
         self,
         fixture_registry_url,
-        fixture_repositories,
+        fixture_repository,
         fixture_tags,
         fixture_digest,
         fixture_image_url,
@@ -81,14 +82,14 @@ class TestRepository:
         mock_res.headers.__iter__.side_effect = response_headers.__iter__
 
         expected_image_name = "{repo}:{tag}".format(
-            repo=fixture_repositories["repositories"][0],
+            repo=fixture_repository,
             tag=fixture_tags[0]
         )
 
         with mock.patch('requests.get', return_value=mock_res) as mo:
             repository = Repository(
                 Client(fixture_registry_url),
-                fixture_repositories["repositories"][0]
+                fixture_repository
             )
             image = repository.image(fixture_tags[0])
             mo.assert_called_once_with(
@@ -96,10 +97,10 @@ class TestRepository:
                 headers=Repository.Meta.manifests_headers
             )
             assert type(image) == Image and \
-                image.name == fixture_repositories["repositories"][0] and \
+                image.name == fixture_repository and \
                 image.tag == fixture_tags[0] and \
                 image.digest == fixture_digest and \
                 image.data == fixture_image_json and \
                 str(image) == "{repo}:{tag}".format(
-                    repo=fixture_repositories["repositories"][0],
+                    repo=fixture_repository,
                     tag=fixture_tags[0])

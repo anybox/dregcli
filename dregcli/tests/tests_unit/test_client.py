@@ -11,6 +11,7 @@ import tools
 from fixtures import (
     fixture_registry_url,
     fixture_repositories_url,
+    fixture_repository,
     fixture_repositories,
     fixture_auth,
     fixture_auth_token

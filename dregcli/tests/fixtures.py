@@ -15,8 +15,13 @@ def fixture_repositories_url():
 
 
 @pytest.fixture()
-def fixture_repositories():
-    return {"repositories": ["test-project"]}
+def fixture_repository():
+    return "test-project"
+
+
+@pytest.fixture()
+def fixture_repositories(fixture_repository):
+    return {"repositories": [fixture_repository]}
 
 
 @pytest.fixture()

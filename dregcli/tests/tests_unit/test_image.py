@@ -10,6 +10,7 @@ sys.path.append(
 import tools
 from fixtures import (
     fixture_registry_url,
+    fixture_repository,
     fixture_repositories,
     fixture_tags,
     fixture_digest,
