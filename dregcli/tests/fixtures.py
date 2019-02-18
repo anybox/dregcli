@@ -1,12 +1,17 @@
 import datetime
 import pytest
 
-from dregcli.dregcli import DRegCliException, Client, Repository
+from dregcli.dregcli import Client
 
 
 @pytest.fixture()
 def fixture_registry_url():
     return 'http://localhost:5001'
+
+
+@pytest.fixture()
+def fixture_client(fixture_registry_url):
+    return Client(fixture_registry_url)
 
 
 @pytest.fixture()
@@ -98,7 +103,7 @@ def fixture_delete_url(
 
 @pytest.fixture()
 def fixture_tags_url():
-    return '/v2/my-alpine/tags/list'
+    return '/v2/test-project/tags/list'
 
 
 @pytest.fixture()

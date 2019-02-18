@@ -6,29 +6,13 @@ sys.path.append(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
 )
 import tools
+from fixtures import (
+    fixture_registry_url,
+    fixture_client,
+    fixture_repository,
+    fixture_tags,
+)
 from dregcli.dregcli import DRegCliException, Client
-
-
-@pytest.fixture(scope="module")
-def fixture_registry_url():
-    return 'http://localhost:5001'
-
-
-@pytest.fixture(scope="module")
-def fixture_client(fixture_registry_url):
-    return Client(fixture_registry_url, verbose=True)
-
-
-@pytest.fixture()
-def fixture_repository():
-    return 'my-alpine'
-
-
-@pytest.fixture()
-def fixture_tags():
-    # FYI: through test_console.py testing, latest tag was removed
-    # we pass from ['latest', '3.8'] to ['3.8']
-    return ['3.8']
 
 
 class TestClient:
@@ -46,7 +30,9 @@ class TestRepoImage:
 
     @pytest.mark.usefixtures('fixture_tags')
     def test_tags(self, fixture_client, fixture_tags):
-        assert self.get_repo(fixture_client).tags() == fixture_tags
+        # FYI in test_console.py 2 first tags were deleted, should remains
+        # the others
+        assert self.get_repo(fixture_client).tags() == fixture_tags[2:]
 
     @pytest.mark.usefixtures(
         'fixture_repository',
@@ -58,7 +44,8 @@ class TestRepoImage:
         fixture_repository,
         fixture_tags,
     ):
-        tag = fixture_tags[0]  # FYI in test_console latest tag was deleted
+        # FYI in test_console tags 0 and 1 were deleted
+        tag = fixture_tags[2]
 
         image = self.get_repo(fixture_client).image(tag)
         assert image and image.name == fixture_repository and \
@@ -85,8 +72,9 @@ class TestRepoImage:
             self.get_repo(fixture_client).image(tag)
         assert str(excinfo.value) == msg404
 
-        # after delete, tag removed, the last so no other tag remains
-        assert self.get_repo(fixture_client).tags() is None
+        # after delete, tag removed, 0, 1, 2 tags removed,
+        # so the last remains
+        assert self.get_repo(fixture_client).tags() == [fixture_tags[-1]]
 
         # after delete, repo should still be here in catalog
         assert self.get_repo(fixture_client).name == fixture_repository

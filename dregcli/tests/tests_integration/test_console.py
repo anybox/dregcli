@@ -8,26 +8,17 @@ sys.path.append(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
 )
 import tools
+from fixtures import (
+    fixture_registry_url,
+    fixture_repository,
+    fixture_tags,
+)
 from dregcli.console import main as console_main, CommandHandler
 from dregcli.dregcli import DRegCliException, Client, Repository, Image
 
 
-@pytest.fixture(scope="module")
-def fixture_registry_url():
-    return 'http://localhost:5001'
-
-
-@pytest.fixture(scope="module")
-def fixture_repository():
-    return 'my-alpine'
-
-
-@pytest.fixture(scope="module")
-def fixture_tags():
-    return ['latest', '3.7', '3.8']
-
-
 class TestConsole:
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
     def test_reps(self, fixture_registry_url, fixture_repository, capsys):
         expected_out = [
             'reps',
@@ -43,6 +34,7 @@ class TestConsole:
             out_lines = tools.get_output_lines(capsys)
             assert out_lines == expected_out
 
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
     def test_reps_user(self, fixture_registry_url, fixture_repository, capsys):
         expected_out = [
             'reps',
@@ -79,6 +71,7 @@ class TestConsole:
             # we should have "gitlab: as user 'login'" at 2nd line
             assert out_lines[:2] == expected_out
 
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
     def test_reps_json(self, fixture_registry_url, fixture_repository, capsys):
         expected_json = {'result': [fixture_repository]}
 
@@ -90,6 +83,11 @@ class TestConsole:
             out_json = json.loads(tools.get_output_lines(capsys)[0])
             assert out_json == expected_json
 
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repository',
+        'fixture_tags'
+    )
     def test_tags(
         self,
         fixture_registry_url,
@@ -113,13 +111,16 @@ class TestConsole:
         ):
             console_main()
             out_lines = tools.get_output_lines(capsys)
-            assert out_lines[0] == 'tags' and \
-                out_lines[1] == 'GET {url}/v2/{repo}/tags/list'.format(
-                    url=fixture_registry_url,
-                    repo=fixture_repository)
-            assert out_lines[len(expected_tags_lines) * -1:] \
-                == expected_tags_lines
+            assert out_lines[0] == 'tags'
+            # tag lines result: last tags count ouput lines
+            output_tags = out_lines[len(expected_tags_lines) * -1:]
+            assert all([ot in expected_tags_lines for ot in output_tags])
 
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repository',
+        'fixture_tags'
+    )
     def test_tags_json(
             self,
             fixture_registry_url,
@@ -130,7 +131,7 @@ class TestConsole:
         # compute expected json result from expected fixture_tags
         client = Client(fixture_registry_url, verbose=False)
         repository = Repository(client, fixture_repository)
-        expected_json = {
+        expected_json_result = {
             'result': [
                 {
                     'tag': t,
@@ -147,8 +148,15 @@ class TestConsole:
         ):
             console_main()
             out_json = json.loads(tools.get_output_lines(capsys)[0])
-            assert out_json == expected_json
+            assert out_json and 'result' in expected_json_result \
+                and all(t in expected_json_result['result']
+                        for t in out_json['result'])
 
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repository',
+        'fixture_tags'
+    )
     def test_image(
         self,
         fixture_registry_url,
@@ -212,6 +220,11 @@ class TestConsole:
                 out_lines[:2] == expected_out and \
                 tools.check_sha256(out_lines[2])
 
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repository',
+        'fixture_tags'
+    )
     def test_image_json(
         self,
         fixture_registry_url,
@@ -260,6 +273,11 @@ class TestConsole:
                 == ['digest', 'manifest'] and \
                 tools.check_sha256(out_json['result']['digest'])
 
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repository',
+        'fixture_tags'
+    )
     def test_image_delete(
         self,
         fixture_registry_url,
@@ -267,7 +285,7 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
-        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[2] is deleted
+        tag = fixture_tags[0]
 
         expected_out = [
             'image',
@@ -328,6 +346,11 @@ class TestConsole:
                 console_main()
                 assert tools.get_output_lines(capsys) == expected_out_404
 
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repository',
+        'fixture_tags'
+    )
     def test_image_delete_json(
         self,
         fixture_registry_url,
@@ -335,7 +358,8 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
-        tag = fixture_tags[1]  # FYI in test_dregcli fixture_tags[2] is deleted
+        # FYI in test_image_delete  fixture_tags[0] was deleted
+        tag = fixture_tags[1]
 
         with mock.patch(
             'sys.argv',
@@ -380,6 +404,7 @@ class TestConsole:
                 out_json = json.loads(tools.get_output_lines(capsys)[0])
                 assert out_json == expected_json
 
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
     def test_garbage(
         self,
         fixture_registry_url,
@@ -400,6 +425,7 @@ class TestConsole:
         ):
             console_main()
 
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
     def test_garbage_json(
         self,
         fixture_registry_url,
