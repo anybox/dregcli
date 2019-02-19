@@ -258,15 +258,32 @@ class GarbageCommandHandler(CommandHandler):
             action='store_true',
             help='WARNING: delete all image'
         )
+        subparser_garbage.add_argument(
+            '--from-count',
+            type=int,
+            help='delete from count image: '
+                 '--from-count=11 to keep last 10 images'
+        )
         subparser_garbage.set_defaults(
             func=lambda args: GarbageCommandHandler().run(
                 args.url, args.repo, args.null, args.json,
-                user=args.user, all=args.all
+                user=args.user,
+                all=args.all,
+                from_count=args.from_count or 0
             )
         )
         return subparser_garbage
 
-    def run(self, url, repo, null, json_output, user=False, all=False):
+    def run(
+        self,
+        url,
+        repo,
+        null,
+        json_output,
+        user=False,
+        all=False,
+        from_count=0
+    ):
         super().run(url, json_output, user=user)
 
         try:

@@ -274,7 +274,8 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     user=None,
-                    all=False
+                    all=False,
+                    from_count=0
                 )
 
         # null
@@ -298,7 +299,8 @@ class TestConsoleCommandLine:
                     True,
                     False,
                     user=None,
-                    all=False
+                    all=False,
+                    from_count=0
                 )
 
         # json
@@ -322,7 +324,8 @@ class TestConsoleCommandLine:
                     False,
                     True,
                     user=None,
-                    all=False
+                    all=False,
+                    from_count=0
                 )
 
         # all
@@ -346,5 +349,31 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     user=None,
-                    all=True
+                    all=True,
+                    from_count=0
+                )
+
+        # from_count
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '--from-count=10'
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.GarbageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    False,
+                    False,
+                    user=None,
+                    all=False,
+                    from_count=10
                 )
