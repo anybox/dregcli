@@ -279,8 +279,16 @@ class GarbageCommandHandler(CommandHandler):
         subparser_garbage.add_argument(
             '--include',
             type=str,
-            help='delete tags including python regexp'
+            help='delete tags including python regexp: '
                  '--include="^staging-[0-9]\{4\}"'
+        )
+        subparser_garbage.add_argument(
+            '--exclude',
+            type=str,
+            help='delete tags excluding python regexp: '
+                 'if regexp does not select anything, exclude does nothing'
+                 '(no implicit --all'
+                 '--exclude="^stable-[0-9]\{4\}"'
         )
         subparser_garbage.set_defaults(
             func=lambda args: GarbageCommandHandler().run(
@@ -292,6 +300,7 @@ class GarbageCommandHandler(CommandHandler):
                 from_count=args.from_count or 0,
                 from_day=args.from_day or 0,
                 include=args.include and args.include.strip("\"'") or '',
+                exclude=args.exclude and args.exclude.strip("\"'") or '',
             )
         )
         return subparser_garbage
@@ -307,7 +316,8 @@ class GarbageCommandHandler(CommandHandler):
         all=False,
         from_count=0,
         from_day=0,
-        include=''
+        include='',
+        exclude=''
     ):
         super().run(url, json_output, user=user)
 

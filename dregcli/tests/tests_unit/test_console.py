@@ -278,7 +278,8 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_day=0,
-                    include=''
+                    include='',
+                    exclude=''
                 )
 
         # json
@@ -306,7 +307,8 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_day=0,
-                    include=''
+                    include='',
+                    exclude=''
                 )
 
         # null
@@ -334,7 +336,8 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_day=0,
-                    include=''
+                    include='',
+                    exclude=''
                 )
 
         # yes
@@ -362,7 +365,8 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_day=0,
-                    include=''
+                    include='',
+                    exclude=''
                 )
 
         # all
@@ -390,7 +394,8 @@ class TestConsoleCommandLine:
                     all=True,
                     from_count=0,
                     from_day=0,
-                    include=''
+                    include='',
+                    exclude=''
                 )
 
         # from_count
@@ -418,7 +423,8 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=10,
                     from_day=0,
-                    include=''
+                    include='',
+                    exclude=''
                 )
 
         # from_day
@@ -446,7 +452,8 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_day=10,
-                    include=''
+                    include='',
+                    exclude=''
                 )
 
         # include
@@ -475,5 +482,36 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_day=0,
-                    include=include_option_val
+                    include=include_option_val,
+                    exclude=''
+                )
+
+        # exclude
+        exclude_option_val = "^stable-[0-9]\{4\}"
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '--exclude="{exclude}"'.format(exclude=exclude_option_val)
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.GarbageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    False,
+                    user=None,
+                    null=False,
+                    yes=False,
+                    all=False,
+                    from_count=0,
+                    from_day=0,
+                    include='',
+                    exclude=exclude_option_val
                 )
