@@ -267,14 +267,20 @@ class GarbageCommandHandler(CommandHandler):
         subparser_garbage.add_argument(
             '--from-count',
             type=int,
-            help='delete from count image: '
-                 '--from-count=11 to keep last 10 images'
+            help='delete from count tags: '
+                 '--from-count=11 to keep last 10 tags'
         )
         subparser_garbage.add_argument(
             '--from-day',
             type=int,
             help='delete from day: '
-                 '--from-day=11 to keep last 10 days images'
+                 '--from-day=11 to keep last 10 days tags'
+        )
+        subparser_garbage.add_argument(
+            '--include',
+            type=str,
+            help='delete tags including python regexp'
+                 '--include="^staging-[0-9]\{4\}"'
         )
         subparser_garbage.set_defaults(
             func=lambda args: GarbageCommandHandler().run(
@@ -284,7 +290,8 @@ class GarbageCommandHandler(CommandHandler):
                 yes=args.yes,
                 all=args.all,
                 from_count=args.from_count or 0,
-                from_day=args.from_day or 0
+                from_day=args.from_day or 0,
+                include=args.include and args.include.strip("\"'") or '',
             )
         )
         return subparser_garbage
@@ -299,7 +306,8 @@ class GarbageCommandHandler(CommandHandler):
         user=False,
         all=False,
         from_count=0,
-        from_day=0
+        from_day=0,
+        include=''
     ):
         super().run(url, json_output, user=user)
 

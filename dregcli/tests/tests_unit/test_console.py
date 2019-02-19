@@ -277,7 +277,8 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=0
+                    from_day=0,
+                    include=''
                 )
 
         # json
@@ -304,7 +305,8 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=0
+                    from_day=0,
+                    include=''
                 )
 
         # null
@@ -331,7 +333,8 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=0
+                    from_day=0,
+                    include=''
                 )
 
         # yes
@@ -358,7 +361,8 @@ class TestConsoleCommandLine:
                     yes=True,
                     all=False,
                     from_count=0,
-                    from_day=0
+                    from_day=0,
+                    include=''
                 )
 
         # all
@@ -385,7 +389,8 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=True,
                     from_count=0,
-                    from_day=0
+                    from_day=0,
+                    include=''
                 )
 
         # from_count
@@ -412,7 +417,8 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=10,
-                    from_day=0
+                    from_day=0,
+                    include=''
                 )
 
         # from_day
@@ -439,5 +445,35 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=10
+                    from_day=10,
+                    include=''
+                )
+
+        # include
+        include_option_val = "^staging-[0-9]\{4\}"
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '--include="{include}"'.format(include=include_option_val)
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.GarbageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    False,
+                    user=None,
+                    null=False,
+                    yes=False,
+                    all=False,
+                    from_count=0,
+                    from_day=0,
+                    include=include_option_val
                 )
