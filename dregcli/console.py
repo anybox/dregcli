@@ -321,6 +321,10 @@ class GarbageCommandHandler(CommandHandler):
     ):
         super().run(url, json_output, user=user)
 
+        if not (all or from_count or from_day or include or exclude):
+            print('no option selected (criteria). --delete aborted')
+            return
+
         try:
             repository = Repository(self.client, repo)
             # TODO
