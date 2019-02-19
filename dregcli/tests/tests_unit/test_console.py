@@ -276,7 +276,8 @@ class TestConsoleCommandLine:
                     null=False,
                     yes=False,
                     all=False,
-                    from_count=0
+                    from_count=0,
+                    from_day=0
                 )
 
         # json
@@ -302,7 +303,8 @@ class TestConsoleCommandLine:
                     null=False,
                     yes=False,
                     all=False,
-                    from_count=0
+                    from_count=0,
+                    from_day=0
                 )
 
         # null
@@ -328,7 +330,8 @@ class TestConsoleCommandLine:
                     null=True,
                     yes=False,
                     all=False,
-                    from_count=0
+                    from_count=0,
+                    from_day=0
                 )
 
         # yes
@@ -354,7 +357,8 @@ class TestConsoleCommandLine:
                     null=False,
                     yes=True,
                     all=False,
-                    from_count=0
+                    from_count=0,
+                    from_day=0
                 )
 
         # all
@@ -380,7 +384,8 @@ class TestConsoleCommandLine:
                     null=False,
                     yes=False,
                     all=True,
-                    from_count=0
+                    from_count=0,
+                    from_day=0
                 )
 
         # from_count
@@ -406,5 +411,33 @@ class TestConsoleCommandLine:
                     null=False,
                     yes=False,
                     all=False,
-                    from_count=10
+                    from_count=10,
+                    from_day=0
+                )
+
+        # from_day
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '--from-day=10'
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.GarbageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    False,
+                    user=None,
+                    null=False,
+                    yes=False,
+                    all=False,
+                    from_count=0,
+                    from_day=10
                 )

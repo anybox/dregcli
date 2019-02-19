@@ -270,6 +270,12 @@ class GarbageCommandHandler(CommandHandler):
             help='delete from count image: '
                  '--from-count=11 to keep last 10 images'
         )
+        subparser_garbage.add_argument(
+            '--from-day',
+            type=int,
+            help='delete from day: '
+                 '--from-day=11 to keep last 10 days images'
+        )
         subparser_garbage.set_defaults(
             func=lambda args: GarbageCommandHandler().run(
                 args.url, args.repo, args.json,
@@ -277,7 +283,8 @@ class GarbageCommandHandler(CommandHandler):
                 null=args.null,
                 yes=args.yes,
                 all=args.all,
-                from_count=args.from_count or 0
+                from_count=args.from_count or 0,
+                from_day=args.from_day or 0
             )
         )
         return subparser_garbage
@@ -288,9 +295,11 @@ class GarbageCommandHandler(CommandHandler):
         repo,
         json_output,
         null=False,
+        yes=False,
         user=False,
         all=False,
-        from_count=0
+        from_count=0,
+        from_day=0
     ):
         super().run(url, json_output, user=user)
 
