@@ -28,8 +28,7 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     False,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
         # user
@@ -44,24 +43,7 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     False,
-                    user='login:pwd',
-                    gitlab=False
-                )
-
-        # gitlab
-        with mock.patch(
-            'sys.argv',
-            ['dregcli', '--gitlab', 'reps', fixture_registry_url]
-        ):
-            with mock.patch(
-                'dregcli.console.RepositoriesCommandHandler.run'
-            ) as mo:
-                console_main()
-                mo.assert_called_once_with(
-                    fixture_registry_url,
-                    False,
-                    user=None,
-                    gitlab=True
+                    user='login:pwd'
                 )
 
         # json
@@ -76,8 +58,7 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     True,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
@@ -99,8 +80,7 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     False,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
         # json
@@ -122,8 +102,7 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     True,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
     @pytest.mark.usefixtures(
@@ -159,8 +138,7 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     False,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
         # manifest
@@ -187,8 +165,7 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     False,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
         # json
@@ -215,8 +192,7 @@ class TestConsoleCommandLine:
                     True,
                     False,
                     False,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
         # delete
@@ -243,8 +219,7 @@ class TestConsoleCommandLine:
                     False,
                     True,
                     False,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
         # always yes
@@ -271,8 +246,7 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     True,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
@@ -299,8 +273,7 @@ class TestConsoleCommandLine:
                     fixture_repository,
                     False,
                     False,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
         # null
@@ -323,8 +296,7 @@ class TestConsoleCommandLine:
                     fixture_repository,
                     True,
                     False,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )
 
         # json
@@ -347,6 +319,5 @@ class TestConsoleCommandLine:
                     fixture_repository,
                     False,
                     True,
-                    user=None,
-                    gitlab=False
+                    user=None
                 )

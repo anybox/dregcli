@@ -42,7 +42,7 @@ class TestConsole:
     def test_reps_user(self, fixture_registry_url, fixture_repository, capsys):
         expected_out = [
             'reps',
-            "registry: as user 'login'",
+            "login as user 'login'",
         ]
 
         with mock.patch(
@@ -52,27 +52,6 @@ class TestConsole:
             console_main()
             out_lines = tools.get_output_lines(capsys)
             # we should have "registry: as user 'login'" at 2nd line
-            assert out_lines[:2] == expected_out
-
-        # gitlab
-        expected_out = [
-            'reps',
-            "gitlab: as user 'login'",
-        ]
-
-        with mock.patch(
-            'sys.argv',
-            [
-                'dregcli',
-                '-u', 'login:pwd',
-                '--gitlab',
-                'reps',
-                fixture_registry_url
-            ]
-        ):
-            console_main()
-            out_lines = tools.get_output_lines(capsys)
-            # we should have "gitlab: as user 'login'" at 2nd line
             assert out_lines[:2] == expected_out
 
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')

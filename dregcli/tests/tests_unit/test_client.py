@@ -180,15 +180,6 @@ class TestAuth:
         )
         assert client.auth == fixture_auth
 
-        expected_auth = fixture_auth.copy()
-        expected_auth['remote_type'] = Client.Meta.remote_type_gitlab
-        client.set_auth(
-            fixture_auth.get('login'),
-            fixture_auth.get('password'),
-            remote_type=expected_auth['remote_type']
-        )
-        assert client.auth == fixture_auth
-
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_auth')
     def test_set_auth(self, fixture_registry_url, fixture_auth):
         client = Client(fixture_registry_url)

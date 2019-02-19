@@ -11,8 +11,6 @@ class DRegCliException(RuntimeError):
 class Client(object):
     class Meta:
         api_version = 'v2'
-        remote_type_registry = 'registry'
-        remote_type_gitlab = 'gitlab'
         repositories = '_catalog'
         auth_env_login = 'DREGCLI_LOGIN'
         auth_env_password = 'DREGCLI_PWD'
@@ -26,15 +24,12 @@ class Client(object):
         self.request_kwargs = dict()
         self.auth = False
 
-    def set_auth(self, login, password, remote_type=False):
-        remote_type = remote_type or self.Meta.remote_type_registry
-        self.display("{rt}: as user '{login}'".format(rt=remote_type,
-                                                      login=login))
+    def set_auth(self, login, password):
+        self.display("login as user '{login}'".format(login=login))
         self.auth = {
             'login': login,
             'password': password,
             'token': '',
-            'remote_type': remote_type or self.Meta.remote_type_registry,
         }
         return self.auth
 

@@ -45,7 +45,6 @@ def fixture_auth():
         'login': 'foobar',
         'password': 'foobar2000',
         'token': '',
-        'remote_type': Client.Meta.remote_type_registry,
     }
 
 
