@@ -253,15 +253,20 @@ class GarbageCommandHandler(CommandHandler):
             action='store_true',
             help='Json output'
         )
+        subparser_garbage.add_argument(
+            '-a', '--all',
+            action='store_true',
+            help='WARNING: delete all image'
+        )
         subparser_garbage.set_defaults(
             func=lambda args: GarbageCommandHandler().run(
                 args.url, args.repo, args.null, args.json,
-                user=args.user
+                user=args.user, all=args.all
             )
         )
         return subparser_garbage
 
-    def run(self, url, repo, null, json_output, user=False):
+    def run(self, url, repo, null, json_output, user=False, all=False):
         super().run(url, json_output, user=user)
 
         try:
