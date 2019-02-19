@@ -272,33 +272,9 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     False,
-                    False,
                     user=None,
-                    all=False,
-                    from_count=0
-                )
-
-        # null
-        with mock.patch(
-            'sys.argv',
-            [
-                'dregcli',
-                'garbage',
-                fixture_registry_url,
-                fixture_repository,
-                '-n'
-            ]
-        ):
-            with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
-            ) as mo:
-                console_main()
-                mo.assert_called_once_with(
-                    fixture_registry_url,
-                    fixture_repository,
-                    True,
-                    False,
-                    user=None,
+                    null=False,
+                    yes=False,
                     all=False,
                     from_count=0
                 )
@@ -321,9 +297,62 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     fixture_repository,
-                    False,
                     True,
                     user=None,
+                    null=False,
+                    yes=False,
+                    all=False,
+                    from_count=0
+                )
+
+        # null
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '-n'
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.GarbageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    False,
+                    user=None,
+                    null=True,
+                    yes=False,
+                    all=False,
+                    from_count=0
+                )
+
+        # yes
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'garbage',
+                fixture_registry_url,
+                fixture_repository,
+                '-y'
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.GarbageCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    False,
+                    user=None,
+                    null=False,
+                    yes=True,
                     all=False,
                     from_count=0
                 )
@@ -347,8 +376,9 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     False,
-                    False,
                     user=None,
+                    null=False,
+                    yes=False,
                     all=True,
                     from_count=0
                 )
@@ -372,8 +402,9 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     False,
-                    False,
                     user=None,
+                    null=False,
+                    yes=False,
                     all=False,
                     from_count=10
                 )

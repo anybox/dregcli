@@ -244,6 +244,12 @@ class GarbageCommandHandler(CommandHandler):
             help='Repository, example: library/alpine'
         )
         subparser_garbage.add_argument(
+            '-y', '--yes',
+            action='store_true',
+            help='Force yes, no confirmation'
+                 'WARNING: proceed with caution and particulary with --all'
+        )
+        subparser_garbage.add_argument(
             '-n', '--null',
             action='store_true',
             help='Do no run actions and feedbacks actions that will be done'
@@ -266,8 +272,10 @@ class GarbageCommandHandler(CommandHandler):
         )
         subparser_garbage.set_defaults(
             func=lambda args: GarbageCommandHandler().run(
-                args.url, args.repo, args.null, args.json,
+                args.url, args.repo, args.json,
                 user=args.user,
+                null=args.null,
+                yes=args.yes,
                 all=args.all,
                 from_count=args.from_count or 0
             )
@@ -278,8 +286,8 @@ class GarbageCommandHandler(CommandHandler):
         self,
         url,
         repo,
-        null,
         json_output,
+        null=False,
         user=False,
         all=False,
         from_count=0
