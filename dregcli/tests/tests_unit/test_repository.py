@@ -6,7 +6,6 @@ import pytest
 sys.path.append(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
 )
-import tools
 from fixtures import (
     fixture_registry_url,
     fixture_repository,

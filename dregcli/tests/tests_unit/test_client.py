@@ -50,13 +50,13 @@ class TestClient:
     def test_display(self, fixture_registry_url, capsys):
         client = Client(fixture_registry_url, verbose=True)
         client.display("hello", "world")
-        captured = capsys.readouterr()
-        assert captured.out == "hello world\n"
+        out_lines = tools.get_output_lines(capsys)
+        assert out_lines == ["hello world"]
 
         client = Client(fixture_registry_url, verbose=False)
         client.display("hello")
-        captured = capsys.readouterr()
-        assert captured.out == ""
+        out_lines = tools.get_output_lines(capsys)
+        assert out_lines == []
 
     @pytest.mark.usefixtures(
         'fixture_registry_url',

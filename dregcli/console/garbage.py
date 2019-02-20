@@ -109,11 +109,11 @@ class GarbageCommandHandler(CommandHandler):
 
         try:
             repository = Repository(self.client, repo)
-            # TODO
+            tags = repository.tags()
+
+            res = []
             if json_output:
-                res = json.dumps({'result': True})
-            else:
-                res = ''
+                res = json.dumps({'result': res})
         except DRegCliException as e:
             res = str(e)
             if json_output:
