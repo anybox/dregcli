@@ -13,13 +13,29 @@ from fixtures import (
     fixture_registry_url,
     fixture_client,
     fixture_repository,
-    fixture_tags,
+    fixture_garbage_tags,
 )
 from dregcli.console.garbage import GarbageCommandHandler
 
 
-class TestGarbage:
-    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
-    def test_all(self, fixture_registry_url, fixture_repository):
+class TestGarbageAll:
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_client',
+        'fixture_repository',
+        'fixture_garbage_tags'
+    )
+    def test_all(
+        self,
+        fixture_registry_url,
+        fixture_client,
+        fixture_repository,
+        fixture_garbage_tags
+    ):
+        # check data set adhoc state
+        repo = fixture_client.repositories()[0]
+        repo_tags = repo.tags()
+        assert sorted(repo_tags) == sorted(fixture_garbage_tags)
+
         handler = GarbageCommandHandler()
         handler.run(fixture_registry_url, fixture_repository, True)
