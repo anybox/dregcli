@@ -205,9 +205,14 @@ class TestAuth:
         # decorated headers should be the expected
         decorated_headers == expected_headers
 
-    @pytest.mark.usefixtures('fixture_auth', 'fixture_auth_token')
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_auth',
+        'fixture_auth_token'
+    )
     def test_get_token(
         self,
+        fixture_registry_url,
         fixture_auth,
         fixture_auth_token
     ):

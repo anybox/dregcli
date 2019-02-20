@@ -1,6 +1,7 @@
 from path import Path
 import datetime
 import os
+import re
 import requests
 
 
@@ -19,12 +20,19 @@ class Client(object):
 
     def __init__(self, url, verbose=False):
         super().__init__()
+
+        assert isinstance(url, str)
+        assert isinstance(verbose, bool)
+
         self.url = url
         self.verbose = verbose
         self.request_kwargs = dict()
         self.auth = False
 
     def set_auth(self, login, password):
+        assert isinstance(login, str)
+        assert isinstance(password, str)
+
         self.display("login as user '{login}'".format(login=login))
         self.auth = {
             'login': login,
@@ -63,6 +71,10 @@ class Client(object):
         verb=False,
         expected_code=200
     ):
+        assert isinstance(url, str)
+        assert not headers or isinstance(headers, dict)
+        assert not verb or isinstance(verb, str)
+
         method = method or requests.get
         verb = verb or 'GET'
         self.display(verb, url)
@@ -146,6 +158,7 @@ class Client(object):
         :return new headers
         :rtype dict
         """
+        assert isinstance(headers, dict)
         new_headers = headers.copy()
 
         if self.auth and self.auth['token']:
@@ -158,6 +171,11 @@ class Client(object):
 class RegistryComponent(object):
     def __init__(self, client, name, digest='', data=dict()):
         super().__init__()
+
+        assert isinstance(name, str)
+        assert isinstance(digest, str)
+        assert isinstance(data, dict)
+
         self.client = client
         self.name = name
         self.digest = digest
@@ -197,6 +215,8 @@ class Repository(RegistryComponent):
         """
         get image data from tag
         """
+        assert isinstance(tag, str)
+
         url = str(
             Path(self.client.url) /
             Client.Meta.api_version /
@@ -204,7 +224,6 @@ class Repository(RegistryComponent):
             self.Meta.manifests /
             tag
         )
-
         headers = self.Meta.manifests_headers  # important: accept header
         response = self.client._request(url, headers=headers)
 
@@ -237,6 +256,8 @@ class Image(RegistryComponent):
     """
     def __init__(self, client, name, tag, digest='', data=dict()):
         super().__init__(client, name, digest=digest, data=data)
+
+        assert isinstance(tag, str) and tag
         self.tag = tag
         self.config_digest = self.data.get('config', {}).get('digest', '')
         self.date = False
@@ -246,6 +267,7 @@ class Image(RegistryComponent):
 
     @staticmethod
     def _parse_date(created_date_str):
+        assert isinstance(created_date_str, str)
         return datetime.datetime.strptime(
             created_date_str[:-4],
             "%Y-%m-%dT%H:%M:%S.%f"
@@ -297,3 +319,38 @@ class Image(RegistryComponent):
             verb='DELETE',
             expected_code=202
         )
+
+
+class Tools(object):
+    @staticmethod
+    def search(items, regexp_expr, exclude=False):
+        """
+        search by regexp in items
+        :param items: items to search if __name__ == '__main__':
+        :type items: list of str
+        :param regexp_expr: regexp expression
+        :type regexp_expr: str
+        :param exclude: True to search by exclusion (not in)
+                        by security method returns [] if no item selection
+                        no implicit --all
+        :type exclude: bool
+        """
+        assert isinstance(items, list) \
+            and all([isinstance(item, str) for item in items])
+        assert isinstance(regexp_expr, str)
+        assert isinstance(exclude, bool)
+
+        if not items or not regexp_expr:
+            return []
+
+        regexp = re.compile(regexp_expr)
+        res = [item for item in items if regexp.search(item)]
+
+        if exclude:
+            if not res:
+                # by security method returns [] if no item selection
+                # no implicit --all
+                return res
+            # exclusion logic for result
+            res = [item for item in items if item not in res]
+        return res

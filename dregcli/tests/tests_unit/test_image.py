@@ -126,7 +126,7 @@ class TestImage:
             image = Image(
                 Client(fixture_registry_url),
                 fixture_repositories["repositories"][0],
-                fixture_tags,
+                fixture_tags[0],
                 digest=fixture_digest
             )
             image.delete()

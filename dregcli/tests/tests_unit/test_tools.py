@@ -1,31 +1,52 @@
-import hashlib
-import os
-import sys
-from unittest import mock
 import pytest
 
-sys.path.append(
-    os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-)
-import tools
+from dregcli.dregcli import Tools
+
+
+@pytest.fixture()
+def fixture_tags():
+    return [
+        'stable-1385',
+        'stable-1386',
+        'stable-1387',
+        'stable-1388',
+        'staging-1390',
+        'staging-1391',
+    ]
 
 
 class TestTools:
-    def test_get_error_status_message(self):
-        expected_code = 404
-        msg = tools.get_error_status_message(expected_code)
-        assert msg and isinstance(msg, str) and str(expected_code) in msg
+    @pytest.mark.usefixtures('fixture_tags')
+    def test_search(self, fixture_tags):
+        # empty criteria
+        res = Tools.search([], r"^stable-[0-9]{4}")
+        assert res == []
+        res = Tools.search([''], r"^stable-[0-9]{4}")
+        assert res == []
+        res = Tools.search(fixture_tags, '')
+        assert res == []
 
-        def test_get_output_lines(capsys):
-            expected_output = "hello world"
-            assert tools.get_output_lines(capsys) == expected_output
+        # include
+        res = Tools.search(fixture_tags, r"^notin-[0-9]{4}")  # none
+        assert res == []
+        res = Tools.search(fixture_tags, r"^stable-[0-9]{4}")
+        assert res == fixture_tags[:4]
+        res = Tools.search(fixture_tags, r"^staging-[0-9]{4}")
+        assert res == fixture_tags[4:]
+        res = Tools.search(fixture_tags, r"^st.*-[0-9]{4}")  # all
+        assert res == fixture_tags
 
-        def test_check_sha256(sha256):
-            sha = "sha256:{sha}".format(sha=hashlib.sha256().hexdigest())
-            assert tools.check_sha256(sha)
+        # exclude
+        res = Tools.search(fixture_tags, r"^notin-[0-9]{4}", exclude=True)
+        # by security method returns [] if no item selection
+        # no implicit --all
+        assert res == []
 
-            sha = "sha257:{sha}".format(sha=hashlib.sha256().hexdigest())
-            assert not tools.check_sha256(sha)
+        res = Tools.search(fixture_tags, r"^stable-[0-9]{4}", exclude=True)
+        assert res == fixture_tags[4:]
+        res = Tools.search(fixture_tags, r"^staging-[0-9]{4}", exclude=True)
+        assert res == fixture_tags[:4]
 
-            sha = "sha256:wrong"
-            assert not tools.check_sha256(sha)
+        res = Tools.search(fixture_tags, r"^st.*-[0-9]{4}", exclude=True)
+        # all excluded
+        assert res == []
