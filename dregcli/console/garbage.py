@@ -101,7 +101,10 @@ class GarbageCommandHandler(CommandHandler):
         super().run(url, json_output, user=user)
 
         if not (all or from_count or from_day or include or exclude):
-            print('no option selected (criteria). --delete aborted')
+            msg = 'no option selected (criteria). --delete aborted'
+            if json_output:
+                msg = json.dumps({'error': msg})
+            print(msg)
             return
 
         try:
