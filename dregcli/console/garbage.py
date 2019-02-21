@@ -115,7 +115,14 @@ class GarbageCommandHandler(CommandHandler):
             if all:
                 res = self._all(repository, tags)
             elif include:
-                res = self._include(repository, tags, include)
+                res = self._include_exclude(repository, tags, include)
+            elif exclude:
+                res = self._include_exclude(
+                    repository,
+                    tags,
+                    exclude,
+                    exclude=True
+                )
 
             if json_output:
                 res = json.dumps({'result': res})
@@ -145,8 +152,8 @@ class GarbageCommandHandler(CommandHandler):
             deleted.append(tag)
         return deleted
 
-    def _include(self, repository, tags, regexp_expr):
-        tags = Tools.search(tags, regexp_expr, exclude=False)
+    def _include_exclude(self, repository, tags, regexp_expr, exclude=False):
+        tags = Tools.search(tags, regexp_expr, exclude=exclude)
         deleted = []
         for tag in tags:
             self._delete_image(repository, tag)

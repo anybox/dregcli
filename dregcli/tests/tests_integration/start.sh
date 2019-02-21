@@ -25,6 +25,7 @@ function setGarbageImages() {
     setImage 3.7 old-staging
     setImage 3.8 master-128a1e13dbe96705917020261ee23d097606bda2-1388
     setImage 3.8 staging
+    setImage 3.9 latest
 }
 
 # garbageTest 'name' python_script_name.py
@@ -64,4 +65,9 @@ echo 'MAIN'
 #
 # GARBAGE INCLUDE
 #
-garbageTest 'INCLUDE' test_garbage_include.py
+#garbageTest 'INCLUDE' test_garbage_include.py
+
+#
+# GARBAGE EXCLUDE
+#
+garbageTest 'EXCLUDE' test_garbage_exclude.py

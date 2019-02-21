@@ -50,6 +50,7 @@ def fixture_garbage_tags():
         'old-staging',
         'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
         'staging',
+        'latest',
     ]
 
 
