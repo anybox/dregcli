@@ -1,7 +1,7 @@
 import json
 
 from .handler import CommandHandler
-from dregcli.dregcli import DRegCliException, Repository
+from dregcli.dregcli import DRegCliException, Repository, Tools
 
 
 class GarbageCommandHandler(CommandHandler):
@@ -110,10 +110,13 @@ class GarbageCommandHandler(CommandHandler):
         try:
             repository = Repository(self.client, repo)
             tags = repository.tags()
-
             res = []
+
             if all:
                 res = self._all(repository, tags)
+            elif include:
+                res = self._include(repository, tags, include)
+
             if json_output:
                 res = json.dumps({'result': res})
         except DRegCliException as e:
@@ -136,6 +139,14 @@ class GarbageCommandHandler(CommandHandler):
             # representing same image
 
     def _all(self, repository, tags):
+        deleted = []
+        for tag in tags:
+            self._delete_image(repository, tag)
+            deleted.append(tag)
+        return deleted
+
+    def _include(self, repository, tags, regexp_expr):
+        tags = Tools.search(tags, regexp_expr, exclude=False)
         deleted = []
         for tag in tags:
             self._delete_image(repository, tag)

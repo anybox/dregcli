@@ -54,6 +54,26 @@ def fixture_garbage_tags():
 
 
 @pytest.fixture()
+def fixture_garbage_tags_last():
+    return [
+        'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
+        'prod',
+        'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
+        'staging',
+    ]
+
+
+@pytest.fixture()
+def fixture_garbage_tags_old():
+    return [
+        'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',
+        'old-prod',
+        'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387',
+        'old-staging',
+    ]
+
+
+@pytest.fixture()
 def fixture_auth():
     return {
         'login': 'foobar',
