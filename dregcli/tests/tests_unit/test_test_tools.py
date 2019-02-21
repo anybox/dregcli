@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import sys
 from unittest import mock
@@ -16,16 +17,22 @@ class TestTestTools:
         msg = tools.get_error_status_message(expected_code)
         assert msg and isinstance(msg, str) and str(expected_code) in msg
 
-        def test_get_output_lines(capsys):
-            expected_output = "hello world"
-            assert tools.get_output_lines(capsys) == expected_output
+    def test_get_output_lines(self, capsys):
+        expected_output = "hello world"
+        print(expected_output)
+        assert tools.get_output_lines(capsys) == [expected_output]
 
-        def test_check_sha256(sha256):
-            sha = "sha256:{sha}".format(sha=hashlib.sha256().hexdigest())
-            assert tools.check_sha256(sha)
+    def test_get_output_json(self, capsys):
+        expected_json = {"message": "hello world"}
+        print(json.dumps(expected_json))
+        assert tools.get_output_json(capsys) == expected_json
 
-            sha = "sha257:{sha}".format(sha=hashlib.sha256().hexdigest())
-            assert not tools.check_sha256(sha)
+    def test_check_sha256(self):
+        sha = "sha256:{sha}".format(sha=hashlib.sha256().hexdigest())
+        assert tools.check_sha256(sha)
 
-            sha = "sha256:wrong"
-            assert not tools.check_sha256(sha)
+        sha = "sha257:{sha}".format(sha=hashlib.sha256().hexdigest())
+        assert not tools.check_sha256(sha)
+
+        sha = "sha256:wrong"
+        assert not tools.check_sha256(sha)
