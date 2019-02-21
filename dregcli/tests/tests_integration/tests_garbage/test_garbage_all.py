@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import pytest
@@ -30,7 +31,8 @@ class TestGarbageAll:
         fixture_registry_url,
         fixture_client,
         fixture_repository,
-        fixture_garbage_tags
+        fixture_garbage_tags,
+        capsys
     ):
         # check data set adhoc state
         repo = fixture_client.repositories()[0]
@@ -38,4 +40,13 @@ class TestGarbageAll:
         assert sorted(repo_tags) == sorted(fixture_garbage_tags)
 
         handler = GarbageCommandHandler()
-        handler.run(fixture_registry_url, fixture_repository, True)
+        handler.run(fixture_registry_url, fixture_repository, True, all=True)
+
+        # check output: all tags deleted output
+        out_lines = tools.get_output_lines(capsys)
+        json_output = json.loads(out_lines[0])
+        assert json_output and 'result' in json_output \
+            and sorted(json_output['result']) == sorted(fixture_garbage_tags)
+
+        # check should have no tag anymore left for repo
+        assert repo.tags() == []

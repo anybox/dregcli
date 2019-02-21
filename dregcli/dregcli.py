@@ -209,7 +209,7 @@ class Repository(RegistryComponent):
         )
 
         response = self.client._request(url, headers={})
-        return response.json().get("tags", [])
+        return response.json().get("tags", []) or []
 
     def image(self, tag):
         """

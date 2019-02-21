@@ -112,6 +112,8 @@ class GarbageCommandHandler(CommandHandler):
             tags = repository.tags()
 
             res = []
+            if all:
+                res = self._all(repository, tags)
             if json_output:
                 res = json.dumps({'result': res})
         except DRegCliException as e:
@@ -119,3 +121,23 @@ class GarbageCommandHandler(CommandHandler):
             if json_output:
                 res = json.dumps({'error': res})
         print(res)
+
+    def _delete_image(self, repository, tag):
+        try:
+            repository.image(tag).delete()
+        except DRegCliException as e:
+            if str(e) != 'Status code error 404':
+                raise e
+            # 404 tolerated during image(tag) or delete():
+            # tag in common with same commit tag
+            # and already deleted by previous tag
+            # exemple:
+            # master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385 old-prod
+            # representing same image
+
+    def _all(self, repository, tags):
+        deleted = []
+        for tag in tags:
+            self._delete_image(repository, tag)
+            deleted.append(tag)
+        return deleted
