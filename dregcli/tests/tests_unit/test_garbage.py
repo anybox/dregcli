@@ -25,9 +25,7 @@ class TestGarbage:
 
         expected_output_json = {'error': expected_msg}
         handler.run(fixture_registry_url, fixture_repository, True, null=True)
-        out_lines = tools.get_output_lines(capsys)
-        json_output = json.loads(out_lines[0])
-        assert json_output == expected_output_json
+        assert tools.get_output_json(capsys) == expected_output_json
 
         expected_output_lines = ['garbage', expected_msg]
         handler.run(fixture_registry_url, fixture_repository, False, null=True)

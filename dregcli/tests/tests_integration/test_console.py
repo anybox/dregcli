@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 from unittest import mock
@@ -63,8 +62,7 @@ class TestConsole:
             ['dregcli', 'reps', fixture_registry_url, '-j']
         ):
             console_main()
-            out_json = json.loads(tools.get_output_lines(capsys)[0])
-            assert out_json == expected_json
+            assert tools.get_output_json(capsys) == expected_json
 
     @pytest.mark.usefixtures(
         'fixture_registry_url',
@@ -130,7 +128,7 @@ class TestConsole:
             ['dregcli', 'tags', fixture_registry_url, fixture_repository, '-j']
         ):
             console_main()
-            out_json = json.loads(tools.get_output_lines(capsys)[0])
+            out_json = tools.get_output_json(capsys)
             assert out_json and 'result' in expected_json_result \
                 and all(t in expected_json_result['result']
                         for t in out_json['result'])
@@ -229,7 +227,7 @@ class TestConsole:
             ]
         ):
             console_main()
-            out_json = json.loads(tools.get_output_lines(capsys)[0])
+            out_json = tools.get_output_json(capsys)
             assert out_json and isinstance(out_json, dict) and \
                 list(out_json.keys()) == ['result'] and \
                 list(out_json['result'].keys()) == ['digest'] and \
@@ -249,7 +247,7 @@ class TestConsole:
             ]
         ):
             console_main()
-            out_json = json.loads(tools.get_output_lines(capsys)[0])
+            out_json = tools.get_output_json(capsys)
             assert out_json and isinstance(out_json, dict) and \
                 list(out_json.keys()) == ['result'] and \
                 sorted(list(out_json['result'].keys())) \
@@ -369,7 +367,7 @@ class TestConsole:
             ]
         ):
             console_main()
-            out_json = json.loads(tools.get_output_lines(capsys)[0])
+            out_json = tools.get_output_json(capsys)
             assert out_json and isinstance(out_json, dict) and \
                 list(out_json.keys()) == ['result'] and \
                 sorted(list(out_json['result'].keys())) == [
@@ -395,8 +393,7 @@ class TestConsole:
                 expected_json = {'error': msg404}
 
                 console_main()
-                out_json = json.loads(tools.get_output_lines(capsys)[0])
-                assert out_json == expected_json
+                assert tools.get_output_json(capsys) == expected_json
 
             # after delete, tag 0, 1 removed, so the other should remains
             repo = self.get_repo(fixture_client)

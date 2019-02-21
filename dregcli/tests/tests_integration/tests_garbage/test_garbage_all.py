@@ -43,8 +43,7 @@ class TestGarbageAll:
         handler.run(fixture_registry_url, fixture_repository, True, all=True)
 
         # check output: all tags deleted output
-        out_lines = tools.get_output_lines(capsys)
-        json_output = json.loads(out_lines[0])
+        json_output = tools.get_output_json(capsys)
         assert json_output and 'result' in json_output \
             and sorted(json_output['result']) == sorted(fixture_garbage_tags)
 
