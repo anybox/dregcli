@@ -107,6 +107,7 @@ class GarbageCommandHandler(CommandHandler):
             print(msg)
             return
 
+        deleted = []
         try:
             repository = Repository(self.client, repo)
             res = []
@@ -128,6 +129,7 @@ class GarbageCommandHandler(CommandHandler):
             if json_output:
                 res = json.dumps({'error': res})
         print(res)
+        return deleted
 
     def _delete_image(self, repository, tag):
         try:

@@ -38,6 +38,7 @@ class TagsCommandHandler(CommandHandler):
     def run(self, url, repo, json_output, user=False):
         super().run(url, json_output, user=user)
 
+        tags_by_date = []
         try:
             repository = Repository(self.client, repo)
             tags_by_date = repository.get_tags_by_date()
@@ -63,3 +64,4 @@ class TagsCommandHandler(CommandHandler):
             if json_output:
                 res = json.dumps({'error': res})
         print(res)
+        return tags_by_date

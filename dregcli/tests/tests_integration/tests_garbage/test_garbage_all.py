@@ -40,7 +40,8 @@ class TestGarbageAll:
         assert sorted(repo_tags) == sorted(fixture_garbage_tags)
 
         handler = GarbageCommandHandler()
-        deleted = handler._all(repo)
+        deleted = handler.run(fixture_registry_url, fixture_repository, False,
+                              all=True)
 
         # check output: all tags deleted output
         assert sorted(deleted) == sorted(fixture_garbage_tags)

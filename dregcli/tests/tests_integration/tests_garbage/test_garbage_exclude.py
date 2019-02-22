@@ -42,7 +42,8 @@ class TestGarbageExclude:
         isolated_tag = 'latest'
         exclude = r"^{tag}".format(tag=isolated_tag)
         handler = GarbageCommandHandler()
-        deleted = handler._include_exclude(repo, exclude, exclude=True)
+        deleted = handler.run(fixture_registry_url, fixture_repository, False,
+                              exclude=exclude)
 
         # check output: others than isolated_tag deleted
         expected_tags_left = fixture_garbage_tags.copy()

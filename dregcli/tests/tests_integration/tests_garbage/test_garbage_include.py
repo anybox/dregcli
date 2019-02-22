@@ -44,7 +44,8 @@ class TestGarbageInclude:
 
         include = r"^old"
         handler = GarbageCommandHandler()
-        deleted = handler._include_exclude(repo, include, exclude=False)
+        deleted = handler.run(fixture_registry_url, fixture_repository, False,
+                              include=include)
 
         # check output: 'old' deleted
         assert sorted(deleted) == ['old-prod', 'old-staging']

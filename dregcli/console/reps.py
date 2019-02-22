@@ -31,6 +31,7 @@ class RepositoriesCommandHandler(CommandHandler):
     def run(self, url, json_output, user=False):
         super().run(url, json_output, user=user)
 
+        repositories = []
         try:
             repositories = list(map(str, self.client.repositories()))
             if json_output:
@@ -42,3 +43,4 @@ class RepositoriesCommandHandler(CommandHandler):
             if json_output:
                 res = json.dumps({'error': res})
         print(res)
+        return repositories

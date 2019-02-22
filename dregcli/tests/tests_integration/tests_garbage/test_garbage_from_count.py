@@ -48,7 +48,8 @@ class TestGarbageFromCount:
 
         from_count = 3
         handler = GarbageCommandHandler()
-        deleted = handler._from_count(repo, from_count)
+        deleted = handler.run(fixture_registry_url, fixture_repository, False,
+                              from_count=from_count)
 
         # check delete from 3rd
         should_deleted = expected_tags_by_desc_date[from_count - 1:]
