@@ -42,18 +42,12 @@ class TestGarbageInclude:
         repo_tags = repo.tags()
         assert sorted(repo_tags) == sorted(fixture_garbage_tags)
 
+        include = r"^old"
         handler = GarbageCommandHandler()
-        handler.run(
-            fixture_registry_url, fixture_repository,
-            True,
-            include=r"^old.*"
-        )
+        deleted = handler._include_exclude(repo, include, exclude=False)
 
         # check output: 'old' deleted
-        json_output = tools.get_output_json(capsys)
-        assert json_output and 'result' in json_output \
-            and sorted(json_output['result']) == \
-            sorted(['old-staging', 'old-prod'])
+        assert sorted(deleted) == ['old-prod', 'old-staging']
 
         # check should have not 'old' left
         assert sorted(repo.tags()) == sorted(fixture_garbage_tags_new)

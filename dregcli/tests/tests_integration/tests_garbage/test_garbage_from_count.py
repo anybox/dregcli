@@ -51,8 +51,8 @@ class TestGarbageFromCount:
         deleted = handler._from_count(repo, from_count)
 
         # check delete from 3rd
-        should_deleted = expected_tags_by_desc_date[from_count:]
-        assert should_deleted == should_deleted
+        should_deleted = expected_tags_by_desc_date[from_count - 1:]
+        assert deleted == should_deleted
 
         # check should have head of no deleted ones
         should_left = expected_tags_by_desc_date[:from_count - 1]

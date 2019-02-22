@@ -40,12 +40,10 @@ class TestGarbageAll:
         assert sorted(repo_tags) == sorted(fixture_garbage_tags)
 
         handler = GarbageCommandHandler()
-        handler.run(fixture_registry_url, fixture_repository, True, all=True)
+        deleted = handler._all(repo)
 
         # check output: all tags deleted output
-        json_output = tools.get_output_json(capsys)
-        assert json_output and 'result' in json_output \
-            and sorted(json_output['result']) == sorted(fixture_garbage_tags)
+        assert sorted(deleted) == sorted(fixture_garbage_tags)
 
         # check should have no tag anymore left for repo
         assert repo.tags() == []

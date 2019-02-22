@@ -40,19 +40,14 @@ class TestGarbageExclude:
         assert sorted(repo_tags) == sorted(fixture_garbage_tags)
 
         isolated_tag = 'latest'
+        exclude = r"^{tag}".format(tag=isolated_tag)
         handler = GarbageCommandHandler()
-        handler.run(
-            fixture_registry_url, fixture_repository,
-            True,
-            exclude=r"^{tag}".format(tag=isolated_tag)
-        )
+        deleted = handler._include_exclude(repo, exclude, exclude=True)
 
         # check output: others than isolated_tag deleted
         expected_tags_left = fixture_garbage_tags.copy()
         expected_tags_left.remove(isolated_tag)
-        json_output = tools.get_output_json(capsys)
-        assert json_output and 'result' in json_output \
-            and sorted(json_output['result']) == sorted(expected_tags_left)
+        assert sorted(deleted) == sorted(expected_tags_left)
 
         # check should have isolated_tag left (by exclusion)
         assert repo.tags() == [isolated_tag]

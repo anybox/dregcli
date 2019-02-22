@@ -12,7 +12,7 @@ from fixtures import (
     fixture_repository,
     fixture_tags,
 )
-from dregcli.dregcli import DRegCliException, Client
+from dregcli.dregcli import DRegCliException, Client, Image
 
 
 class TestClient:
@@ -40,7 +40,6 @@ class TestRepoImage:
         fixture_client,
         fixture_tags,
     ):
-        # check data set adhoc state
         repo = self.get_repo(fixture_client)
         tags = repo.tags()
 
@@ -48,13 +47,14 @@ class TestRepoImage:
 
         assert tags_by_date and isinstance(tags_by_date, list)
         index = 0
-        for tags in tags_by_date:
-            assert tags['tag'] and tags['tag'] in tags
-            assert type(tags['image']) == Image and image.tag == tags['tag']
+        for tag_data in tags_by_date:
+            assert tag_data['tag'] and tag_data['tag'] in tags
+            assert type(tag_data['image']) == Image and \
+                tag_data['image'].tag == tag_data['tag']
             if index + 1 < len(tags_by_date):
                 # check well in desc date order
-                next_tag = tags_by_date[index + 1]
-                assert next_tag['date'] <= next_tag['date']
+                next_tag_data = tags_by_date[index + 1]
+                assert tag_data['date'] > next_tag_data['date']
             index += 1
 
     @pytest.mark.usefixtures(

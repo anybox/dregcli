@@ -40,23 +40,23 @@ class TagsCommandHandler(CommandHandler):
 
         try:
             repository = Repository(self.client, repo)
-            images = repository.get_tags_by_date()
+            tags_by_date = repository.get_tags_by_date()
 
             if json_output:
                 res = json.dumps({
                     'result': [
                         {
-                            'tag': image['image'].tag,
-                            'date': self.date2str(image['data'])
-                        } for image in images
+                            'tag': tag_data['tag'],
+                            'date': self.date2str(tag_data['date'])
+                        } for tag_data in tags_by_date
                     ]
                 })
             else:
                 res = "\n".join([
                     "{tag}\t\t({dt})".format(
-                        tag=t,
-                        dt=self.date2str(dates[t])
-                    ) for t in tags
+                        tag=tag_data['tag'],
+                        dt=self.date2str(tag_data['date'])
+                    ) for tag_data in tags_by_date
                 ])
         except DRegCliException as e:
             res = str(e)
