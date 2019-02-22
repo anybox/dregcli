@@ -52,7 +52,7 @@ class GarbageCommandHandler(CommandHandler):
         )
         subparser_garbage.add_argument(
             '--from-date',
-            type=int,
+            type=str,
             help="delete from date\n"
                  "--from-date=2018-06-30 to keep tags from 2018-07-01\n"
                  "--from-date=2018-06-30 13:59:59"
@@ -103,14 +103,26 @@ class GarbageCommandHandler(CommandHandler):
     ):
         super().run(url, json_output, user=user)
 
-        if not (all or from_count or from_date or include or exclude):
-            msg = 'no option selected (criteria). --delete aborted'
-            if json_output:
-                msg = json.dumps({'error': msg})
-            print(msg)
-            return
+        options_on = [
+            all,
+            bool(from_count),
+            bool(from_date),
+            bool(include),
+            bool(exclude)
+        ]
+        options_on_count = 0
+        for oo in options_on:
+            if oo:
+                options_on_count += 1
 
-        if from_date:
+        err_msg = ''
+        if options_on_count == 0:
+            err_msg = 'no option selected (criteria). --delete aborted'
+        elif options_on_count > 1:
+            err_msg = '--all, --from_count, --from_date, --include, ' \
+                '--exclude are exclusives. --delete aborted'
+
+        if not err_msg and from_date:
             if len(from_date) == 26:  # with hms
                 from_date = datetime.datetime.strptime(from_date,
                                                        '%Y-%m-%d %H:%M:%S.%f')
@@ -121,11 +133,14 @@ class GarbageCommandHandler(CommandHandler):
                 from_date = datetime.datetime.strptime(from_date, '%Y-%m-%d')
                 from_date = from_date_dt.replace(hour=0, minute=0, second=0)
             else:
-                msg = '--from-date invalide date format. --delete aborted'
-                if json_output:
-                    msg = json.dumps({'error': msg})
-                print(msg)
-                return
+                err_msg = '--from-date invalide date format. --delete aborted'
+
+        if err_msg:
+            msg = '--from-date invalide date format. --delete aborted'
+            if json_output:
+                err_msg = json.dumps({'error': err_msg})
+            print(err_msg)
+            return
 
         deleted = []
         try:
