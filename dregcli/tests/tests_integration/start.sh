@@ -77,3 +77,8 @@ garbageTest 'EXCLUDE' test_garbage_exclude.py
 # GARBAGE FROM COUNT
 #
 garbageTest 'FROM COUNT' test_garbage_from_count.py
+
+#
+# GARBAGE FROM DATE
+#
+garbageTest 'FROM DATE' test_garbage_from_date.py

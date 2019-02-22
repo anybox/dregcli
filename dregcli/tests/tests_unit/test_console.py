@@ -277,7 +277,7 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=0,
+                    from_date=0,
                     include='',
                     exclude=''
                 )
@@ -306,7 +306,7 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=0,
+                    from_date=0,
                     include='',
                     exclude=''
                 )
@@ -335,7 +335,7 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=0,
+                    from_date=0,
                     include='',
                     exclude=''
                 )
@@ -364,7 +364,7 @@ class TestConsoleCommandLine:
                     yes=True,
                     all=False,
                     from_count=0,
-                    from_day=0,
+                    from_date=0,
                     include='',
                     exclude=''
                 )
@@ -393,7 +393,7 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=True,
                     from_count=0,
-                    from_day=0,
+                    from_date=0,
                     include='',
                     exclude=''
                 )
@@ -422,12 +422,12 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=10,
-                    from_day=0,
+                    from_date=0,
                     include='',
                     exclude=''
                 )
 
-        # from_day
+        # from_date
         with mock.patch(
             'sys.argv',
             [
@@ -435,7 +435,7 @@ class TestConsoleCommandLine:
                 'garbage',
                 fixture_registry_url,
                 fixture_repository,
-                '--from-day=10'
+                '--from-date=2018-06-30'
             ]
         ):
             with mock.patch(
@@ -451,7 +451,7 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=10,
+                    from_date='2018-06-30',
                     include='',
                     exclude=''
                 )
@@ -481,7 +481,7 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=0,
+                    from_date=0,
                     include=include_option_val,
                     exclude=''
                 )
@@ -511,7 +511,7 @@ class TestConsoleCommandLine:
                     yes=False,
                     all=False,
                     from_count=0,
-                    from_day=0,
+                    from_date=0,
                     include='',
                     exclude=exclude_option_val
                 )
