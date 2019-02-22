@@ -34,6 +34,29 @@ class TestRepoImage:
         # the others
         assert self.get_repo(fixture_client).tags() == fixture_tags[2:]
 
+    @pytest.mark.usefixtures('fixture_client', 'fixture_tags')
+    def test_get_tags_by_date(
+        self,
+        fixture_client,
+        fixture_tags,
+    ):
+        # check data set adhoc state
+        repo = self.get_repo(fixture_client)
+        tags = repo.tags()
+
+        tags_by_date = repo.get_tags_by_date()
+
+        assert tags_by_date and isinstance(tags_by_date, list)
+        index = 0
+        for tags in tags_by_date:
+            assert tags['tag'] and tags['tag'] in tags
+            assert type(tags['image']) == Image and image.tag == tags['tag']
+            if index + 1 < len(tags_by_date):
+                # check well in desc date order
+                next_tag = tags_by_date[index + 1]
+                assert next_tag['date'] <= next_tag['date']
+            index += 1
+
     @pytest.mark.usefixtures(
         'fixture_repository',
         'fixture_tags',

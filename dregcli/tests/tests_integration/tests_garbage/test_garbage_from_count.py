@@ -19,14 +19,14 @@ from fixtures import (
 from dregcli.console.garbage import GarbageCommandHandler
 
 
-class TestGarbageExclude:
+class TestGarbageFromCount:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
         'fixture_garbage_tags',
     )
-    def test_exclude(
+    def test_from_count(
         self,
         fixture_registry_url,
         fixture_client,
@@ -39,20 +39,21 @@ class TestGarbageExclude:
         repo_tags = repo.tags()
         assert sorted(repo_tags) == sorted(fixture_garbage_tags)
 
-        isolated_tag = 'latest'
+        # tags by date desc (and their name should match fixtures)
+        expected_tags_by_desc_date = [
+            tag_data['tag'] for tag_data in repo.get_tags_by_date()
+        ]
+        assert sorted(expected_tags_by_desc_date) == \
+            sorted(fixture_garbage_tags)
+
+        from_count = 3
         handler = GarbageCommandHandler()
-        handler.run(
-            fixture_registry_url, fixture_repository,
-            True,
-            exclude=r"^{tag}".format(tag=isolated_tag)
-        )
+        deleted = handler._from_count(repo, from_count)
 
-        # check output: others than isolated_tag deleted
-        expected_tags_left = fixture_garbage_tags.copy()
-        expected_tags_left.remove(isolated_tag)
-        json_output = tools.get_output_json(capsys)
-        assert json_output and 'result' in json_output \
-            and sorted(json_output['result']) == sorted(expected_tags_left)
+        # check delete from 3rd
+        should_deleted = expected_tags_by_desc_date[from_count:]
+        assert should_deleted == should_deleted
 
-        # check should have isolated_tag left (by exclusion)
-        assert repo.tags() == [isolated_tag]
+        # check should have head of no deleted ones
+        should_left = expected_tags_by_desc_date[:from_count - 1]
+        assert sorted(repo.tags()) == sorted(should_left)

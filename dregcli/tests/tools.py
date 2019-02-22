@@ -12,7 +12,8 @@ def get_output_lines(capsys):
 
 def get_output_json(capsys):
     # json always on first line
-    return json.loads(get_output_lines(capsys)[0])
+    output_lines = get_output_lines(capsys)
+    return output_lines and json.loads(output_lines[0]) or None
 
 
 def check_sha256(sha256):

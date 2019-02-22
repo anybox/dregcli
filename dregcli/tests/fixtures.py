@@ -55,7 +55,7 @@ def fixture_garbage_tags():
 
 
 @pytest.fixture()
-def fixture_garbage_tags_last():
+def fixture_garbage_tags_new():
     return [
         'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
         'prod',

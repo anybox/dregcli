@@ -15,8 +15,7 @@ from fixtures import (
     fixture_client,
     fixture_repository,
     fixture_garbage_tags,
-    fixture_garbage_tags_last,
-    fixture_garbage_tags_old,
+    fixture_garbage_tags_new,
 )
 from dregcli.console.garbage import GarbageCommandHandler
 
@@ -27,7 +26,7 @@ class TestGarbageInclude:
         'fixture_client',
         'fixture_repository',
         'fixture_garbage_tags',
-        'fixture_garbage_tags_last',
+        'fixture_garbage_tags_new',
     )
     def test_include(
         self,
@@ -35,7 +34,7 @@ class TestGarbageInclude:
         fixture_client,
         fixture_repository,
         fixture_garbage_tags,
-        fixture_garbage_tags_last,
+        fixture_garbage_tags_new,
         capsys
     ):
         # check data set adhoc state
@@ -57,4 +56,4 @@ class TestGarbageInclude:
             sorted(['old-staging', 'old-prod'])
 
         # check should have not 'old' left
-        assert sorted(repo.tags()) == sorted(fixture_garbage_tags_last)
+        assert sorted(repo.tags()) == sorted(fixture_garbage_tags_new)

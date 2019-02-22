@@ -40,19 +40,15 @@ class TagsCommandHandler(CommandHandler):
 
         try:
             repository = Repository(self.client, repo)
-            tags = list(map(str, repository.tags()))
-
-            dates = {}
-            for tag in tags:
-                dates[tag] = repository.image(tag).get_date()
+            images = repository.get_tags_by_date()
 
             if json_output:
                 res = json.dumps({
                     'result': [
                         {
-                            'tag': t,
-                            'date': self.date2str(dates[t])
-                        } for t in tags
+                            'tag': image['image'].tag,
+                            'date': self.date2str(image['data'])
+                        } for image in images
                     ]
                 })
             else:

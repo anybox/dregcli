@@ -109,23 +109,20 @@ class GarbageCommandHandler(CommandHandler):
 
         try:
             repository = Repository(self.client, repo)
-            tags = repository.tags()
             res = []
 
             if all:
-                res = self._all(repository, tags)
+                deleted = self._all(repository)
             elif include:
-                res = self._include_exclude(repository, tags, include)
+                deleted = self._include_exclude(repository, include)
             elif exclude:
-                res = self._include_exclude(
-                    repository,
-                    tags,
-                    exclude,
-                    exclude=True
-                )
+                deleted = self._include_exclude(repository, exclude,
+                                                exclude=True)
+            elif from_count:
+                deleted = self._from_count(repository, from_count)
 
             if json_output:
-                res = json.dumps({'result': res})
+                res = json.dumps({'result': deleted})
         except DRegCliException as e:
             res = str(e)
             if json_output:
@@ -145,17 +142,35 @@ class GarbageCommandHandler(CommandHandler):
             # master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385 old-prod
             # representing same image
 
-    def _all(self, repository, tags):
+    def _all(self, repository):
+        tags = repository.tags()
+
         deleted = []
         for tag in tags:
             self._delete_image(repository, tag)
             deleted.append(tag)
+
         return deleted
 
-    def _include_exclude(self, repository, tags, regexp_expr, exclude=False):
-        tags = Tools.search(tags, regexp_expr, exclude=exclude)
+    def _include_exclude(self, repository, regexp_expr, exclude=False):
+        tags = Tools.search(repository.tags(), regexp_expr, exclude=exclude)
+
         deleted = []
         for tag in tags:
             self._delete_image(repository, tag)
             deleted.append(tag)
+
+        return deleted
+
+    def _from_count(self, repository, from_count):
+        deleted = []
+
+        if from_count:
+            tags = repository.get_tags_by_date()
+            if from_count < len(tags):
+                to_delete = tags[from_count - 1:]
+                for tag_data in to_delete:
+                    self._delete_image(repository, tag_data['tag'])
+                    deleted.append(tag_data['tag'])
+
         return deleted

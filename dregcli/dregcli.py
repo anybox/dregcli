@@ -1,5 +1,6 @@
 from path import Path
 import datetime
+import functools
 import os
 import re
 import requests
@@ -211,9 +212,32 @@ class Repository(RegistryComponent):
         response = self.client._request(url, headers={})
         return response.json().get("tags", []) or []
 
+    def get_tags_by_date(self):
+        """
+        get and sort image by descending date
+        :return [{'date': datetime, 'image': Image}]
+        """
+        def cmp_by_date_desc(x, y):
+            # descending order
+            date_x = x['date']
+            date_y = y['date']
+            return 1 if date_x < date_y else -1
+
+        images = []
+        for tag in self.tags():
+            image = self.image(tag)
+            images.append({
+                'tag': tag,
+                'image': image,
+                'date': image.get_date(),
+            })
+
+        return sorted(images, key=functools.cmp_to_key(cmp_by_date_desc))
+
     def image(self, tag):
         """
         get image data from tag
+        :rtype Image
         """
         assert isinstance(tag, str)
 
