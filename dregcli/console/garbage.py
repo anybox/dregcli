@@ -9,6 +9,10 @@ class GarbageCommandHandler(CommandHandler):
     class Meta:
         command = "garbage"
 
+    def __init__(self):
+        super().__init__()
+        self.dry_run = False
+
     @classmethod
     def set_parser(cls, subparsers):
         subparser_garbage = subparsers.add_parser(
@@ -103,6 +107,7 @@ class GarbageCommandHandler(CommandHandler):
         exclude=''
     ):
         super().run(url, json_output, user=user)
+        self.dry_run = dry_run
 
         options_on = [
             all,
@@ -146,7 +151,6 @@ class GarbageCommandHandler(CommandHandler):
         deleted = []
         try:
             repository = Repository(self.client, repo)
-            res = []
 
             if all:
                 deleted = self._all(repository)
@@ -162,6 +166,8 @@ class GarbageCommandHandler(CommandHandler):
 
             if json_output:
                 res = json.dumps({'result': deleted})
+            else:
+                res = "\n".join(deleted)
         except DRegCliException as e:
             res = str(e)
             if json_output:
@@ -170,17 +176,18 @@ class GarbageCommandHandler(CommandHandler):
         return deleted
 
     def _delete_image(self, repository, tag):
-        try:
-            repository.image(tag).delete()
-        except DRegCliException as e:
-            if str(e) != 'Status code error 404':
-                raise e
-            # 404 tolerated during image(tag) or delete():
-            # tag in common with same commit tag
-            # and already deleted by previous tag
-            # exemple:
-            # master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385 old-prod
-            # representing same image
+        if not self.dry_run:
+            try:
+                repository.image(tag).delete()
+            except DRegCliException as e:
+                if str(e) != 'Status code error 404':
+                    raise e
+                # 404 tolerated during image(tag) or delete():
+                # tag in common with same commit tag
+                # and already deleted by previous tag
+                # exemple:
+                # master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385 old-prod
+                # representing same image
 
     def _all(self, repository):
         tags = repository.tags()

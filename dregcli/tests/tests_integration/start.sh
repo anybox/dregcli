@@ -30,10 +30,10 @@ function setGarbageImages() {
 
 # garbageTest 'name' python_script_name.py
 function  garbageTest() {
-    echo "________________________________________"
+    echo "________________________________________________________________________________"
     echo ""
     echo "GARBAGE $1"
-    echo "________________________________________"
+    echo "________________________________________________________________________________"
 
     upRegistry
     setGarbageImages
@@ -85,3 +85,8 @@ garbageTest 'FROM COUNT' test_garbage_from_count.py
 # GARBAGE FROM DATE
 #
 garbageTest 'FROM DATE' test_garbage_from_date.py
+
+#
+# GARBAGE DRY RUN
+#
+garbageTest 'DRY RUN' test_garbage_dry_run.py
