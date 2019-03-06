@@ -32,7 +32,8 @@ class GarbageCommandHandler(CommandHandler):
         subparser_garbage.add_argument(
             '-n', '--null',
             action='store_true',
-            help='Do no run actions and feedbacks actions that will be done'
+            help='Dryrun. '
+                 'Do no run actions and feedbacks actions that will be done'
         )
         subparser_garbage.add_argument(
             '-j', '--json',
@@ -76,7 +77,7 @@ class GarbageCommandHandler(CommandHandler):
             func=lambda args: GarbageCommandHandler().run(
                 args.url, args.repo, args.json,
                 user=args.user,
-                null=args.null,
+                dry_run=args.null,
                 yes=args.yes,
                 all=args.all,
                 from_count=args.from_count or 0,
@@ -92,7 +93,7 @@ class GarbageCommandHandler(CommandHandler):
         url,
         repo,
         json_output,
-        null=False,
+        dry_run=False,
         yes=False,
         user=False,
         all=False,

@@ -24,16 +24,18 @@ class TestGarbage:
         handler = GarbageCommandHandler()
 
         expected_output_json = {'error': expected_msg}
-        handler.run(fixture_registry_url, fixture_repository, True, null=True)
+        handler.run(fixture_registry_url, fixture_repository, True,
+                    dry_run=True)
         assert tools.get_output_json(capsys) == expected_output_json
 
         expected_output_lines = ['garbage', expected_msg]
-        handler.run(fixture_registry_url, fixture_repository, False, null=True)
+        handler.run(fixture_registry_url, fixture_repository, False,
+                    dry_run=True)
         out_lines = tools.get_output_lines(capsys)
         assert out_lines == expected_output_lines
 
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
-    def test_garbage_namy_options(
+    def test_garbage_exclusvie_options(
         self,
         fixture_registry_url,
         fixture_repository,
