@@ -30,7 +30,10 @@ function setGarbageImages() {
 
 # garbageTest 'name' python_script_name.py
 function  garbageTest() {
+    echo "________________________________________"
+    echo ""
     echo "GARBAGE $1"
+    echo "________________________________________"
 
     upRegistry
     setGarbageImages
