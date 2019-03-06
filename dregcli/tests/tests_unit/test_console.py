@@ -278,6 +278,7 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_date=0,
+                    include_layer_single_tag='',
                     include='',
                     exclude=''
                 )
@@ -307,6 +308,7 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_date=0,
+                    include_layer_single_tag='',
                     include='',
                     exclude=''
                 )
@@ -336,6 +338,7 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_date=0,
+                    include_layer_single_tag='',
                     include='',
                     exclude=''
                 )
@@ -365,6 +368,7 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_date=0,
+                    include_layer_single_tag='',
                     include='',
                     exclude=''
                 )
@@ -394,6 +398,7 @@ class TestConsoleCommandLine:
                     all=True,
                     from_count=0,
                     from_date=0,
+                    include_layer_single_tag='',
                     include='',
                     exclude=''
                 )
@@ -423,6 +428,7 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=10,
                     from_date=0,
+                    include_layer_single_tag='',
                     include='',
                     exclude=''
                 )
@@ -452,6 +458,7 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_date='2018-06-30',
+                    include_layer_single_tag='',
                     include='',
                     exclude=''
                 )
@@ -482,6 +489,7 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_date=0,
+                    include_layer_single_tag='',
                     include=include_option_val,
                     exclude=''
                 )
@@ -512,6 +520,7 @@ class TestConsoleCommandLine:
                     all=False,
                     from_count=0,
                     from_date=0,
+                    include_layer_single_tag='',
                     include='',
                     exclude=exclude_option_val
                 )

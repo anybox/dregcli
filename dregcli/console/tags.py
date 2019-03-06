@@ -13,6 +13,7 @@ class TagsCommandHandler(CommandHandler):
         subparser_tags = subparsers.add_parser(
             'tags', help='List repository tags'
         )
+
         subparser_tags.add_argument(
             'url',
             help='Url in the form protocol://host:port, '
@@ -27,6 +28,7 @@ class TagsCommandHandler(CommandHandler):
             action='store_true',
             help='Json output'
         )
+
         subparser_tags.set_defaults(
             func=lambda args: cls().run(
                 args.url, args.repo, args.json,

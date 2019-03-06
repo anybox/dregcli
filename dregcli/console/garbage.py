@@ -18,6 +18,7 @@ class GarbageCommandHandler(CommandHandler):
         subparser_garbage = subparsers.add_parser(
             'garbage', help='garbage image tags'
         )
+
         subparser_garbage.add_argument(
             'url',
             help="Url in the form protocol://host:port\n"
@@ -64,6 +65,16 @@ class GarbageCommandHandler(CommandHandler):
                  " to keep tags from 2018-06-30 14:00:00 (2:00 PM)"
         )
         subparser_garbage.add_argument(
+            '--include-layer-single-tag',
+            type=str,
+            help="to use in conjonction with from-date (mandory).\n"
+                 "delete from date, layers with only a single tag left\n"
+                 "that single tag matching a given regexp.\n"
+                 "exemple: delete old previous to 2018-07-01 commit-tags\n"
+                 '--from-date=2018-06-30 '
+                 '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
+        )
+        subparser_garbage.add_argument(
             '--include',
             type=str,
             help="delete tags including python regexp\n"
@@ -77,6 +88,7 @@ class GarbageCommandHandler(CommandHandler):
                  "(no implicit --all)\n"
                  '--exclude="^stable-[0-9]\{4\}"'
         )
+
         subparser_garbage.set_defaults(
             func=lambda args: GarbageCommandHandler().run(
                 args.url, args.repo, args.json,
@@ -86,6 +98,7 @@ class GarbageCommandHandler(CommandHandler):
                 all=args.all,
                 from_count=args.from_count or 0,
                 from_date=args.from_date or 0,
+                include_layer_single_tag=args.include_layer_single_tag or '',
                 include=args.include and args.include.strip("\"'") or '',
                 exclude=args.exclude and args.exclude.strip("\"'") or '',
             )
@@ -103,6 +116,7 @@ class GarbageCommandHandler(CommandHandler):
         all=False,
         from_count=0,
         from_date=0,
+        include_layer_single_tag='',
         include='',
         exclude=''
     ):

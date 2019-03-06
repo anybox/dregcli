@@ -13,6 +13,7 @@ class ImageCommandHandler(CommandHandler):
         subparser_image = subparsers.add_parser(
             'image', help='get image digest/manifest, delete image'
         )
+
         subparser_image.add_argument(
             'url',
             help='Url in the form protocol://host:port, '
@@ -46,6 +47,7 @@ class ImageCommandHandler(CommandHandler):
             action='store_true',
             help='Always yes. Be careful with delete'
         )
+
         subparser_image.set_defaults(
             func=lambda args: cls().run(
                 args.url, args.repo, args.tag, args.manifest, args.json,

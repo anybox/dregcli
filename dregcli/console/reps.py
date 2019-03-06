@@ -13,6 +13,7 @@ class RepositoriesCommandHandler(CommandHandler):
         subparser_repositories = subparsers.add_parser(
             'reps', help='List repositories'
         )
+
         subparser_repositories.add_argument(
             'url',
             help='Url in the form protocol://host:port, '
@@ -23,6 +24,7 @@ class RepositoriesCommandHandler(CommandHandler):
             action='store_true',
             help='Json output'
         )
+
         subparser_repositories.set_defaults(
             func=lambda args: cls().run(args.url, args.json, user=args.user)
         )
