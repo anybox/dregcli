@@ -33,7 +33,7 @@ specify virtual env dir in DREGCLI_VENV then run start script
 
 ```bash
 export DREGCLI_VENV=~/venvs/dregcli
-dregcli/tests_integration/start.sh
+dregcli/tests/tests_integration/start.sh
 ```
 
 optionally specify host, login, password of any thirdparty docker registry, using:
