@@ -55,6 +55,6 @@ class TestGarbageFromCount:
         should_deleted = expected_tags_by_desc_date[from_count - 1:]
         assert deleted == should_deleted
 
-        # check should have head of no deleted ones
+        # check reop should have head of no deleted ones
         should_left = expected_tags_by_desc_date[:from_count - 1]
         assert sorted(repo.tags()) == sorted(should_left)
