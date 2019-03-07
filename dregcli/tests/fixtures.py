@@ -41,13 +41,31 @@ def fixture_tags():
 
 @pytest.fixture()
 def fixture_garbage_tags():
+    # ascending dates here
     return [
+        # layer with only commit tags
+        'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382',
+
+        # a layer with a release tag between 2 layers with only commit tags
+        'master-2yu50j111dy72e70b9623522e0zdt9wz29h71ddd-1383',
+        'alpha',
+
+        # layer with only commit tags
+        'master-2bd32d000ez93c50h8486935f0fda5ee09z98bbb-1384',
+
+        # old-prod layer
         'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',
         'old-prod',
+
+        # prod layer
         'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
         'prod',
+
+        # old staging layer
         'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387',
         'old-staging',
+
+        # staging/latest layer
         'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
         'staging',
         'latest',
@@ -55,10 +73,25 @@ def fixture_garbage_tags():
 
 
 @pytest.fixture()
-def fixture_garbage_tags_new():
+def fixture_garbage_tags_with_no_old():
+    # tags without 'old' in name
+    # ascending dates here
     return [
+        # layer with only commit tags
+        'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382',
+
+        # a layer with a release tag between 2 layers with only commit tags
+        'master-2yu50j111dy72e70b9623522e0zdt9wz29h71ddd-1383',
+        'alpha',
+
+        # layer with only commit tags
+        'master-2bd32d000ez93c50h8486935f0fda5ee09z98bbb-1384',
+
+        # prod layer
         'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
         'prod',
+
+        # staging/latest layer
         'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
         'staging',
         'latest',
@@ -67,9 +100,13 @@ def fixture_garbage_tags_new():
 
 @pytest.fixture()
 def fixture_garbage_tags_old():
+    # ascending dates here
     return [
+        # old prod layer
         'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',
         'old-prod',
+
+        # old staging layer
         'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387',
         'old-staging',
     ]

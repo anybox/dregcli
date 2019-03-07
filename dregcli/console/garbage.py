@@ -67,11 +67,15 @@ class GarbageCommandHandler(CommandHandler):
         subparser_garbage.add_argument(
             '--include-layer-single-tag',
             type=str,
-            help="to use in conjonction with from-date (mandory).\n"
-                 "delete from date, layers with only a single tag left\n"
+            help="to use in conjonction with from-count or from-date.\n"
+                 'delete from date/position, '
+                 "layers with only a single tag left\n"
                  "that single tag matching a given regexp.\n"
                  "exemple: delete old previous to 2018-07-01 commit-tags\n"
                  '--from-date=2018-06-30 '
+                 '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
+                 "\nexemple: delete old commit-tags since 21th\n"
+                 '--from-count=21 '
                  '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
         )
         subparser_garbage.add_argument(
@@ -141,6 +145,11 @@ class GarbageCommandHandler(CommandHandler):
         elif options_on_count > 1:
             err_msg = '--all, --from_count, --from_date, --include, ' \
                 '--exclude are exclusives. --delete aborted'
+
+        if include_layer_single_tag:
+            if not from_count and not from_date:
+                err_msg = '--include_layer_single_tag must be used with ' \
+                          '--from_count or from_date'
 
         if not err_msg and from_date:
             if len(from_date) == 26:  # with hms

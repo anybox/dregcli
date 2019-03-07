@@ -15,26 +15,23 @@ from fixtures import (
     fixture_client,
     fixture_repository,
     fixture_garbage_tags,
-    fixture_garbage_tags_with_no_old,
 )
 from dregcli.console.garbage import GarbageCommandHandler
 
 
-class TestGarbageInclude:
+class TestGarbageFromCountIncludeLayerSingleTag:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
         'fixture_garbage_tags',
-        'fixture_garbage_tags_with_no_old',
     )
-    def test_include(
+    def test_from_count_include_layer_single_tag(
         self,
         fixture_registry_url,
         fixture_client,
         fixture_repository,
         fixture_garbage_tags,
-        fixture_garbage_tags_with_no_old,
         capsys
     ):
         # check data set adhoc state
@@ -42,13 +39,9 @@ class TestGarbageInclude:
         repo_tags = repo.tags()
         assert sorted(repo_tags) == sorted(fixture_garbage_tags)
 
-        include = r"^old"
-        handler = GarbageCommandHandler()
-        deleted = handler.run(fixture_registry_url, fixture_repository, False,
-                              include=include)
-
-        # check output: 'old' deleted
-        assert sorted(deleted) == ['old-prod', 'old-staging']
-
-        # check should have not 'old' left
-        assert sorted(repo.tags()) == sorted(fixture_garbage_tags_with_no_old)
+        # tags by date desc (and their name should match fixtures)
+        expected_tags_by_desc_date = [
+            tag_data['tag'] for tag_data in repo.get_tags_by_date()
+        ]
+        assert sorted(expected_tags_by_desc_date) == \
+            sorted(fixture_garbage_tags)
