@@ -90,9 +90,13 @@ containerName=dregcli_ci_registry
 port=5001
 
 #
-# MAIN
+# CONSOLE
 #
 mainTest 'CONSOLE' test_console.py
+
+#
+# DREGCLI
+#
 mainTest 'DREGCLI' test_dregcli.py
 
 #
@@ -114,15 +118,13 @@ garbageTest 'EXCLUDE' test_garbage_exclude.py
 # GARBAGE FROM COUNT
 #
 garbageTest 'FROM COUNT' test_garbage_from_count.py
-#TODO
-#garbageTest 'FROM COUNT LAYER SINGLE TAG (commit tag)' test_garbage_from_count_include_layer_single_tag.py
+garbageTest 'FROM COUNT LAYER SINGLE TAG (commit tag)' test_garbage_from_count_include_layer_single_tag.py
 
 #
 # GARBAGE FROM DATE
 #
 garbageTest 'FROM DATE' test_garbage_from_date.py
-#TODO
-#garbageTest 'FROM COUNT LAYER SINGLE TAG (commit tag)' test_garbage_from_date_include_layer_single_tag.py
+garbageTest 'FROM DATE LAYER SINGLE TAG (commit tag)' test_garbage_from_date_include_layer_single_tag.py
 
 #
 # GARBAGE DRY RUN

@@ -316,6 +316,7 @@ class Repository(RegistryComponent):
             data=response.json()
         )
 
+
 class Image(RegistryComponent):
     """
     Image
