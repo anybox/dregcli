@@ -16,7 +16,17 @@ function setImage() {
     docker push localhost:${port}/test-project:$2
 }
 
-function setGarbageImages() {
+function setTestImages() {
+    setImage 3.5 master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385
+    setImage 3.6 master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386
+    setImage 3.7 master-1c48755c0b257ccd106badcb973a36528f833fc0-1387
+
+    # same layer
+    setImage 3.8 master-128a1e13dbe96705917020261ee23d097606bda2-1388
+    setImage 3.8 latest
+}
+
+function setGarbageTestImages() {
     # layer with only commit tags
     setImage 3.2 master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382
 
@@ -46,16 +56,29 @@ function setGarbageImages() {
     setImage 3.9 latest
 }
 
+# mainTest 'name' python_script_name.py
+function mainTest() {
+    echo "________________________________________________________________________________"
+    echo ""
+    echo "TEST $1"
+    echo "________________________________________________________________________________"
+
+    upRegistry
+    setTestImages
+    ${DREGCLI_VENV}/bin/py.test --pep8 -vv dregcli/tests/tests_integration/$2 --ignore dregcli/tests/tests_integration/tests_garbage/
+    downRegistry
+}
+
 # garbageTest 'name' python_script_name.py
 function  garbageTest() {
     echo "________________________________________________________________________________"
     echo ""
-    echo "GARBAGE $1"
+    echo "GARBAGE TEST $1"
     echo "________________________________________________________________________________"
 
     upRegistry
-    setGarbageImages
-    ${DREGCLI_VENV}/bin/py.test --pep8 -v dregcli/tests/tests_integration/tests_garbage/$2
+    setGarbageTestImages
+    ${DREGCLI_VENV}/bin/py.test --pep8 -vv dregcli/tests/tests_integration/tests_garbage/$2
     downRegistry
 }
 
@@ -69,15 +92,8 @@ port=5001
 #
 # MAIN
 #
-echo 'MAIN'
-
-upRegistry
-setImage 3.5 master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385
-setImage 3.6 master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386
-setImage 3.7 master-1c48755c0b257ccd106badcb973a36528f833fc0-1387
-setImage 3.8 master-128a1e13dbe96705917020261ee23d097606bda2-1388
-${DREGCLI_VENV}/bin/py.test --pep8 -v dregcli/tests/tests_integration/ --ignore dregcli/tests/tests_integration/tests_garbage/
-downRegistry
+mainTest 'CONSOLE' test_console.py
+mainTest 'DREGCLI' test_dregcli.py
 
 #
 # GARBAGE ALL
@@ -98,7 +114,8 @@ garbageTest 'EXCLUDE' test_garbage_exclude.py
 # GARBAGE FROM COUNT
 #
 garbageTest 'FROM COUNT' test_garbage_from_count.py
-garbageTest 'FROM COUNT LAYER SINGLE TAG (commit tag)' test_garbage_from_count_include_layer_single_tag.py
+#TODO
+#garbageTest 'FROM COUNT LAYER SINGLE TAG (commit tag)' test_garbage_from_count_include_layer_single_tag.py
 
 #
 # GARBAGE FROM DATE

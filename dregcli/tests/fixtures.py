@@ -31,18 +31,25 @@ def fixture_repositories(fixture_repository):
 
 @pytest.fixture()
 def fixture_tags():
-    return [
+    tags = [
         'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',
         'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
         'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387',
+
+        # 1388-latest: same layer
         'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
+        'latest'
     ]
+
+    # desc date order regarding start.sh dataset
+    tags.reverse()
+    return tags
 
 
 @pytest.fixture()
 def fixture_garbage_tags():
     # ascending dates here
-    return [
+    tags = [
         # layer with only commit tags
         'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382',
 
@@ -71,12 +78,16 @@ def fixture_garbage_tags():
         'latest',
     ]
 
+    # desc date order regarding start.sh dataset
+    tags.reverse()
+    return tags
+
 
 @pytest.fixture()
 def fixture_garbage_tags_with_no_old():
     # tags without 'old' in name
     # ascending dates here
-    return [
+    tags = [
         # layer with only commit tags
         'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382',
 
@@ -97,11 +108,15 @@ def fixture_garbage_tags_with_no_old():
         'latest',
     ]
 
+    # desc date order regarding start.sh dataset
+    tags.reverse()
+    return tags
+
 
 @pytest.fixture()
 def fixture_garbage_tags_old():
     # ascending dates here
-    return [
+    tags = [
         # old prod layer
         'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',
         'old-prod',
@@ -110,6 +125,10 @@ def fixture_garbage_tags_old():
         'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387',
         'old-staging',
     ]
+
+    # desc date order regarding start.sh dataset
+    tags.reverse()
+    return tags
 
 
 @pytest.fixture()

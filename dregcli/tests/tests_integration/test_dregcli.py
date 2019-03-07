@@ -30,9 +30,8 @@ class TestRepoImage:
 
     @pytest.mark.usefixtures('fixture_tags')
     def test_tags(self, fixture_client, fixture_tags):
-        # FYI in test_console.py 2 first tags were deleted, should remains
-        # the others
-        assert self.get_repo(fixture_client).tags() == fixture_tags[2:]
+        tags = self.get_repo(fixture_client).tags()
+        assert sorted(tags) == sorted(fixture_tags)
 
     @pytest.mark.usefixtures('fixture_client', 'fixture_tags')
     def test_get_tags_by_date(
@@ -54,8 +53,30 @@ class TestRepoImage:
             if index + 1 < len(tags_by_date):
                 # check well in desc date order
                 next_tag_data = tags_by_date[index + 1]
-                assert tag_data['date'] > next_tag_data['date']
+                assert tag_data['date'] >= next_tag_data['date']
             index += 1
+
+    @pytest.mark.usefixtures('fixture_client', 'fixture_tags')
+    def test_group_tags(
+        self,
+        fixture_client,
+        fixture_tags,
+    ):
+        repo = self.get_repo(fixture_client)
+        images = repo.group_tags()
+
+        # master-128a1e13dbe96705917020261ee23d097606bda2-1388
+        # latest
+        # tags should be in same group key
+        assert any([len(images[key]) == 2 for key in images])
+        expected = [
+            'latest',
+            'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
+        ]
+        for key in images:
+            if len(images[key]) == 2:
+                tags = [image.tag for image in images[key]]
+                assert sorted(tags) == expected
 
     @pytest.mark.usefixtures(
         'fixture_repository',
@@ -67,8 +88,7 @@ class TestRepoImage:
         fixture_repository,
         fixture_tags,
     ):
-        # FYI in test_console tags 0 and 1 were deleted
-        tag = fixture_tags[2]
+        tag = 'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385'
 
         image = self.get_repo(fixture_client).image(tag)
         assert image and image.name == fixture_repository and \
@@ -95,24 +115,12 @@ class TestRepoImage:
             self.get_repo(fixture_client).image(tag)
         assert str(excinfo.value) == msg404
 
-        # after delete, tags 0, 1, 2 removed,
-        # so the last remains
+        fixture_tags.remove(tag)
         repo = self.get_repo(fixture_client)
-        assert repo.tags() == [fixture_tags[-1]]
+        assert sorted(repo.tags()) == sorted(fixture_tags)
 
         # after delete, repo should still be here in catalog
         assert repo.name == fixture_repository
-
-    @pytest.mark.usefixtures(
-        'fixture_repository',
-    )
-    def test_garbage(
-        self,
-        fixture_client,
-        fixture_repository,
-    ):
-        # TODO
-        pass
 
 
 class TestAuth:

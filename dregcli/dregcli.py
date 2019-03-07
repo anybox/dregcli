@@ -234,6 +234,26 @@ class Repository(RegistryComponent):
 
         return sorted(images, key=functools.cmp_to_key(cmp_by_date_desc))
 
+    def group_tags(self):
+        """
+        group tags and return them per common layer(s)
+        :rtype dict (key: layers digests compose key)
+        """
+        def get_layers_digests_compose_key(layers):
+            digests = []
+            for layer in layers:
+                digests.append(layer['digest'])
+            return '/'.join(sorted(digests))
+
+        groups = {}
+
+        for tag_data in self.get_tags_by_date():
+            group_key = get_layers_digests_compose_key(
+                tag_data['image'].data['layers'])
+            groups.setdefault(group_key, []).append(tag_data['image'])
+
+        return groups
+
     def image(self, tag):
         """
         get image data from tag
@@ -269,7 +289,6 @@ class Repository(RegistryComponent):
             digest=digest,
             data=response.json()
         )
-
 
 class Image(RegistryComponent):
     """

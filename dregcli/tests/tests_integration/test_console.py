@@ -145,7 +145,7 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
-        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[2] is deleted
+        tag = 'latest'
 
         expected_out = [
             'image',
@@ -213,7 +213,7 @@ class TestConsole:
         fixture_tags,
         capsys
     ):
-        tag = fixture_tags[0]  # FYI in test_dregcli fixture_tags[2] is deleted
+        tag = 'latest'
 
         with mock.patch(
             'sys.argv',
@@ -254,6 +254,10 @@ class TestConsole:
                 == ['digest', 'manifest'] and \
                 tools.check_sha256(out_json['result']['digest'])
 
+
+class TestConsoleImageDelete:
+    # should be processed at last suite in this file
+
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_repository',
@@ -268,7 +272,7 @@ class TestConsole:
         fixture_client,
         capsys
     ):
-        tag = fixture_tags[0]
+        tag = 'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385'
 
         expected_out = [
             'image',
@@ -329,9 +333,10 @@ class TestConsole:
                 console_main()
                 assert tools.get_output_lines(capsys) == expected_out_404
 
-            # after delete, tag 0 removed, so the other should remains
+            fixture_tags.remove(
+                'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385')
             repo = self.get_repo(fixture_client)
-            assert repo.tags() == fixture_tags[1:]
+            assert sorted(repo.tags()) == sorted(fixture_tags)
 
             # after delete, repo should still be here in catalog
             assert repo.name == fixture_repository
@@ -350,8 +355,7 @@ class TestConsole:
         fixture_client,
         capsys
     ):
-        # FYI in test_image_delete  fixture_tags[0] was deleted
-        tag = fixture_tags[1]
+        tag = 'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386'
 
         with mock.patch(
             'sys.argv',
@@ -395,52 +399,14 @@ class TestConsole:
                 console_main()
                 assert tools.get_output_json(capsys) == expected_json
 
-            # after delete, tag 0, 1 removed, so the other should remains
+            # deleted in test_image_delete()
+            fixture_tags.remove(
+                'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385')
+            # deleted here
+            fixture_tags.remove(
+                'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386')
             repo = self.get_repo(fixture_client)
-            assert repo.tags() == fixture_tags[2:]
+            assert sorted(repo.tags()) == sorted(fixture_tags)
 
             # after delete, repo should still be here in catalog
             assert repo.name == fixture_repository
-
-    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
-    def test_garbage(
-        self,
-        fixture_registry_url,
-        fixture_repository,
-        capsys
-    ):
-        # TODO
-
-        with mock.patch(
-            'sys.argv',
-            [
-                'dregcli',
-                'garbage',
-                fixture_registry_url,
-                fixture_repository,
-                '-n',
-            ]
-        ):
-            console_main()
-
-    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
-    def test_garbage_json(
-        self,
-        fixture_registry_url,
-        fixture_repository,
-        capsys
-    ):
-        # TODO
-        expected_json = {}
-
-        with mock.patch(
-            'sys.argv',
-            [
-                'dregcli',
-                'garbage',
-                fixture_registry_url,
-                fixture_repository,
-                '-n',
-            ]
-        ):
-            console_main()
