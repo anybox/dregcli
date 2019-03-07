@@ -183,16 +183,11 @@ class GarbageCommandHandler(CommandHandler):
                 deleted = self._include_exclude(repository, exclude,
                                                 exclude=True)
             elif from_count:
-                if include_layer_single_tag:
-                    deleted = self._from_count_onlylayer_single_tag(
-                        repository,
-                        from_count,
-                        include_layer_single_tag
-                    )
-                else:
-                    deleted = self._from_count(repository, from_count)
+                    deleted = self._from_count(repository, from_count,
+                                               include_layer_single_tag)
             elif from_date:
-                deleted = self._from_date(repository, from_date)
+                deleted = self._from_date(repository, from_date,
+                                          include_layer_single_tag)
 
             if json_output:
                 res = json.dumps({'result': deleted})
@@ -239,55 +234,61 @@ class GarbageCommandHandler(CommandHandler):
 
         return deleted
 
-    def _from_count(self, repository, from_count):
-        deleted = []
-
-        if from_count:
-            tags = repository.get_tags_by_date()
-            if from_count < len(tags):
-                to_delete = tags[from_count - 1:]
-                for tag_data in to_delete:
-                    self._delete_image(repository, tag_data['tag'])
-                    deleted.append(tag_data['tag'])
-
-        return deleted
-
-    def _from_count_onlylayer_single_tag(
+    def _from_count(
         self,
         repository,
         from_count,
-        only_layer_single_tag_regexp
+        only_layer_single_tag_regexp_filter=''
     ):
         deleted = []
+        filtered_tags = []
 
-        groups, tags = repository.group_tags()
+        if from_count:
+            if only_layer_single_tag_regexp_filter:
+                # grab layers concerned by a single tag
+                # and that matches only_layer_single_tag_regexp
+                groups, tags = repository.group_tags()
+                filtered_tags = repository.group_tags_layer_single_tags_filter(
+                    groups,
+                    only_layer_single_tag_regexp_filter
+                )
+            else:
+                tags = repository.get_tags_by_date()
 
-        # grab layers concerned by a single tag
-        # and that matches only_layer_single_tag_regexp
-        to_delete_tags = []
-        for key in groups:
-            if len(groups[key]) == 1:  # concerned by a single tag
-                tag = groups[key][0].tag
-                if Tools.search([tag], only_layer_single_tag_regexp):
-                    to_delete_tags.append(tag)
-        to_delete_tags = list(set(to_delete_tags))
-
-        # delete selected by date desc order
-        if to_delete_tags:
-            for tag_data in tags:
-                if tag_data['tag'] in to_delete_tags:
-                    self._delete_image(repository, tag_data['tag'])
-                    deleted.append(tag_data['tag'])
+            if from_count < len(tags):
+                to_delete = tags[from_count - 1:]
+                for tag_data in to_delete:
+                    if not filtered_tags or tag_data['tag'] in filtered_tags:
+                        self._delete_image(repository, tag_data['tag'])
+                        deleted.append(tag_data['tag'])
 
         return deleted
 
-    def _from_date(self, repository, from_date):
+    def _from_date(
+        self,
+        repository,
+        from_date,
+        only_layer_single_tag_regexp_filter=''
+    ):
         deleted = []
+        filtered_tags = []
 
         if from_date:
-            for tag_data in repository.get_tags_by_date():
+            if only_layer_single_tag_regexp_filter:
+                # grab layers concerned by a single tag
+                # and that matches only_layer_single_tag_regexp
+                groups, tags = repository.group_tags()
+                filtered_tags = repository.group_tags_layer_single_tags_filter(
+                    groups,
+                    only_layer_single_tag_regexp_filter
+                )
+            else:
+                tags = repository.get_tags_by_date()
+
+            for tag_data in tags:
                 if tag_data['date'] <= from_date:  # from desc order
-                    self._delete_image(repository, tag_data['tag'])
-                    deleted.append(tag_data['tag'])
+                    if not filtered_tags or tag_data['tag'] in filtered_tags:
+                        self._delete_image(repository, tag_data['tag'])
+                        deleted.append(tag_data['tag'])
 
         return deleted

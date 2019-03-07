@@ -50,11 +50,12 @@ class TestGarbageFromDateIncludeLayerSingleTag:
         from_index = 1
         from_date = tags_by_desc_date[from_index]['date'].strftime(
             '%Y-%m-%d %H:%M:%S.%f')
+        handler = GarbageCommandHandler()
         deleted = handler.run(
             fixture_registry_url,
             fixture_repository,
             False,
-            from_date=from_from_datecount,
+            from_date=from_date,
             include_layer_single_tag='^master'
         )
 

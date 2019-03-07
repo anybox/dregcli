@@ -271,7 +271,8 @@ class Repository(RegistryComponent):
             if len(groups[key]) == 1:  # concerned by a single tag
                 tag = groups[key][0].tag
                 if only_layer_single_tag_regexp_filter:
-                    if Tools.search([tag], only_layer_single_tag_regexp_filter):
+                    if Tools.search([tag],
+                                    only_layer_single_tag_regexp_filter):
                         filtered_tags.append(tag)
                 else:
                     filtered_tags.append(tag)
