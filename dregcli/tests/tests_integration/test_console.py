@@ -258,6 +258,9 @@ class TestConsole:
 class TestConsoleImageDelete:
     # should be processed at last suite in this file
 
+    def get_repo(self, client):
+        return client.repositories()[0]    
+
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_repository',
