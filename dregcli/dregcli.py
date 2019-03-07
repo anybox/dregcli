@@ -215,7 +215,7 @@ class Repository(RegistryComponent):
     def get_tags_by_date(self):
         """
         get and sort image by descending date
-        :return [{'date': datetime, 'image': Image}]
+        :return [{'date': datetime, 'tag': '', 'image': Image}]
         """
         def cmp_by_date_desc(x, y):
             # descending order
@@ -237,7 +237,7 @@ class Repository(RegistryComponent):
     def group_tags(self):
         """
         group tags and return them per common layer(s)
-        :rtype dict (key: layers digests compose key)
+        :rtype tuple (dict (key: layers digests compose key), tags_by_date)
         """
         def get_layers_digests_compose_key(layers):
             digests = []
@@ -247,12 +247,13 @@ class Repository(RegistryComponent):
 
         groups = {}
 
-        for tag_data in self.get_tags_by_date():
+        tags_by_date = self.get_tags_by_date()
+        for tag_data in tags_by_date:
             group_key = get_layers_digests_compose_key(
                 tag_data['image'].data['layers'])
             groups.setdefault(group_key, []).append(tag_data['image'])
 
-        return groups
+        return groups, tags_by_date
 
     def image(self, tag):
         """

@@ -63,7 +63,7 @@ class TestRepoImage:
         fixture_tags,
     ):
         repo = self.get_repo(fixture_client)
-        images = repo.group_tags()
+        images, _ = repo.group_tags()
 
         # master-128a1e13dbe96705917020261ee23d097606bda2-1388
         # latest
