@@ -255,6 +255,30 @@ class Repository(RegistryComponent):
 
         return groups, tags_by_date
 
+    def group_tags_layer_single_tags_filter(
+        self,
+        groups,
+        only_layer_single_tag_regexp_filter='',
+    ):
+        """
+        from layer groups, return tags that are single on layer
+        (example a commit tag with no release tag)
+        optionaly filter them with only_layer_single_tag_regexp_filter
+        """
+        filtered_tags = []
+
+        for key in groups:
+            if len(groups[key]) == 1:  # concerned by a single tag
+                tag = groups[key][0].tag
+                if only_layer_single_tag_regexp_filter:
+                    if Tools.search([tag], only_layer_single_tag_regexp_filter):
+                        filtered_tags.append(tag)
+                else:
+                    filtered_tags.append(tag)
+                filtered_tags = list(set(filtered_tags))
+
+        return filtered_tags
+
     def image(self, tag):
         """
         get image data from tag

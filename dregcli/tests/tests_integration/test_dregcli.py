@@ -63,20 +63,38 @@ class TestRepoImage:
         fixture_tags,
     ):
         repo = self.get_repo(fixture_client)
-        images, _ = repo.group_tags()
+        groups, _ = repo.group_tags()
 
         # master-128a1e13dbe96705917020261ee23d097606bda2-1388
         # latest
         # tags should be in same group key
-        assert any([len(images[key]) == 2 for key in images])
+        assert any([len(groups[key]) == 2 for key in groups])
         expected = [
             'latest',
             'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
         ]
-        for key in images:
-            if len(images[key]) == 2:
-                tags = [image.tag for image in images[key]]
+        for key in groups:
+            if len(groups[key]) == 2:
+                tags = [image.tag for image in groups[key]]
                 assert sorted(tags) == expected
+
+        #
+        # group_tags_layer_single_tags_filter testing
+        #
+        tags = repo.group_tags_layer_single_tags_filter(groups)
+        # should return others than expected because not in same layer
+        filtered_expected_tags = [t for t in fixture_tags if t not in expected]
+        assert sorted(tags) == sorted(filtered_expected_tags)
+
+        tags = repo.group_tags_layer_single_tags_filter(groups, '^master')
+        # should return others than expected because not in same layer and
+        # all master commit tags
+        assert sorted(tags) == sorted(filtered_expected_tags)
+
+        commit = 'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385'
+        tags = repo.group_tags_layer_single_tags_filter(groups, '^' + commit)
+        # should only filtered 1385 commit
+        assert tags == [commit]
 
     @pytest.mark.usefixtures(
         'fixture_repository',
