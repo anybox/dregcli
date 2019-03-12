@@ -87,7 +87,7 @@ function  garbageTest() {
 # SCRIPT
 #
 containerName=dregcli_ci_registry
-port=5001
+port=5002
 
 #
 # CONSOLE

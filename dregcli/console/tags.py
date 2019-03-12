@@ -1,4 +1,5 @@
 import json
+from tabulate import tabulate
 
 from .handler import CommandHandler
 from dregcli.dregcli import DRegCliException, Repository
@@ -55,12 +56,10 @@ class TagsCommandHandler(CommandHandler):
                     ]
                 })
             else:
-                res = "\n".join([
-                    "{tag}\t\t({dt})".format(
-                        tag=tag_data['tag'],
-                        dt=self.date2str(tag_data['date'])
-                    ) for tag_data in tags_by_date
-                ])
+                res = tabulate([
+                    [tag_data['tag'], self.date2str(tag_data['date'])]
+                    for tag_data in tags_by_date
+                ], headers=['Tag', 'Date'])
         except DRegCliException as e:
             res = str(e)
             if json_output:
