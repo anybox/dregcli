@@ -18,7 +18,7 @@ class GarbageCommandHandler(CommandHandler):
         subparser_garbage = subparsers.add_parser(
             'garbage',
             help="garbage image tags\n"
-                 "DISCLAIMER: deleting a tag shared with other tags"
+                 "DISCLAIMER: garbaging a tag shared with other tags"
                  " delete all tags on same layer"
         )
 
@@ -34,14 +34,14 @@ class GarbageCommandHandler(CommandHandler):
         subparser_garbage.add_argument(
             '-y', '--yes',
             action='store_true',
-            help="Force yes, no confirmation\n"
-                 "WARNING: proceed with caution and particulary with --all"
+            help="Force yes, no confirmation.\n"
+                 "DISCLAIMER: proceed with caution and particulary with --all"
         )
         subparser_garbage.add_argument(
             '-n', '--null',
             action='store_true',
             help='Dryrun. '
-                 'Do no run actions and feedbacks actions that will be done'
+                 'Do not run actions, just display actions that will be done'
         )
         subparser_garbage.add_argument(
             '-j', '--json',
@@ -51,7 +51,7 @@ class GarbageCommandHandler(CommandHandler):
         subparser_garbage.add_argument(
             '-a', '--all',
             action='store_true',
-            help='WARNING: delete all image'
+            help='DISCLAIMER: proceed with caution, delete all image'
         )
         subparser_garbage.add_argument(
             '--from-count',
@@ -73,7 +73,7 @@ class GarbageCommandHandler(CommandHandler):
             help="to use in conjonction with from-count or from-date.\n"
                  'delete from date/position, '
                  "layers with only a single tag left\n"
-                 "that single tag matching a given regexp.\n"
+                 "that single tag matching a given python regexp.\n"
                  "exemple: delete old previous to 2018-07-01 commit-tags\n"
                  '--from-date=2018-06-30 '
                  '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'

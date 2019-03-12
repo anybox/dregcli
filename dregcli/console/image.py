@@ -48,7 +48,7 @@ class ImageCommandHandler(CommandHandler):
         subparser_image.add_argument(
             '-y', '--yes',
             action='store_true',
-            help='Always yes. Be careful with delete'
+            help='Always yes. DISCLAIMER: Be careful with delete'
         )
 
         subparser_image.set_defaults(
