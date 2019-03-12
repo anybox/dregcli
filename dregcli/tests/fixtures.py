@@ -6,7 +6,7 @@ from dregcli.dregcli import Client
 
 @pytest.fixture()
 def fixture_registry_url():
-    return 'http://localhost:5001'
+    return 'http://localhost:5002'
 
 
 @pytest.fixture()

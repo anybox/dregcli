@@ -1,5 +1,6 @@
 import os
 import sys
+from tabulate import tabulate
 from unittest import mock
 import pytest
 
@@ -79,12 +80,10 @@ class TestConsole:
         # compute expected console result from expected fixture_tags
         client = Client(fixture_registry_url, verbose=False)
         repository = Repository(client, fixture_repository)
-        expected_tags_lines = [
-            "{tag}\t\t({dt})".format(
-                tag=t,
-                dt=CommandHandler().date2str(repository.image(t).get_date())
-            ) for t in fixture_tags
-        ]
+        expected_tags_lines = str(tabulate([
+            [t, CommandHandler().date2str(repository.image(t).get_date())]
+            for t in fixture_tags
+        ], headers=['Tag', 'Date']))
 
         with mock.patch(
             'sys.argv',
