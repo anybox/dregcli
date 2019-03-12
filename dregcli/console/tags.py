@@ -16,7 +16,7 @@ class TagsCommandHandler(CommandHandler):
 
         subparser_tags.add_argument(
             'url',
-            help='Url in the form protocol://host:port, '
+            help="Url in the form protocol://host:port\n"
                  'example: http://localhost:5001'
         )
         subparser_tags.add_argument(
