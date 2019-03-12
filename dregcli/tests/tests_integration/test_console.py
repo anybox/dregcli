@@ -80,10 +80,10 @@ class TestConsole:
         # compute expected console result from expected fixture_tags
         client = Client(fixture_registry_url, verbose=False)
         repository = Repository(client, fixture_repository)
-        expected_tags_lines = str(tabulate([
+        expected_tags_lines = tabulate([
             [t, CommandHandler().date2str(repository.image(t).get_date())]
             for t in fixture_tags
-        ], headers=['Tag', 'Date']))
+        ], headers=['Tag', 'Date']).split("\n")
 
         with mock.patch(
             'sys.argv',
