@@ -41,7 +41,9 @@ class ImageCommandHandler(CommandHandler):
         subparser_image.add_argument(
             '-d', '--delete',
             action='store_true',
-            help='Delete image (incompatible with --manifest)'
+            help="Delete image (incompatible with --manifest)\n"
+                 "DISCLAIMER: deleting a tag shared with other tags"
+                 " delete all tags on same layer"
         )
         subparser_image.add_argument(
             '-y', '--yes',
