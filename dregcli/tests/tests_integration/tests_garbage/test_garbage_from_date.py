@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import sys
@@ -48,8 +49,11 @@ class TestGarbageFromDate:
             sorted(fixture_garbage_tags)
 
         from_index = 3
-        from_date = tags_by_desc_date[from_index]['date'].strftime(
-            '%Y-%m-%d %H:%M:%S.%f')
+        from_date = tags_by_desc_date[from_index]['date']
+        # remove one sec from frontier date (see garbage command helper)
+        from_date = from_date - datetime.timedelta(seconds=1)
+        from_date = from_date.strftime('%Y-%m-%d %H:%M:%S.%f')
+
         handler = GarbageCommandHandler()
         deleted = handler.run(fixture_registry_url, fixture_repository, False,
                               from_date=from_date)
