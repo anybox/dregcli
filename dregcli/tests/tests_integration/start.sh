@@ -5,7 +5,7 @@ function upRegistry() {
 }
 
 function downRegistry() {
-        docker stop ${containerName}
+    docker stop ${containerName}
     docker rm ${containerName}
 }
 
