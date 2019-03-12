@@ -16,7 +16,7 @@ class ImageCommandHandler(CommandHandler):
 
         subparser_image.add_argument(
             'url',
-            help='Url in the form protocol://host:port, '
+            help="Url in the form protocol://host:port\n"
                  'example: http://localhost:5001'
         )
         subparser_image.add_argument(
