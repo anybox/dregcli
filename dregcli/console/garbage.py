@@ -16,7 +16,10 @@ class GarbageCommandHandler(CommandHandler):
     @classmethod
     def set_parser(cls, subparsers):
         subparser_garbage = subparsers.add_parser(
-            'garbage', help='garbage image tags'
+            'garbage',
+            help="garbage image tags\n"
+                 "DISCLAIMER: deleting a tag shared with other tags"
+                 " delete all tags on same layer"
         )
 
         subparser_garbage.add_argument(
