@@ -72,7 +72,7 @@ class ImageCommandHandler(CommandHandler):
 
             if delete:
                 confirm = yes and 'yes' or \
-                    input("Please type 'yes' word to confirm")
+                    input("Please type 'yes' word to confirm\n")
                 if confirm == 'yes':
                     image.delete()
                     if json_output:
