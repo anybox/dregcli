@@ -40,7 +40,7 @@ class ImageCommandHandler(CommandHandler):
         subparser_image.add_argument(
             '-d', '--delete',
             action='store_true',
-            help='Delete image (incompatible with --manifest or --json)'
+            help='Delete image (incompatible with --manifest)'
         )
         subparser_image.add_argument(
             '-y', '--yes',
