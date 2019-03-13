@@ -48,19 +48,29 @@ class TestGarbageFromDate:
         assert sorted(expected_tag_names_by_desc_date) == \
             sorted(fixture_garbage_tags)
 
+        # index to test from
         from_index = 3
+
         from_date = tags_by_desc_date[from_index]['date']
-        # remove one sec from frontier date (see garbage command helper)
-        from_date = from_date - datetime.timedelta(seconds=1)
-        from_date = from_date.strftime('%Y-%m-%d %H:%M:%S.%f')
+        from_data_str = from_date.strftime('%Y-%m-%d %H:%M:%S.%f')
 
         handler = GarbageCommandHandler()
         deleted = handler.run(fixture_registry_url, fixture_repository, False,
-                              from_date=from_date)
+                              from_date=from_data_str)
+
+        # get expected remove from index (from date)
+        expected_from_index = -1
+        index = 0
+        for tag_data in tags_by_desc_date:
+            if tag_data['date'] == from_date:
+                expected_from_index = index
+                break
+            index += 1
+        assert expected_from_index >= 0  # base condition of below contracts
 
         # check delete from 3rd
-        assert deleted == expected_tag_names_by_desc_date[from_index:]
+        assert deleted == expected_tag_names_by_desc_date[expected_from_index:]
 
-        # check should have head of no deleted ones
+        # check should have left of no deleted ones
         assert sorted(repo.tags()) == \
-            sorted(expected_tag_names_by_desc_date[:from_index])
+            sorted(expected_tag_names_by_desc_date[:expected_from_index])
