@@ -26,7 +26,7 @@ function setTestImages() {
     setImage 3.8 latest
 }
 
-function setGarbageTestImages() {
+function setdeleteTestImages() {
     # layer with only commit tags
     setImage 3.2 master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382
 
@@ -65,20 +65,20 @@ function mainTest() {
 
     upRegistry
     setTestImages
-    ${DREGCLI_VENV}/bin/py.test --pep8 -vv dregcli/tests/tests_integration/$2 --ignore dregcli/tests/tests_integration/tests_garbage/
+    ${DREGCLI_VENV}/bin/py.test --pep8 -vv dregcli/tests/tests_integration/$2 --ignore dregcli/tests/tests_integration/tests_delete/
     downRegistry
 }
 
-# garbageTest 'name' python_script_name.py
-function  garbageTest() {
+# deleteTest 'name' python_script_name.py
+function  deleteTest() {
     echo "________________________________________________________________________________"
     echo ""
     echo "GARBAGE TEST $1"
     echo "________________________________________________________________________________"
 
     upRegistry
-    setGarbageTestImages
-    ${DREGCLI_VENV}/bin/py.test --pep8 -vv dregcli/tests/tests_integration/tests_garbage/$2
+    setdeleteTestImages
+    ${DREGCLI_VENV}/bin/py.test --pep8 -vv dregcli/tests/tests_integration/tests_delete/$2
     downRegistry
 }
 
@@ -102,31 +102,31 @@ mainTest 'DREGCLI' test_dregcli.py
 #
 # GARBAGE ALL
 #
-garbageTest 'ALL' test_garbage_all.py
+deleteTest 'ALL' test_delete_all.py
 
 #
 # GARBAGE INCLUDE
 #
-garbageTest 'INCLUDE' test_garbage_include.py
+deleteTest 'INCLUDE' test_delete_include.py
 
 #
 # GARBAGE EXCLUDE
 #
-garbageTest 'EXCLUDE' test_garbage_exclude.py
+deleteTest 'EXCLUDE' test_delete_exclude.py
 
 #
 # GARBAGE FROM COUNT
 #
-garbageTest 'FROM COUNT' test_garbage_from_count.py
-garbageTest 'FROM COUNT LAYER SINGLE TAG (commit tag)' test_garbage_from_count_include_layer_single_tag.py
+deleteTest 'FROM COUNT' test_delete_from_count.py
+deleteTest 'FROM COUNT LAYER SINGLE TAG (commit tag)' test_delete_from_count_include_layer_single_tag.py
 
 #
 # GARBAGE FROM DATE
 #
-garbageTest 'FROM DATE' test_garbage_from_date.py
-garbageTest 'FROM DATE LAYER SINGLE TAG (commit tag)' test_garbage_from_date_include_layer_single_tag.py
+deleteTest 'FROM DATE' test_delete_from_date.py
+deleteTest 'FROM DATE LAYER SINGLE TAG (commit tag)' test_delete_from_date_include_layer_single_tag.py
 
 #
 # GARBAGE DRY RUN
 #
-garbageTest 'DRY RUN' test_garbage_dry_run.py
+deleteTest 'DRY RUN' test_delete_dry_run.py
