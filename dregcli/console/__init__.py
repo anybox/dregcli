@@ -6,7 +6,7 @@ from .handler import CommandHandler
 from .reps import RepositoriesCommandHandler
 from .tags import TagsCommandHandler
 from .image import ImageCommandHandler
-from .garbage import GarbageCommandHandler
+from .delete import DeleteCommandHandler
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
     RepositoriesCommandHandler.set_parser(subparsers)
     TagsCommandHandler.set_parser(subparsers)
     ImageCommandHandler.set_parser(subparsers)
-    GarbageCommandHandler.set_parser(subparsers)
+    DeleteCommandHandler.set_parser(subparsers)
 
     arguments = parser.parse_args()
     if hasattr(arguments, 'func'):

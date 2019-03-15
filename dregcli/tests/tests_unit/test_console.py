@@ -250,7 +250,7 @@ class TestConsoleCommandLine:
                 )
 
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
-    def test_garbage(
+    def test_delete(
         self,
         fixture_registry_url,
         fixture_repository
@@ -259,13 +259,13 @@ class TestConsoleCommandLine:
             'sys.argv',
             [
                 'dregcli',
-                'garbage',
+                'delete',
                 fixture_registry_url,
                 fixture_repository,
             ]
         ):
             with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
+                'dregcli.console.DeleteCommandHandler.run'
             ) as mo:
                 console_main()
                 mo.assert_called_once_with(
@@ -288,14 +288,14 @@ class TestConsoleCommandLine:
             'sys.argv',
             [
                 'dregcli',
-                'garbage',
+                'delete',
                 fixture_registry_url,
                 fixture_repository,
                 '-j'
             ]
         ):
             with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
+                'dregcli.console.DeleteCommandHandler.run'
             ) as mo:
                 console_main()
                 mo.assert_called_once_with(
@@ -318,14 +318,14 @@ class TestConsoleCommandLine:
             'sys.argv',
             [
                 'dregcli',
-                'garbage',
+                'delete',
                 fixture_registry_url,
                 fixture_repository,
                 '-n'
             ]
         ):
             with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
+                'dregcli.console.DeleteCommandHandler.run'
             ) as mo:
                 console_main()
                 mo.assert_called_once_with(
@@ -348,14 +348,14 @@ class TestConsoleCommandLine:
             'sys.argv',
             [
                 'dregcli',
-                'garbage',
+                'delete',
                 fixture_registry_url,
                 fixture_repository,
                 '-y'
             ]
         ):
             with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
+                'dregcli.console.DeleteCommandHandler.run'
             ) as mo:
                 console_main()
                 mo.assert_called_once_with(
@@ -378,14 +378,14 @@ class TestConsoleCommandLine:
             'sys.argv',
             [
                 'dregcli',
-                'garbage',
+                'delete',
                 fixture_registry_url,
                 fixture_repository,
                 '-a'
             ]
         ):
             with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
+                'dregcli.console.DeleteCommandHandler.run'
             ) as mo:
                 console_main()
                 mo.assert_called_once_with(
@@ -408,14 +408,14 @@ class TestConsoleCommandLine:
             'sys.argv',
             [
                 'dregcli',
-                'garbage',
+                'delete',
                 fixture_registry_url,
                 fixture_repository,
                 '--from-count=10'
             ]
         ):
             with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
+                'dregcli.console.DeleteCommandHandler.run'
             ) as mo:
                 console_main()
                 mo.assert_called_once_with(
@@ -438,14 +438,14 @@ class TestConsoleCommandLine:
             'sys.argv',
             [
                 'dregcli',
-                'garbage',
+                'delete',
                 fixture_registry_url,
                 fixture_repository,
                 '--from-date=2018-06-30'
             ]
         ):
             with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
+                'dregcli.console.DeleteCommandHandler.run'
             ) as mo:
                 console_main()
                 mo.assert_called_once_with(
@@ -469,14 +469,14 @@ class TestConsoleCommandLine:
             'sys.argv',
             [
                 'dregcli',
-                'garbage',
+                'delete',
                 fixture_registry_url,
                 fixture_repository,
                 '--include="{include}"'.format(include=include_option_val)
             ]
         ):
             with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
+                'dregcli.console.DeleteCommandHandler.run'
             ) as mo:
                 console_main()
                 mo.assert_called_once_with(
@@ -500,14 +500,14 @@ class TestConsoleCommandLine:
             'sys.argv',
             [
                 'dregcli',
-                'garbage',
+                'delete',
                 fixture_registry_url,
                 fixture_repository,
                 '--exclude="{exclude}"'.format(exclude=exclude_option_val)
             ]
         ):
             with mock.patch(
-                'dregcli.console.GarbageCommandHandler.run'
+                'dregcli.console.DeleteCommandHandler.run'
             ) as mo:
                 console_main()
                 mo.assert_called_once_with(

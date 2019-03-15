@@ -5,9 +5,9 @@ from .handler import CommandHandler
 from dregcli.dregcli import DRegCliException, Repository, Tools
 
 
-class GarbageCommandHandler(CommandHandler):
+class DeleteCommandHandler(CommandHandler):
     class Meta:
-        command = "garbage"
+        command = "delete"
 
     def __init__(self):
         super().__init__()
@@ -15,51 +15,51 @@ class GarbageCommandHandler(CommandHandler):
 
     @classmethod
     def set_parser(cls, subparsers):
-        subparser_garbage = subparsers.add_parser(
-            'garbage',
-            help="garbage image tags\n"
-                 "DISCLAIMER: garbaging a tag shared with other tags"
+        subparser_delete = subparsers.add_parser(
+            'delete',
+            help="delete image tags\n"
+                 "DISCLAIMER: deleting a tag shared with other tags"
                  " delete all tags on same layer"
         )
 
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             'url',
             help="Url in the form protocol://host:port\n"
                  "example: http://localhost:5001"
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             'repo',
             help='Repository, example: library/alpine'
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             '-y', '--yes',
             action='store_true',
             help="Force yes, no confirmation.\n"
                  "DISCLAIMER: proceed with caution and particulary with --all"
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             '-n', '--null',
             action='store_true',
             help='Dryrun. '
                  'Do not run actions, just display actions that will be done'
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             '-j', '--json',
             action='store_true',
             help='Json output'
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             '-a', '--all',
             action='store_true',
             help='DISCLAIMER: proceed with caution, delete all image'
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             '--from-count',
             type=int,
             help="delete from count tags\n"
                  "--from-count=11 to keep last 10 tags"
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             '--from-date',
             type=str,
             help="delete from date\n"
@@ -67,7 +67,7 @@ class GarbageCommandHandler(CommandHandler):
                  "--from-date=2018-06-30 13:59:59"
                  " to keep tags from 2018-06-30 14:00:00 (2:00 PM)"
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             '--include-layer-single-tag',
             type=str,
             help="to use in conjonction with from-count or from-date.\n"
@@ -81,13 +81,13 @@ class GarbageCommandHandler(CommandHandler):
                  '--from-count=21 '
                  '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             '--include',
             type=str,
             help="delete tags including python regexp\n"
                  '--include="^staging-[0-9]\{4\}"'
         )
-        subparser_garbage.add_argument(
+        subparser_delete.add_argument(
             '--exclude',
             type=str,
             help="delete tags excluding python regexp\n"
@@ -96,8 +96,8 @@ class GarbageCommandHandler(CommandHandler):
                  '--exclude="^stable-[0-9]\{4\}"'
         )
 
-        subparser_garbage.set_defaults(
-            func=lambda args: GarbageCommandHandler().run(
+        subparser_delete.set_defaults(
+            func=lambda args: DeleteCommandHandler().run(
                 args.url, args.repo, args.json,
                 user=args.user,
                 dry_run=args.null,
@@ -110,7 +110,7 @@ class GarbageCommandHandler(CommandHandler):
                 exclude=args.exclude and args.exclude.strip("\"'") or '',
             )
         )
-        return subparser_garbage
+        return subparser_delete
 
     def run(
         self,
