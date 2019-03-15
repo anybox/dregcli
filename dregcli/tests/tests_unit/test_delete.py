@@ -13,6 +13,8 @@ from dregcli.console.delete import DeleteCommandHandler
 
 
 class TestDelete:
+    _command = 'delete'
+
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
     def test_delete_no_option(
         self,
@@ -20,7 +22,7 @@ class TestDelete:
         fixture_repository,
         capsys
     ):
-        expected_msg = 'no option selected (criteria). --delete aborted'
+        expected_msg = 'no option selected (criteria). delete aborted'
         handler = DeleteCommandHandler()
 
         expected_output_json = {'error': expected_msg}
@@ -28,7 +30,7 @@ class TestDelete:
                     dry_run=True)
         assert tools.get_output_json(capsys) == expected_output_json
 
-        expected_output_lines = ['delete', expected_msg]
+        expected_output_lines = [self._command, expected_msg]
         handler.run(fixture_registry_url, fixture_repository, False,
                     dry_run=True)
         out_lines = tools.get_output_lines(capsys)
@@ -50,7 +52,7 @@ class TestDelete:
                     all=True, from_count=10)  # 2 exclusives filter options
         assert tools.get_output_json(capsys) == expected_output_json
 
-        expected_output_lines = ['delete', expected_msg]
+        expected_output_lines = [self._command, expected_msg]
         handler.run(fixture_registry_url, fixture_repository, False,
                     all=True, from_count=10)  # 2 exclusives filter options
         out_lines = tools.get_output_lines(capsys)
@@ -72,7 +74,7 @@ class TestDelete:
                     include_layer_single_tag='fake')
         assert tools.get_output_json(capsys) == expected_output_json
 
-        expected_output_lines = ['delete', expected_msg]
+        expected_output_lines = [self._command, expected_msg]
         handler.run(fixture_registry_url, fixture_repository, False,
                     include_layer_single_tag='fake')
         out_lines = tools.get_output_lines(capsys)

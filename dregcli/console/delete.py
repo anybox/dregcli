@@ -144,7 +144,7 @@ class DeleteCommandHandler(CommandHandler):
 
         err_msg = ''
         if options_on_count == 0:
-            err_msg = 'no option selected (criteria). --delete aborted'
+            err_msg = 'no option selected (criteria). delete aborted'
         elif options_on_count > 1:
             err_msg = '--all, --from_count, --from_date, --include, ' \
                 '--exclude are exclusives. --delete aborted'
