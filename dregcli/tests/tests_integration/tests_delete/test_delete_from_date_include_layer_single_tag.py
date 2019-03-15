@@ -15,9 +15,9 @@ from fixtures import (
     fixture_registry_url,
     fixture_client,
     fixture_repository,
-    fixture_garbage_tags,
+    fixture_delete_tags,
 )
-from dregcli.console.garbage import GarbageCommandHandler
+from dregcli.console.delete import DeleteCommandHandler
 
 
 class TestGarbageFromDateIncludeLayerSingleTag:
@@ -25,20 +25,20 @@ class TestGarbageFromDateIncludeLayerSingleTag:
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
-        'fixture_garbage_tags',
+        'fixture_delete_tags',
     )
     def test_from_date_include_layer_single_tag(
         self,
         fixture_registry_url,
         fixture_client,
         fixture_repository,
-        fixture_garbage_tags,
+        fixture_delete_tags,
         capsys
     ):
         # check data set adhoc state
         repo = fixture_client.repositories()[0]
         repo_tags = repo.tags()
-        assert sorted(repo_tags) == sorted(fixture_garbage_tags)
+        assert sorted(repo_tags) == sorted(fixture_delete_tags)
 
         # tags by date desc (and their name should match fixtures)
         tags_by_desc_date = repo.get_tags_by_date()
@@ -46,7 +46,7 @@ class TestGarbageFromDateIncludeLayerSingleTag:
             tag_data['tag'] for tag_data in tags_by_desc_date
         ]
         assert sorted(expected_tag_names_by_desc_date) == \
-            sorted(fixture_garbage_tags)
+            sorted(fixture_delete_tags)
 
         from_index = 1
         from_date = tags_by_desc_date[from_index]['date']
@@ -54,7 +54,7 @@ class TestGarbageFromDateIncludeLayerSingleTag:
         from_date = from_date - datetime.timedelta(seconds=1)
         from_date = from_date.strftime('%Y-%m-%d %H:%M:%S.%f')
 
-        handler = GarbageCommandHandler()
+        handler = DeleteCommandHandler()
         deleted = handler.run(
             fixture_registry_url,
             fixture_repository,
@@ -75,6 +75,6 @@ class TestGarbageFromDateIncludeLayerSingleTag:
 
         # check repo should have over tags than commit_tags_only left now
         should_left_tags = [
-            t for t in fixture_garbage_tags if t not in commit_tag_only_tags
+            t for t in fixture_delete_tags if t not in commit_tag_only_tags
         ]
         assert sorted(repo.tags()) == sorted(should_left_tags)

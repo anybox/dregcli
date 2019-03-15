@@ -14,39 +14,39 @@ from fixtures import (
     fixture_registry_url,
     fixture_client,
     fixture_repository,
-    fixture_garbage_tags,
+    fixture_delete_tags,
 )
-from dregcli.console.garbage import GarbageCommandHandler
+from dregcli.console.delete import DeleteCommandHandler
 
 
-class TestGarbageExclude:
+class TestDeleteExclude:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
-        'fixture_garbage_tags',
+        'fixture_delete_tags',
     )
     def test_exclude(
         self,
         fixture_registry_url,
         fixture_client,
         fixture_repository,
-        fixture_garbage_tags,
+        fixture_delete_tags,
         capsys
     ):
         # check data set adhoc state
         repo = fixture_client.repositories()[0]
         repo_tags = repo.tags()
-        assert sorted(repo_tags) == sorted(fixture_garbage_tags)
+        assert sorted(repo_tags) == sorted(fixture_delete_tags)
 
         isolated_tag = 'latest'
         exclude = r"^{tag}".format(tag=isolated_tag)
-        handler = GarbageCommandHandler()
+        handler = DeleteCommandHandler()
         deleted = handler.run(fixture_registry_url, fixture_repository, False,
                               exclude=exclude)
 
         # check output: others than isolated_tag deleted
-        expected_tags_left = fixture_garbage_tags.copy()
+        expected_tags_left = fixture_delete_tags.copy()
         expected_tags_left.remove(isolated_tag)
         assert sorted(deleted) == sorted(expected_tags_left)
 

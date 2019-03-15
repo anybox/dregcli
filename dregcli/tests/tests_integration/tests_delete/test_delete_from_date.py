@@ -15,9 +15,9 @@ from fixtures import (
     fixture_registry_url,
     fixture_client,
     fixture_repository,
-    fixture_garbage_tags,
+    fixture_delete_tags,
 )
-from dregcli.console.garbage import GarbageCommandHandler
+from dregcli.console.delete import DeleteCommandHandler
 
 
 class TestGarbageFromDate:
@@ -25,20 +25,20 @@ class TestGarbageFromDate:
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
-        'fixture_garbage_tags',
+        'fixture_delete_tags',
     )
     def test_from_date(
         self,
         fixture_registry_url,
         fixture_client,
         fixture_repository,
-        fixture_garbage_tags,
+        fixture_delete_tags,
         capsys
     ):
         # check data set adhoc state
         repo = fixture_client.repositories()[0]
         repo_tags = repo.tags()
-        assert sorted(repo_tags) == sorted(fixture_garbage_tags)
+        assert sorted(repo_tags) == sorted(fixture_delete_tags)
 
         # tags by date desc (and their name should match fixtures)
         tags_by_desc_date = repo.get_tags_by_date()
@@ -46,7 +46,7 @@ class TestGarbageFromDate:
             tag_data['tag'] for tag_data in tags_by_desc_date
         ]
         assert sorted(expected_tag_names_by_desc_date) == \
-            sorted(fixture_garbage_tags)
+            sorted(fixture_delete_tags)
 
         # index to test from
         from_index = 3
@@ -54,7 +54,7 @@ class TestGarbageFromDate:
         from_date = tags_by_desc_date[from_index]['date']
         from_data_str = from_date.strftime('%Y-%m-%d %H:%M:%S.%f')
 
-        handler = GarbageCommandHandler()
+        handler = DeleteCommandHandler()
         deleted = handler.run(fixture_registry_url, fixture_repository, False,
                               from_date=from_data_str)
 

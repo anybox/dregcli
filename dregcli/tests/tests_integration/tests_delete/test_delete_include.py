@@ -14,10 +14,10 @@ from fixtures import (
     fixture_registry_url,
     fixture_client,
     fixture_repository,
-    fixture_garbage_tags,
-    fixture_garbage_tags_with_no_old,
+    fixture_delete_tags,
+    fixture_delete_tags_with_no_old,
 )
-from dregcli.console.garbage import GarbageCommandHandler
+from dregcli.console.delete import DeleteCommandHandler
 
 
 class TestGarbageInclude:
@@ -25,25 +25,25 @@ class TestGarbageInclude:
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
-        'fixture_garbage_tags',
-        'fixture_garbage_tags_with_no_old',
+        'fixture_delete_tags',
+        'fixture_delete_tags_with_no_old',
     )
     def test_include(
         self,
         fixture_registry_url,
         fixture_client,
         fixture_repository,
-        fixture_garbage_tags,
-        fixture_garbage_tags_with_no_old,
+        fixture_delete_tags,
+        fixture_delete_tags_with_no_old,
         capsys
     ):
         # check data set adhoc state
         repo = fixture_client.repositories()[0]
         repo_tags = repo.tags()
-        assert sorted(repo_tags) == sorted(fixture_garbage_tags)
+        assert sorted(repo_tags) == sorted(fixture_delete_tags)
 
         include = r"^old"
-        handler = GarbageCommandHandler()
+        handler = DeleteCommandHandler()
         deleted = handler.run(fixture_registry_url, fixture_repository, False,
                               include=include)
 
@@ -51,4 +51,4 @@ class TestGarbageInclude:
         assert sorted(deleted) == ['old-prod', 'old-staging']
 
         # check should have not 'old' left
-        assert sorted(repo.tags()) == sorted(fixture_garbage_tags_with_no_old)
+        assert sorted(repo.tags()) == sorted(fixture_delete_tags_with_no_old)

@@ -47,7 +47,7 @@ def fixture_tags():
 
 
 @pytest.fixture()
-def fixture_garbage_tags():
+def fixture_delete_tags():
     # ascending dates here
     tags = [
         # layer with only commit tags
@@ -84,7 +84,7 @@ def fixture_garbage_tags():
 
 
 @pytest.fixture()
-def fixture_garbage_tags_with_no_old():
+def fixture_delete_tags_with_no_old():
     # tags without 'old' in name
     # ascending dates here
     tags = [
@@ -114,7 +114,7 @@ def fixture_garbage_tags_with_no_old():
 
 
 @pytest.fixture()
-def fixture_garbage_tags_old():
+def fixture_delete_tags_old():
     # ascending dates here
     tags = [
         # old prod layer

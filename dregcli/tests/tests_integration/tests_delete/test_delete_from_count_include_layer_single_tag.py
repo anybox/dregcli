@@ -14,40 +14,40 @@ from fixtures import (
     fixture_registry_url,
     fixture_client,
     fixture_repository,
-    fixture_garbage_tags,
+    fixture_delete_tags,
 )
-from dregcli.console.garbage import GarbageCommandHandler
+from dregcli.console.delete import DeleteCommandHandler
 
 
-class TestGarbageFromCountIncludeLayerSingleTag:
+class TestDeleteFromCountIncludeLayerSingleTag:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
-        'fixture_garbage_tags',
+        'fixture_delete_tags',
     )
     def test_from_count_include_layer_single_tag(
         self,
         fixture_registry_url,
         fixture_client,
         fixture_repository,
-        fixture_garbage_tags,
+        fixture_delete_tags,
         capsys
     ):
         # check data set adhoc state
         repo = fixture_client.repositories()[0]
         repo_tags = repo.tags()
-        assert sorted(repo_tags) == sorted(fixture_garbage_tags)
+        assert sorted(repo_tags) == sorted(fixture_delete_tags)
 
         # tags by date desc (and their name should match fixtures)
         expected_tags_by_desc_date = [
             tag_data['tag'] for tag_data in repo.get_tags_by_date()
         ]
         assert sorted(expected_tags_by_desc_date) == \
-            sorted(fixture_garbage_tags)
+            sorted(fixture_delete_tags)
 
         from_count = 1
-        handler = GarbageCommandHandler()
+        handler = DeleteCommandHandler()
         deleted = handler.run(
             fixture_registry_url,
             fixture_repository,
@@ -68,6 +68,6 @@ class TestGarbageFromCountIncludeLayerSingleTag:
 
         # check repo should have over tags than commit_tags_only left now
         should_left_tags = [
-            t for t in fixture_garbage_tags if t not in commit_tag_only_tags
+            t for t in fixture_delete_tags if t not in commit_tag_only_tags
         ]
         assert sorted(repo.tags()) == sorted(should_left_tags)

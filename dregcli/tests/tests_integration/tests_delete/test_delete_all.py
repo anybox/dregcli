@@ -14,37 +14,37 @@ from fixtures import (
     fixture_registry_url,
     fixture_client,
     fixture_repository,
-    fixture_garbage_tags,
+    fixture_delete_tags,
 )
-from dregcli.console.garbage import GarbageCommandHandler
+from dregcli.console.delete import DeleteCommandHandler
 
 
-class TestGarbageAll:
+class TestDeleteAll:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
-        'fixture_garbage_tags'
+        'fixture_delete_tags'
     )
     def test_all(
         self,
         fixture_registry_url,
         fixture_client,
         fixture_repository,
-        fixture_garbage_tags,
+        fixture_delete_tags,
         capsys
     ):
         # check data set adhoc state
         repo = fixture_client.repositories()[0]
         repo_tags = repo.tags()
-        assert sorted(repo_tags) == sorted(fixture_garbage_tags)
+        assert sorted(repo_tags) == sorted(fixture_delete_tags)
 
-        handler = GarbageCommandHandler()
+        handler = DeleteCommandHandler()
         deleted = handler.run(fixture_registry_url, fixture_repository, False,
                               all=True)
 
         # check output: all tags deleted output
-        assert sorted(deleted) == sorted(fixture_garbage_tags)
+        assert sorted(deleted) == sorted(fixture_delete_tags)
 
         # check should have no tag anymore left for repo
         assert repo.tags() == []
