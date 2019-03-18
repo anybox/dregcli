@@ -60,7 +60,7 @@ class TestGarbageFromDateIncludeLayerSingleTag:
             fixture_repository,
             False,
             from_date=from_date,
-            include_layer_single_tag='^master'
+            single_tag='^master'
         )
 
         # 'commit tags' to be removed

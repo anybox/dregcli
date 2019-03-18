@@ -53,7 +53,7 @@ class TestDeleteFromCountIncludeLayerSingleTag:
             fixture_repository,
             False,
             from_count=from_count,
-            include_layer_single_tag='^master'
+            single_tag='^master'
         )
 
         # 'commit tags' to be removed

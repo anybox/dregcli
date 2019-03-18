@@ -238,6 +238,7 @@ class Repository(RegistryComponent):
         """
         group tags and return them per common layer(s)
         :rtype tuple (dict (key: layers digests compose key), tags_by_date)
+            (for tags_by_date see get_tags_by_date() return)
         """
         def get_layers_digests_compose_key(layers):
             digests = []

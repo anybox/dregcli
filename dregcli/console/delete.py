@@ -68,20 +68,6 @@ class DeleteCommandHandler(CommandHandler):
                  " to keep tags from 2018-06-30 14:00:00 (2:00 PM)"
         )
         subparser_delete.add_argument(
-            '--include-layer-single-tag',
-            type=str,
-            help="to use in conjonction with from-count or from-date.\n"
-                 'delete from date/position, '
-                 "layers with only a single tag left\n"
-                 "that single tag matching a given python regexp.\n"
-                 "exemple: delete old previous to 2018-07-01 commit-tags\n"
-                 '--from-date=2018-06-30 '
-                 '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
-                 "\nexemple: delete old commit-tags since 21th\n"
-                 '--from-count=21 '
-                 '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
-        )
-        subparser_delete.add_argument(
             '--include',
             type=str,
             help="delete tags including python regexp\n"
@@ -95,6 +81,19 @@ class DeleteCommandHandler(CommandHandler):
                  "(no implicit --all)\n"
                  '--exclude="^stable-[0-9]\{4\}"'
         )
+        subparser_delete.add_argument(
+            '--single-tag',
+            type=str,
+            help="to use in conjonction with another delete option.\n"
+                 "delete layers with only a single tag left\n"
+                 "that single tag matching a given python regexp.\n"
+                 "exemple: delete old previous to 2018-07-01 commit-tags\n"
+                 '--from-date=2018-06-30 '
+                 '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
+                 "\nexemple: delete old commit-tags since 21th\n"
+                 '--from-count=21 '
+                 '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
+        )
 
         subparser_delete.set_defaults(
             func=lambda args: DeleteCommandHandler().run(
@@ -105,7 +104,7 @@ class DeleteCommandHandler(CommandHandler):
                 all=args.all,
                 from_count=args.from_count or 0,
                 from_date=args.from_date or 0,
-                include_layer_single_tag=args.include_layer_single_tag or '',
+                single_tag=args.single_tag or '',
                 include=args.include and args.include.strip("\"'") or '',
                 exclude=args.exclude and args.exclude.strip("\"'") or '',
             )
@@ -123,24 +122,22 @@ class DeleteCommandHandler(CommandHandler):
         all=False,
         from_count=0,
         from_date=0,
-        include_layer_single_tag='',
+        single_tag='',
         include='',
         exclude=''
     ):
         super().run(url, json_output, user=user)
         self.dry_run = dry_run
 
-        options_on = [
+        # delete options count, single_tag filter excepted
+        options = [
             all,
             bool(from_count),
             bool(from_date),
             bool(include),
             bool(exclude)
         ]
-        options_on_count = 0
-        for oo in options_on:
-            if oo:
-                options_on_count += 1
+        options_on_count = len([o for o in options if o])
 
         err_msg = ''
         if options_on_count == 0:
@@ -148,11 +145,6 @@ class DeleteCommandHandler(CommandHandler):
         elif options_on_count > 1:
             err_msg = '--all, --from_count, --from_date, --include, ' \
                 '--exclude are exclusives. --delete aborted'
-
-        if include_layer_single_tag:
-            if not from_count and not from_date:
-                err_msg = '--include_layer_single_tag must be used with ' \
-                          '--from_count or from_date'
 
         if not err_msg and from_date:
             if len(from_date) == 26:  # with hms
@@ -168,7 +160,6 @@ class DeleteCommandHandler(CommandHandler):
                 err_msg = '--from-date invalide date format. --delete aborted'
 
         if err_msg:
-            msg = '--from-date invalide date format. --delete aborted'
             if json_output:
                 err_msg = json.dumps({'error': err_msg})
             print(err_msg)
@@ -179,18 +170,32 @@ class DeleteCommandHandler(CommandHandler):
             repository = Repository(self.client, repo)
 
             if all:
-                deleted = self._all(repository)
+                deleted = self._all(repository, single_tag=single_tag)
             elif include:
-                deleted = self._include_exclude(repository, include)
+                deleted = self._include_exclude(
+                    repository,
+                    include,
+                    single_tag=single_tag
+                )
             elif exclude:
-                deleted = self._include_exclude(repository, exclude,
-                                                exclude=True)
+                deleted = self._include_exclude(
+                    repository,
+                    exclude,
+                    single_tag=single_tag,
+                    exclude=True
+                )
             elif from_count:
-                    deleted = self._from_count(repository, from_count,
-                                               include_layer_single_tag)
+                    deleted = self._from_count(
+                        repository,
+                        from_count,
+                        single_tag=single_tag
+                    )
             elif from_date:
-                deleted = self._from_date(repository, from_date,
-                                          include_layer_single_tag)
+                deleted = self._from_date(
+                    repository,
+                    from_date,
+                    single_tag=single_tag
+                )
 
             if json_output:
                 res = json.dumps({'result': deleted})
@@ -217,23 +222,57 @@ class DeleteCommandHandler(CommandHandler):
                 # master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385 old-prod
                 # representing same image
 
-    def _all(self, repository):
-        tags = repository.tags()
+    def get_tags(self, repository, single_tag):
+        """
+        :single_tag: single_tag regexp (layer with unique tag to keep on)
+        :rtype tupe
+        :return tags (tags data by date), filtered_tags (list of filtered tags)
+        """
+        if single_tag:
+            # grab layers concerned by a single tag
+            # and that matches only_layer_single_tag_regexp
+            groups, tags = repository.group_tags()
+            filtered_tags = repository.group_tags_layer_single_tags_filter(
+                groups,
+                single_tag
+            )
+        else:
+            tags = repository.get_tags_by_date()
+            filtered_tags = False
+
+        return tags, filtered_tags
+
+    def _all(self, repository, single_tag=''):
+        tags, filtered_tags = self.get_tags(repository, single_tag)
 
         deleted = []
-        for tag in tags:
-            self._delete_image(repository, tag)
-            deleted.append(tag)
+        for tag_data in tags:
+            if not filtered_tags or tag_data['tag'] in filtered_tags:
+                self._delete_image(repository, tag_data['tag'])
+                deleted.append(tag_data['tag'])
 
         return deleted
 
-    def _include_exclude(self, repository, regexp_expr, exclude=False):
-        tags = Tools.search(repository.tags(), regexp_expr, exclude=exclude)
+    def _include_exclude(
+        self,
+        repository,
+        regexp_expr,
+        single_tag='',
+        exclude=False
+    ):
+        tags, filtered_tags = self.get_tags(repository, single_tag)
+        include_excluted_tag_names = Tools.search(
+            [tag_data['tag'] for tag_data in tags],
+            regexp_expr,
+            exclude=exclude
+        )
 
         deleted = []
-        for tag in tags:
-            self._delete_image(repository, tag)
-            deleted.append(tag)
+        for tag_data in tags:
+            if not filtered_tags or tag_data['tag'] in filtered_tags:
+                if tag_data['tag'] in include_excluted_tag_names:
+                    self._delete_image(repository, tag_data['tag'])
+                    deleted.append(tag_data['tag'])
 
         return deleted
 
@@ -241,23 +280,12 @@ class DeleteCommandHandler(CommandHandler):
         self,
         repository,
         from_count,
-        only_layer_single_tag_regexp_filter=''
+        single_tag=''
     ):
+        tags, filtered_tags = self.get_tags(repository, single_tag)
+
         deleted = []
-        filtered_tags = []
-
         if from_count:
-            if only_layer_single_tag_regexp_filter:
-                # grab layers concerned by a single tag
-                # and that matches only_layer_single_tag_regexp
-                groups, tags = repository.group_tags()
-                filtered_tags = repository.group_tags_layer_single_tags_filter(
-                    groups,
-                    only_layer_single_tag_regexp_filter
-                )
-            else:
-                tags = repository.get_tags_by_date()
-
             if from_count < len(tags):
                 to_delete = tags[from_count - 1:]
                 for tag_data in to_delete:
@@ -271,23 +299,12 @@ class DeleteCommandHandler(CommandHandler):
         self,
         repository,
         from_date,
-        only_layer_single_tag_regexp_filter=''
+        single_tag=''
     ):
+        tags, filtered_tags = self.get_tags(repository, single_tag)
+
         deleted = []
-        filtered_tags = []
-
         if from_date:
-            if only_layer_single_tag_regexp_filter:
-                # grab layers concerned by a single tag
-                # and that matches only_layer_single_tag_regexp
-                groups, tags = repository.group_tags()
-                filtered_tags = repository.group_tags_layer_single_tags_filter(
-                    groups,
-                    only_layer_single_tag_regexp_filter
-                )
-            else:
-                tags = repository.get_tags_by_date()
-
             for tag_data in tags:
                 if tag_data['date'] <= from_date:  # from desc order
                     if not filtered_tags or tag_data['tag'] in filtered_tags:
