@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import sys
@@ -19,14 +20,14 @@ from fixtures import (
 from dregcli.console.delete import DeleteCommandHandler
 
 
-class TestDeleteFromCountIncludeLayerSingleTag:
+class TestGarbageAllSingleTag:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
         'fixture_delete_tags',
     )
-    def test_from_count_include_layer_single_tag(
+    def test_all_single_tag(
         self,
         fixture_registry_url,
         fixture_client,
@@ -40,19 +41,19 @@ class TestDeleteFromCountIncludeLayerSingleTag:
         assert sorted(repo_tags) == sorted(fixture_delete_tags)
 
         # tags by date desc (and their name should match fixtures)
-        expected_tags_by_desc_date = [
-            tag_data['tag'] for tag_data in repo.get_tags_by_date()
+        tags_by_desc_date = repo.get_tags_by_date()
+        expected_tag_names_by_desc_date = [
+            tag_data['tag'] for tag_data in tags_by_desc_date
         ]
-        assert sorted(expected_tags_by_desc_date) == \
+        assert sorted(expected_tag_names_by_desc_date) == \
             sorted(fixture_delete_tags)
 
-        from_count = 1
         handler = DeleteCommandHandler()
         deleted = handler.run(
             fixture_registry_url,
             fixture_repository,
             False,
-            from_count=from_count,
+            all=True,
             single_tag='^master'
         )
 

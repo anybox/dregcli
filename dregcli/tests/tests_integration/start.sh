@@ -103,6 +103,7 @@ mainTest 'DREGCLI' test_dregcli.py
 # GARBAGE ALL
 #
 deleteTest 'ALL' test_delete_all.py
+deleteTest 'ALL SINGLE TAG (commit tag)' test_delete_all_single_tag.py
 
 #
 # GARBAGE INCLUDE
@@ -118,13 +119,11 @@ deleteTest 'EXCLUDE' test_delete_exclude.py
 # GARBAGE FROM COUNT
 #
 deleteTest 'FROM COUNT' test_delete_from_count.py
-deleteTest 'FROM COUNT LAYER SINGLE TAG (commit tag)' test_delete_from_count_include_layer_single_tag.py
 
 #
 # GARBAGE FROM DATE
 #
 deleteTest 'FROM DATE' test_delete_from_date.py
-deleteTest 'FROM DATE LAYER SINGLE TAG (commit tag)' test_delete_from_date_include_layer_single_tag.py
 
 #
 # GARBAGE DRY RUN
