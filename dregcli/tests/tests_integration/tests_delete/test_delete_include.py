@@ -21,7 +21,7 @@ from fixtures import (
 from dregcli.console.delete import DeleteCommandHandler
 
 
-class TestGarbageInclude:
+class TestDeleteInclude:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_client',

@@ -20,7 +20,7 @@ from fixtures import (
 from dregcli.console.delete import DeleteCommandHandler
 
 
-class TestGarbageIncludeSingleTag:
+class TestDeleteIncludeSingleTag:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_client',
