@@ -50,7 +50,6 @@ class TestGarbageFromDate:
 
         # index to test from
         from_index = 3
-
         from_date = tags_by_desc_date[from_index]['date']
         from_data_str = from_date.strftime('%Y-%m-%d %H:%M:%S.%f')
 

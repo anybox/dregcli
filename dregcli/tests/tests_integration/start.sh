@@ -17,6 +17,7 @@ function setImage() {
 }
 
 function setTestImages() {
+    # adhoc with fixtures.py
     setImage 3.5 master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385
     setImage 3.6 master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386
     setImage 3.7 master-1c48755c0b257ccd106badcb973a36528f833fc0-1387
@@ -27,6 +28,8 @@ function setTestImages() {
 }
 
 function setdeleteTestImages() {
+    # adhoc with fixtures.py
+
     # layer with only commit tags
     setImage 3.2 master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382
 
@@ -73,7 +76,7 @@ function mainTest() {
 function  deleteTest() {
     echo "________________________________________________________________________________"
     echo ""
-    echo "GARBAGE TEST $1"
+    echo "DELETE TEST $1"
     echo "________________________________________________________________________________"
 
     upRegistry
@@ -100,32 +103,36 @@ mainTest 'CONSOLE' test_console.py
 mainTest 'DREGCLI' test_dregcli.py
 
 #
-# GARBAGE ALL
+# single_tagBAGE ALL
 #
 deleteTest 'ALL' test_delete_all.py
 deleteTest 'ALL SINGLE TAG (commit tag)' test_delete_all_single_tag.py
 
 #
-# GARBAGE INCLUDE
+# DELETE INCLUDE
 #
 deleteTest 'INCLUDE' test_delete_include.py
+deleteTest 'INCLUDE' test_delete_include_single_tag.py
 
 #
-# GARBAGE EXCLUDE
+# DELETE EXCLUDE
 #
 deleteTest 'EXCLUDE' test_delete_exclude.py
+deleteTest 'INCLUDE' test_delete_exclude_single_tag.py
 
 #
-# GARBAGE FROM COUNT
+# DELETE FROM COUNT
 #
 deleteTest 'FROM COUNT' test_delete_from_count.py
+deleteTest 'FROM COUNT SINGLE TAG (commit tag)' test_delete_from_count_single_tag.py
 
 #
-# GARBAGE FROM DATE
+# DELETE FROM DATE
 #
 deleteTest 'FROM DATE' test_delete_from_date.py
+deleteTest 'FROM DATE SINGLE TAG (commit tag)' test_delete_from_date_single_tag.py
 
 #
-# GARBAGE DRY RUN
+# DELETE DRY RUN
 #
 deleteTest 'DRY RUN' test_delete_dry_run.py

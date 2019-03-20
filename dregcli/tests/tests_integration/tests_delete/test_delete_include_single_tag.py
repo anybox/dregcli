@@ -15,28 +15,25 @@ from fixtures import (
     fixture_client,
     fixture_repository,
     fixture_delete_tags,
-    fixture_delete_tags_old_only,
     fixture_delete_tags_with_no_old,
 )
 from dregcli.console.delete import DeleteCommandHandler
 
 
-class TestGarbageInclude:
+class TestGarbageIncludeSingleTag:
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_client',
         'fixture_repository',
         'fixture_delete_tags',
-        'fixture_delete_tags_old_only',
         'fixture_delete_tags_with_no_old',
     )
-    def test_include(
+    def test_include_single_tag(
         self,
         fixture_registry_url,
         fixture_client,
         fixture_repository,
         fixture_delete_tags,
-        fixture_delete_tags_old_only,
         fixture_delete_tags_with_no_old,
         capsys
     ):
@@ -45,24 +42,28 @@ class TestGarbageInclude:
         repo_tags = repo.tags()
         assert sorted(repo_tags) == sorted(fixture_delete_tags)
 
-        include = r"^old"
-
+        include = r"1382$"
         handler = DeleteCommandHandler()
         deleted = handler.run(
             fixture_registry_url,
             fixture_repository,
             False,
             include=include,
+            single_tag='^master'
         )
 
         # 'commit tags' to be removed
-        # (no other release tags like 'staging' on them)
+        # 1382 as no other release tag + included
         commit_tag_only_tags_deleted = [
-
+            'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382',
         ]
 
         # check commit_tags_only tags deleted
-        assert sorted(deleted) == sorted(fixture_delete_tags_old_only)
+        assert sorted(deleted) == sorted(commit_tag_only_tags_deleted)
 
         # check repo should have over tags than commit_tags_only left now
-        assert sorted(repo.tags()) == sorted(fixture_delete_tags_with_no_old)
+        should_left_tags = [
+            t for t in fixture_delete_tags
+            if t not in commit_tag_only_tags_deleted
+        ]
+        assert sorted(repo.tags()) == sorted(should_left_tags)

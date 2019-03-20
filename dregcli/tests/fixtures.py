@@ -132,6 +132,19 @@ def fixture_delete_tags_old():
 
 
 @pytest.fixture()
+def fixture_delete_tags_old_only():
+    # ascending dates here
+    tags = [
+        'old-prod',
+        'old-staging',
+    ]
+
+    # desc date order regarding start.sh dataset
+    tags.reverse()
+    return tags
+
+
+@pytest.fixture()
 def fixture_auth():
     return {
         'login': 'foobar',
