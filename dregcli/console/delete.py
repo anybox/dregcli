@@ -16,7 +16,7 @@ class DeleteCommandHandler(CommandHandler):
     @classmethod
     def set_parser(cls, subparsers):
         subparser_delete = subparsers.add_parser(
-            'delete',
+            cls.Meta.command,
             help="delete image tags\n"
                  "DISCLAIMER: deleting a tag shared with other tags"
                  " delete all tags on same layer"

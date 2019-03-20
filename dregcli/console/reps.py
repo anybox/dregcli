@@ -11,7 +11,7 @@ class RepositoriesCommandHandler(CommandHandler):
     @classmethod
     def set_parser(cls, subparsers):
         subparser_repositories = subparsers.add_parser(
-            'reps', help='List repositories'
+            cls.Meta.command, help='List repositories'
         )
 
         subparser_repositories.add_argument(

@@ -12,7 +12,7 @@ class TagsCommandHandler(CommandHandler):
     @classmethod
     def set_parser(cls, subparsers):
         subparser_tags = subparsers.add_parser(
-            'tags', help='List repository tags'
+            cls.Meta.command, help='List repository tags'
         )
 
         subparser_tags.add_argument(

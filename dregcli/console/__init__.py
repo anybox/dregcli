@@ -6,6 +6,7 @@ from .handler import CommandHandler
 from .reps import RepositoriesCommandHandler
 from .tags import TagsCommandHandler
 from .image import ImageCommandHandler
+from .images import ImagesCommandHandler
 from .delete import DeleteCommandHandler
 
 
@@ -22,6 +23,7 @@ def main():
 
     RepositoriesCommandHandler.set_parser(subparsers)
     TagsCommandHandler.set_parser(subparsers)
+    ImagesCommandHandler.set_parser(subparsers)
     ImageCommandHandler.set_parser(subparsers)
     DeleteCommandHandler.set_parser(subparsers)
 

@@ -105,6 +105,50 @@ class TestConsoleCommandLine:
                     user=None
                 )
 
+    @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
+    def test_images(self, fixture_registry_url, fixture_repository):
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'images',
+                fixture_registry_url,
+                fixture_repository,
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.ImagesCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    False,
+                    user=None
+                )
+
+        # json
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'images',
+                fixture_registry_url,
+                fixture_repository,
+                '-j',
+            ]
+        ):
+            with mock.patch(
+                'dregcli.console.ImagesCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    fixture_repository,
+                    True,
+                    user=None
+                )
+
     @pytest.mark.usefixtures(
         'fixture_registry_url',
         'fixture_repository',

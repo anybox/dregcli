@@ -11,7 +11,7 @@ class ImageCommandHandler(CommandHandler):
     @classmethod
     def set_parser(cls, subparsers):
         subparser_image = subparsers.add_parser(
-            'image',
+            cls.Meta.command,
             help='get image digest, get manifest (-m), delete image (-d)'
         )
 
