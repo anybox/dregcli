@@ -1,4 +1,6 @@
 import json
+from operator import itemgetter
+from tabulate import tabulate
 
 from .handler import CommandHandler
 from dregcli.dregcli import DRegCliException, Repository
@@ -43,8 +45,32 @@ class ImagesCommandHandler(CommandHandler):
 
         try:
             repository = Repository(self.client, repo)
-            image = repository.image(tag)
-            res = ''
+            groups, _ = repository.group_tags()
+
+            tags_date = []
+            for key in groups:
+                tags_date.append([
+                    [img.tag for img in groups[key]],
+                    groups[key][0].get_date()
+                ])
+            tags_date_desc = sorted(tags_date, key=itemgetter(1), reverse=True)
+
+            if json_output:
+                res = json.dumps({
+                    'result': [{
+                            'tags': tdd[0],
+                            'date': self.date2str(tdd[1])
+                        } for tdd in tags_date_desc
+                    ]
+                })
+            else:
+                res = tabulate([[
+                            ','.join(tdd[0]),
+                            self.date2str(tdd[1])
+                        ] for tdd in tags_date_desc
+                    ],
+                    headers=['Tags', 'Date']
+                )
         except DRegCliException as e:
             res = str(e)
             if json_output:
