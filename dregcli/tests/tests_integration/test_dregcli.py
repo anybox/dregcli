@@ -63,20 +63,30 @@ class TestRepoImage:
         fixture_tags,
     ):
         repo = self.get_repo(fixture_client)
-        groups, _ = repo.group_tags()
+        groups, tags_data = repo.group_tags()
 
         # master-128a1e13dbe96705917020261ee23d097606bda2-1388
         # latest
-        # tags should be in same group key
-        assert any([len(groups[key]) == 2 for key in groups])
+        # 1388 and latest tags should be in same group key
         expected = [
             'latest',
             'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
         ]
+        assert any([len(groups[key]) == 2 for key in groups])
+        assert len(tags_data) == len(tags_data)
         for key in groups:
             if len(groups[key]) == 2:
                 tags = [image.tag for image in groups[key]]
                 assert sorted(tags) == expected
+        for tag_data in tags_data:
+            assert 'date' in tag_data \
+                and 'tag' in tag_data \
+                and 'image' in tag_data \
+                and 'cotags' in tag_data
+            if tag_data['tag'] in expected:
+                assert sorted(tag_data['cotags']) == sorted(
+                    [tag for tag in expected if tag != tag_data['tag']]
+                )  # cotags should other tags than the tag itself
 
         #
         # group_tags_layer_single_tags_filter testing

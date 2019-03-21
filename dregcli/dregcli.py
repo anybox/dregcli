@@ -237,7 +237,11 @@ class Repository(RegistryComponent):
     def group_tags(self):
         """
         group tags and return them per common layer(s)
-        :rtype tuple (dict (key: layers digests compose key), tags_by_date)
+        :rtype tuple (
+            dict (key: layers digests compose key),
+            [{'date': datetime, 'tag': '', 'image': Image,
+             'cotags': ['lastest']}]
+        )
             (for tags_by_date see get_tags_by_date() return)
         """
         def get_layers_digests_compose_key(layers):
@@ -247,14 +251,28 @@ class Repository(RegistryComponent):
             return '/'.join(sorted(digests))
 
         groups = {}
-
         tags_by_date = self.get_tags_by_date()
+
+        # group by common layer
         for tag_data in tags_by_date:
             group_key = get_layers_digests_compose_key(
                 tag_data['image'].data['layers'])
             groups.setdefault(group_key, []).append(tag_data['image'])
 
-        return groups, tags_by_date
+        # per tag dispatch co-tags (in common layer)
+        tag_cotags = {}
+        for key in groups:
+            for image in groups[key]:
+                tag_cotags[image.tag] = [
+                    ci.tag for ci in groups[key] if ci.tag != image.tag
+                ]
+        tags_by_date_new = []
+        for tag_data in tags_by_date:
+            tags_data_new = tag_data.copy()
+            tags_data_new['cotags'] = list(set(tag_cotags[tag_data['tag']]))
+            tags_by_date_new.append(tags_data_new)
+
+        return groups, tags_by_date_new
 
     def group_tags_layer_single_tags_filter(
         self,
