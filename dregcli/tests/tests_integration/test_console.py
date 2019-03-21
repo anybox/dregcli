@@ -137,6 +137,49 @@ class TestConsole:
         'fixture_repository',
         'fixture_tags'
     )
+    def test_images_json(
+            self,
+            fixture_registry_url,
+            fixture_repository,
+            fixture_tags,
+            capsys
+    ):
+        # compute expected json result from expected fixture_tags
+        client = Client(fixture_registry_url, verbose=False)
+        repository = Repository(client, fixture_repository)
+
+        with mock.patch(
+            'sys.argv',
+            [
+                'dregcli',
+                'images',
+                fixture_registry_url, fixture_repository,
+                '-j'
+            ]
+        ):
+            console_main()
+            out_json = tools.get_output_json(capsys)
+
+            # 1388 commit and latest should be in same layer
+            # 1385 1386 and 1387 should each on separate layer
+
+            for result_item in out_json['result']:
+                tags = result_item['tags']
+                tags_count = len(tags)
+
+                assert tags_count in (1, 2)
+                for t in tags:
+                    pipeline_ref = t.split('-')[-1]
+                    if tags_count == 1:
+                        assert pipeline_ref in ('1385', '1386', '1387')
+                    else:
+                        assert pipeline_ref in ('latest', '1388')
+
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repository',
+        'fixture_tags'
+    )
     def test_image(
         self,
         fixture_registry_url,
