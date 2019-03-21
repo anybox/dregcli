@@ -58,16 +58,15 @@ class ImagesCommandHandler(CommandHandler):
             if json_output:
                 res = json.dumps({
                     'result': [{
-                            'tags': tdd[0],
-                            'date': self.date2str(tdd[1])
-                        } for tdd in tags_date_desc
-                    ]
+                        'tags': tdd[0],
+                        'date': self.date2str(tdd[1])
+                    } for tdd in tags_date_desc]
                 })
             else:
-                res = tabulate([[
-                            ','.join(tdd[0]),
-                            self.date2str(tdd[1])
-                        ] for tdd in tags_date_desc
+                res = tabulate(
+                    [
+                        [','.join(tdd[0]), self.date2str(tdd[1])]
+                        for tdd in tags_date_desc
                     ],
                     headers=['Tags', 'Date']
                 )
