@@ -43,7 +43,9 @@ setImage 3.6 prod
 setImage 3.7 master-1c48755c0b257ccd106badcb973a36528f833fc0-1387
 setImage 3.7 old-staging
 
-# staging/latest layer
+# staging layer
 setImage 3.8 master-128a1e13dbe96705917020261ee23d097606bda2-1388
 setImage 3.8 staging
+
+# latest layer
 setImage 3.9 latest

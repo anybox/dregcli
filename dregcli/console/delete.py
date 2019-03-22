@@ -1,5 +1,6 @@
 import datetime
 import json
+from tabulate import tabulate
 
 from .handler import CommandHandler
 from dregcli.dregcli import DRegCliException, Repository, Tools
@@ -197,16 +198,25 @@ class DeleteCommandHandler(CommandHandler):
                     single_tag=single_tag
                 )
 
+            # display delete result
+            # deleted: [[tag, ['cotag1',], ...], see self._parse_codeleted
             if json_output:
-                res = json.dumps({'result': deleted})
+                res = json.dumps({
+                    'result': [
+                        {'tag': d[0], 'cotags': d[1]} for d in deleted
+                    ]
+                })
             else:
-                res = "\n".join(deleted)
+                res = tabulate(
+                    [[d[0], ", ".join(d[1])] for d in deleted],
+                    headers=['Tag', 'Cotags (deleted too)']
+                )
         except DRegCliException as e:
             res = str(e)
             if json_output:
                 res = json.dumps({'error': res})
         print(res)
-        return deleted
+        return [d[0] for d in deleted]  # return only deleted tags
 
     def _delete_image(self, repository, tag):
         if not self.dry_run:
@@ -222,7 +232,7 @@ class DeleteCommandHandler(CommandHandler):
                 # master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385 old-prod
                 # representing same image
 
-    def get_tags(self, repository, single_tag):
+    def _get_tags(self, repository, single_tag):
         """
         :single_tag: single_tag regexp (layer with unique tag to keep on)
         :rtype tuple
@@ -244,8 +254,33 @@ class DeleteCommandHandler(CommandHandler):
 
         return tags, filtered_tags
 
+    def _parse_codeleted(self, deleted, tags):
+        """
+        deduced cotags deleted by tag deletion (tags on same layer)
+        :rtype list
+        :return [[tag, ['cotag1',], ...]
+        """
+        def search_tag_data(tag):
+            for tag_data in tags:
+                if tag_data['tag'] == tag:
+                    return tag_data
+            return None
+
+        new_deleted = []
+
+        for deleted_tag in deleted:
+            # TODO improve repository.group_tags() could return a dict
+            # in its return tuple, tag data dict with tag name key
+            tag_data = search_tag_data(deleted_tag)
+
+            cotags = tag_data and tag_data['cotags'] or []
+            cotags = [ct for ct in cotags]
+            new_deleted.append([deleted_tag, cotags])
+
+        return new_deleted
+
     def _all(self, repository, single_tag=''):
-        tags, filtered_tags = self.get_tags(repository, single_tag)
+        tags, filtered_tags = self._get_tags(repository, single_tag)
 
         deleted = []
         for tag_data in tags:
@@ -253,7 +288,7 @@ class DeleteCommandHandler(CommandHandler):
                 self._delete_image(repository, tag_data['tag'])
                 deleted.append(tag_data['tag'])
 
-        return deleted
+        return self._parse_codeleted(deleted, tags)
 
     def _include_exclude(
         self,
@@ -262,7 +297,7 @@ class DeleteCommandHandler(CommandHandler):
         single_tag='',
         exclude=False
     ):
-        tags, filtered_tags = self.get_tags(repository, single_tag)
+        tags, filtered_tags = self._get_tags(repository, single_tag)
         include_excluted_tag_names = Tools.search(
             [tag_data['tag'] for tag_data in tags],
             regexp_expr,
@@ -276,7 +311,7 @@ class DeleteCommandHandler(CommandHandler):
                     self._delete_image(repository, tag_data['tag'])
                     deleted.append(tag_data['tag'])
 
-        return deleted
+        return self._parse_codeleted(deleted, tags)
 
     def _from_count(
         self,
@@ -284,7 +319,7 @@ class DeleteCommandHandler(CommandHandler):
         from_count,
         single_tag=''
     ):
-        tags, filtered_tags = self.get_tags(repository, single_tag)
+        tags, filtered_tags = self._get_tags(repository, single_tag)
 
         deleted = []
         if from_count:
@@ -295,7 +330,7 @@ class DeleteCommandHandler(CommandHandler):
                         self._delete_image(repository, tag_data['tag'])
                         deleted.append(tag_data['tag'])
 
-        return deleted
+        return self._parse_codeleted(deleted, tags)
 
     def _from_date(
         self,
@@ -303,7 +338,7 @@ class DeleteCommandHandler(CommandHandler):
         from_date,
         single_tag=''
     ):
-        tags, filtered_tags = self.get_tags(repository, single_tag)
+        tags, filtered_tags = self._get_tags(repository, single_tag)
 
         deleted = []
         if from_date:
@@ -313,4 +348,4 @@ class DeleteCommandHandler(CommandHandler):
                         self._delete_image(repository, tag_data['tag'])
                         deleted.append(tag_data['tag'])
 
-        return deleted
+        return self._parse_codeleted(deleted, tags)
