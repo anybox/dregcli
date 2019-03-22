@@ -225,19 +225,21 @@ class DeleteCommandHandler(CommandHandler):
     def get_tags(self, repository, single_tag):
         """
         :single_tag: single_tag regexp (layer with unique tag to keep on)
-        :rtype tupe
+        :rtype tuple
         :return tags (tags data by date), filtered_tags (list of filtered tags)
         """
+        # group tags: that will add a 'cotags' entry to tags items,
+        # see Repository.group_tags
+        groups, tags = repository.group_tags()
+
         if single_tag:
             # grab layers concerned by a single tag
             # and that matches only_layer_single_tag_regexp
-            groups, tags = repository.group_tags()
             filtered_tags = repository.group_tags_layer_single_tags_filter(
                 groups,
                 single_tag
             )
         else:
-            tags = repository.get_tags_by_date()
             filtered_tags = False
 
         return tags, filtered_tags

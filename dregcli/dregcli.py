@@ -237,6 +237,7 @@ class Repository(RegistryComponent):
     def group_tags(self):
         """
         group tags and return them per common layer(s)
+        cotags is a list of tags that share the same layer of current item tag
         :rtype tuple (
             dict (key: layers digests compose key),
             [{'date': datetime, 'tag': '', 'image': Image,
