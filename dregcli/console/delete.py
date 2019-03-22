@@ -88,10 +88,10 @@ class DeleteCommandHandler(CommandHandler):
             help="to use in conjonction with another delete option.\n"
                  "delete layers with only a single tag left\n"
                  "that single tag matching a given python regexp.\n"
-                 "exemple: delete old previous to 2018-07-01 commit-tags\n"
+                 "exemple: delete old previous commit-tags not attached to a release tag below 2018-07-01\n"
                  '--from-date=2018-06-30 '
-                 '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
-                 "\nexemple: delete old commit-tags since 21th\n"
+                 '--single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
+                 "\nexemple: delete old commit-tags not attached to a release since 21th\n"
                  '--from-count=21 '
                  '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
         )
