@@ -106,6 +106,7 @@ mainTest 'DREGCLI' test_dregcli.py
 # single_tagBAGE ALL
 #
 deleteTest 'ALL' test_delete_all.py
+deleteTest 'ALL COTAGS RESULT' test_delete_all_cotags.py
 deleteTest 'ALL SINGLE TAG (commit tag)' test_delete_all_single_tag.py
 
 #

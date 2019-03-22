@@ -444,6 +444,7 @@ class TestConsoleImageDelete:
                 console_main()
                 assert tools.get_output_json(capsys) == expected_json
 
+            # extrapolated tags left
             # deleted in test_image_delete()
             fixture_tags.remove(
                 'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385')

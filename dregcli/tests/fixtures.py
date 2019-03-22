@@ -36,7 +36,7 @@ def fixture_tags():
         'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
         'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387',
 
-        # 1388-latest: same layer
+        # 1388/latest layer: see start.sh setTestImages()
         'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
         'latest'
     ]
@@ -48,6 +48,7 @@ def fixture_tags():
 
 @pytest.fixture()
 def fixture_delete_tags():
+    # see start.sh setdeleteTestImages()
     # ascending dates here
     tags = [
         # layer with only commit tags
@@ -72,15 +73,49 @@ def fixture_delete_tags():
         'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387',
         'old-staging',
 
-        # staging/latest layer
+        # staging layer
         'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
         'staging',
+
         'latest',
     ]
 
     # desc date order regarding start.sh dataset
     tags.reverse()
     return tags
+
+
+@pytest.fixture()
+def fixture_delete_tags_cotags_mapping():
+    return {
+        'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382': [],
+
+        # alpha layer
+        'master-2yu50j111dy72e70b9623522e0zdt9wz29h71ddd-1383': ['alpha'],
+        'alpha': ['master-2yu50j111dy72e70b9623522e0zdt9wz29h71ddd-1383'],
+
+        'master-2bd32d000ez93c50h8486935f0fda5ee09z98bbb-1384': [],
+
+        # old-prod layer
+        'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385': ['old-prod'],
+        'old-prod': ['master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385'],
+
+        # prod layer
+        'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386': ['prod'],
+        'prod': ['master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386'],
+
+        # old staging layer
+        'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387': \
+        ['old-staging'],
+        'old-staging': \
+        ['master-1c48755c0b257ccd106badcb973a36528f833fc0-1387'],
+
+        # staging layer
+        'master-128a1e13dbe96705917020261ee23d097606bda2-1388': ['staging'],
+        'staging': ['master-128a1e13dbe96705917020261ee23d097606bda2-1388'],
+
+        'latest': [],
+    }
 
 
 @pytest.fixture()
