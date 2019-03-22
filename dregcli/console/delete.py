@@ -72,7 +72,7 @@ class DeleteCommandHandler(CommandHandler):
             '--include',
             type=str,
             help="delete tags including python regexp\n"
-                 '--include="^staging-[0-9]\{4\}"'
+                 '--include="^staging"'
         )
         subparser_delete.add_argument(
             '--exclude',
@@ -80,7 +80,7 @@ class DeleteCommandHandler(CommandHandler):
             help="delete tags excluding python regexp\n"
                  "if regexp does not select anything, exclude does nothing "
                  "(no implicit --all)\n"
-                 '--exclude="^stable-[0-9]\{4\}"'
+                 '--exclude="^stable"'
         )
         subparser_delete.add_argument(
             '--single-tag',
