@@ -58,7 +58,7 @@ class TestDeleteFromDateSingleTag:
             fixture_repository,
             False,
             from_date=from_data_str,
-            single_tag='^master'
+            single_tag='^master-'
         )
 
         # 'commit tags' to be removed and left

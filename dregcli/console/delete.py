@@ -93,11 +93,11 @@ class DeleteCommandHandler(CommandHandler):
                  "exemple: delete old previous commit-tags not attached"
                  " to a release tag below 2018-07-01\n"
                  '--from-date=2018-06-30 '
-                 '--single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
+                 '--single-tag="^master-"'
                  "\nexemple: delete old commit-tags not attached"
                  " to a release since 21th\n"
                  '--from-count=21 '
-                 '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
+                 '--single-tag="^master-"'
         )
 
         subparser_delete.set_defaults(

@@ -54,7 +54,7 @@ class TestDeleteAllSingleTag:
             fixture_repository,
             False,
             all=True,
-            single_tag='^master'
+            single_tag='^master-'
         )
 
         # 'commit tags' to be removed

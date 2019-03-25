@@ -54,7 +54,7 @@ class TestDeleteFromCountSingleTag:
             fixture_repository,
             False,
             from_count=from_index,
-            single_tag='^master'
+            single_tag='^master-'
         )
 
         # 'commit tags' to be removed and left

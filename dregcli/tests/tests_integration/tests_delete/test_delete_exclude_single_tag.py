@@ -46,7 +46,7 @@ class TestDeleteExcludeSingleTag:
             fixture_repository,
             False,
             exclude=exclude,
-            single_tag='^master'
+            single_tag='^master-'
         )
 
         # 1384 to be removed: only 1382 and 1384 have no release tag
