@@ -118,8 +118,10 @@ deleteTest 'INCLUDE' test_delete_include_single_tag.py
 #
 # DELETE EXCLUDE
 #
-deleteTest 'EXCLUDE' test_delete_exclude.py
-deleteTest 'INCLUDE' test_delete_exclude_single_tag.py
+# exclude desactivated: for layers with multiple tags,
+# deletion of an unexcluded tag could cause deletion of an excluded tag
+#deleteTest 'EXCLUDE' test_delete_exclude.py
+#deleteTest 'EXCLUDE' test_delete_exclude_single_tag.py
 
 #
 # DELETE FROM COUNT

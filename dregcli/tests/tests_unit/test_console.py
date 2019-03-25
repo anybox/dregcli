@@ -324,7 +324,7 @@ class TestConsoleCommandLine:
                     from_date=0,
                     single_tag='',
                     include='',
-                    exclude=''
+                    # exclude=''
                 )
 
         # json
@@ -354,7 +354,7 @@ class TestConsoleCommandLine:
                     from_date=0,
                     single_tag='',
                     include='',
-                    exclude=''
+                    # exclude=''
                 )
 
         # null
@@ -384,7 +384,7 @@ class TestConsoleCommandLine:
                     from_date=0,
                     single_tag='',
                     include='',
-                    exclude=''
+                    # exclude=''
                 )
 
         # yes
@@ -414,7 +414,7 @@ class TestConsoleCommandLine:
                     from_date=0,
                     single_tag='',
                     include='',
-                    exclude=''
+                    # exclude=''
                 )
 
         # all
@@ -444,7 +444,7 @@ class TestConsoleCommandLine:
                     from_date=0,
                     single_tag='',
                     include='',
-                    exclude=''
+                    # exclude=''
                 )
 
         # from_count
@@ -474,7 +474,7 @@ class TestConsoleCommandLine:
                     from_date=0,
                     single_tag='',
                     include='',
-                    exclude=''
+                    # exclude=''
                 )
 
         # from_date
@@ -504,7 +504,7 @@ class TestConsoleCommandLine:
                     from_date='2018-06-30',
                     single_tag='',
                     include='',
-                    exclude=''
+                    # exclude=''
                 )
 
         # include
@@ -535,36 +535,39 @@ class TestConsoleCommandLine:
                     from_date=0,
                     single_tag='',
                     include=include_option_val,
-                    exclude=''
+                    # exclude=''
                 )
 
+        # exclude desactivated: for layers with multiple tags,
+        # deletion of an unexcluded tag could cause deletion of an excluded
+        # tag
         # exclude
-        exclude_option_val = "^stable-[0-9]\{4\}"
-        with mock.patch(
-            'sys.argv',
-            [
-                'dregcli',
-                'delete',
-                fixture_registry_url,
-                fixture_repository,
-                '--exclude="{exclude}"'.format(exclude=exclude_option_val)
-            ]
-        ):
-            with mock.patch(
-                'dregcli.console.DeleteCommandHandler.run'
-            ) as mo:
-                console_main()
-                mo.assert_called_once_with(
-                    fixture_registry_url,
-                    fixture_repository,
-                    False,
-                    user=None,
-                    dry_run=False,
-                    yes=False,
-                    all=False,
-                    from_count=0,
-                    from_date=0,
-                    single_tag='',
-                    include='',
-                    exclude=exclude_option_val
-                )
+        # exclude_option_val = "^stable-[0-9]\{4\}"
+        # with mock.patch(
+        #     'sys.argv',
+        #     [
+        #         'dregcli',
+        #         'delete',
+        #         fixture_registry_url,
+        #         fixture_repository,
+        #         '--exclude="{exclude}"'.format(exclude=exclude_option_val)
+        #     ]
+        # ):
+        #     with mock.patch(
+        #         'dregcli.console.DeleteCommandHandler.run'
+        #     ) as mo:
+        #         console_main()
+        #         mo.assert_called_once_with(
+        #             fixture_registry_url,
+        #             fixture_repository,
+        #             False,
+        #             user=None,
+        #             dry_run=False,
+        #             yes=False,
+        #             all=False,
+        #             from_count=0,
+        #             from_date=0,
+        #             single_tag='',
+        #             include='',
+        #             exclude=exclude_option_val
+        #         )

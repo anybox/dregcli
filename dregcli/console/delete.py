@@ -74,24 +74,28 @@ class DeleteCommandHandler(CommandHandler):
             help="delete tags including python regexp\n"
                  '--include="^staging"'
         )
-        subparser_delete.add_argument(
-            '--exclude',
-            type=str,
-            help="delete tags excluding python regexp\n"
-                 "if regexp does not select anything, exclude does nothing "
-                 "(no implicit --all)\n"
-                 '--exclude="^stable"'
-        )
+        # exclude desactivated: for layers with multiple tags,
+        # deletion of an unexcluded tag could cause deletion of an excluded tag
+        # subparser_delete.add_argument(
+        #     '--exclude',
+        #     type=str,
+        #     help="delete tags excluding python regexp\n"
+        #          "if regexp does not select anything, exclude does nothing "
+        #          "(no implicit --all)\n"
+        #          '--exclude="^stable"'
+        # )
         subparser_delete.add_argument(
             '--single-tag',
             type=str,
             help="to use in conjonction with another delete option.\n"
                  "delete layers with only a single tag left\n"
                  "that single tag matching a given python regexp.\n"
-                 "exemple: delete old previous commit-tags not attached to a release tag below 2018-07-01\n"
+                 "exemple: delete old previous commit-tags not attached"
+                 " to a release tag below 2018-07-01\n"
                  '--from-date=2018-06-30 '
                  '--single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
-                 "\nexemple: delete old commit-tags not attached to a release since 21th\n"
+                 "\nexemple: delete old commit-tags not attached"
+                 " to a release since 21th\n"
                  '--from-count=21 '
                  '--include-layer-single-tag="^master-[0-9a-f]{40}-[0-9]\{4\}"'
         )
@@ -107,7 +111,10 @@ class DeleteCommandHandler(CommandHandler):
                 from_date=args.from_date or 0,
                 single_tag=args.single_tag or '',
                 include=args.include and args.include.strip("\"'") or '',
-                exclude=args.exclude and args.exclude.strip("\"'") or '',
+                # exclude desactivated: for layers with multiple tags,
+                # deletion of an unexcluded tag could cause deletion of an
+                # excluded tag
+                # exclude=args.exclude and args.exclude.strip("\"'") or '',
             )
         )
         return subparser_delete
@@ -178,13 +185,16 @@ class DeleteCommandHandler(CommandHandler):
                     include,
                     single_tag=single_tag
                 )
-            elif exclude:
-                deleted = self._include_exclude(
-                    repository,
-                    exclude,
-                    single_tag=single_tag,
-                    exclude=True
-                )
+            # exclude desactivated: for layers with multiple tags,
+            # deletion of an unexcluded tag could cause deletion of an
+            # excluded tag
+            # elif exclude:
+            #     deleted = self._include_exclude(
+            #         repository,
+            #         exclude,
+            #         single_tag=single_tag,
+            #         exclude=True
+            #     )
             elif from_count:
                     deleted = self._from_count(
                         repository,
