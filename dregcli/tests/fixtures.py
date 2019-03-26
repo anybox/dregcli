@@ -48,23 +48,24 @@ def fixture_tags():
 
 @pytest.fixture()
 def fixture_delete_tags():
-    # see start.sh setdeleteTestImages()
-    # ascending dates here
-    tags = [
-        # layer with only commit tags
-        'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382',
+    """
+    delete testings tags main data set
+        date desc order
+    see start.sh setdeleteTestImages()
 
-        # a layer with a release tag between 2 layers with only commit tags
-        'master-2yu50j111dy72e70b9623522e0zdt9wz29h71ddd-1383',
-        'alpha',
-
-        # layer with only commit tags
-        'master-2bd32d000ez93c50h8486935f0fda5ee09z98bbb-1384',
-
-        # old-prod layer
-        'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',
-        'old-prod',
-
+    dregcli images:
+    Tags                       Date
+    -------------------------- -------------------
+    prod,master-*-1386         2019-03-07 22:20:00
+    master-*-1387,old-staging  2019-03-07 22:19:53
+    master-*-1388,staging      2019-03-07 22:19:46
+    latest                     2019-03-07 22:19:40
+    master-*-1385,old-prod     2019-01-30 22:20:40
+    master-*-1384              2019-01-30 22:20:30
+    master-*-1383,alpha        2019-01-30 22:20:20
+    master-*-1382              2019-01-30 22:20:12
+    """
+    return [
         # prod layer
         'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
         'prod',
@@ -78,11 +79,21 @@ def fixture_delete_tags():
         'staging',
 
         'latest',
-    ]
 
-    # desc date order regarding start.sh dataset
-    tags.reverse()
-    return tags
+        # old-prod layer
+        'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',
+        'old-prod',
+
+        # layer with only commit tags
+        'master-2bd32d000ez93c50h8486935f0fda5ee09z98bbb-1384',
+
+        # a layer with a release tag between 2 layers with only commit tags
+        'master-2yu50j111dy72e70b9623522e0zdt9wz29h71ddd-1383',
+        'alpha',
+
+        # layer with only commit tags
+        'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382',
+    ]
 
 
 @pytest.fixture()
@@ -120,63 +131,57 @@ def fixture_delete_tags_cotags_mapping():
 
 @pytest.fixture()
 def fixture_delete_tags_with_no_old():
-    # tags without 'old' in name
-    # ascending dates here
-    tags = [
+    """
+    without 'old-staging' 'old-prod' tags. and not cotags of them
+    date desc order
+    """
+    return [
+        # prod layer
+        'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
+        'prod',
+
+        # staging layer
+        'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
+        'staging',
+
+        'latest',
+
         # layer with only commit tags
-        'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382',
+        'master-2bd32d000ez93c50h8486935f0fda5ee09z98bbb-1384',
 
         # a layer with a release tag between 2 layers with only commit tags
         'master-2yu50j111dy72e70b9623522e0zdt9wz29h71ddd-1383',
         'alpha',
 
         # layer with only commit tags
-        'master-2bd32d000ez93c50h8486935f0fda5ee09z98bbb-1384',
-
-        # prod layer
-        'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
-        'prod',
-
-        # staging/latest layer
-        'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
-        'staging',
-        'latest',
+        'master-2ze98e000wx39d60a7390925d0czr3qs03j90aaa-1382',
     ]
-
-    # desc date order regarding start.sh dataset
-    tags.reverse()
-    return tags
 
 
 @pytest.fixture()
 def fixture_delete_tags_old():
-    # ascending dates here
-    tags = [
-        # old prod layer
-        'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',
-        'old-prod',
-
-        # old staging layer
+    """
+    'old-staging'/'old-prod' tags and cotags of them.
+    date desc order
+    """
+    return [
+        # old staging
         'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387',
         'old-staging',
-    ]
 
-    # desc date order regarding start.sh dataset
-    tags.reverse()
-    return tags
+        # old prod
+        'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',
+        'old-prod',
+    ]
 
 
 @pytest.fixture()
 def fixture_delete_tags_old_only():
-    # ascending dates here
-    tags = [
-        'old-prod',
+    """date desc order"""
+    return [
         'old-staging',
+        'old-prod',
     ]
-
-    # desc date order regarding start.sh dataset
-    tags.reverse()
-    return tags
 
 
 @pytest.fixture()
