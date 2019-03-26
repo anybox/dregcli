@@ -246,7 +246,8 @@ class DeleteCommandHandler(CommandHandler):
         """
         :single_tag: single_tag regexp (layer with unique tag to keep on)
         :rtype tuple
-        :return tags (tags data by date), filtered_tags (list of filtered tags)
+        :return tags(tags data by date), filtered_tags(list of filtered tags),
+            grouped_images_date_desc(see Repository.group_images_date_desc)
         """
         # group tags: that will add a 'cotags' entry to tags items,
         # see Repository.group_tags
@@ -262,7 +263,7 @@ class DeleteCommandHandler(CommandHandler):
         else:
             filtered_tags = False
 
-        return tags, filtered_tags
+        return tags, filtered_tags, repository.group_images_date_desc(groups)
 
     def _parse_codeleted(self, deleted, tags):
         """
@@ -329,7 +330,7 @@ class DeleteCommandHandler(CommandHandler):
         from_count,
         single_tag=''
     ):
-        tags, filtered_tags = self._get_tags(repository, single_tag)
+        tags, filtered_tags, _ = self._get_tags(repository, single_tag)
 
         deleted = []
         if from_count:
@@ -348,7 +349,7 @@ class DeleteCommandHandler(CommandHandler):
         from_date,
         single_tag=''
     ):
-        tags, filtered_tags = self._get_tags(repository, single_tag)
+        tags, filtered_tags, _ = self._get_tags(repository, single_tag)
 
         deleted = []
         if from_date:
