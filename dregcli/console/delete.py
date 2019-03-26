@@ -18,86 +18,87 @@ class DeleteCommandHandler(CommandHandler):
     def set_parser(cls, subparsers):
         subparser_delete = subparsers.add_parser(
             cls.Meta.command,
-            help="delete image tags\n"
-                 "DISCLAIMER: deleting a tag shared with other tags"
-                 " delete all tags on same layer"
+            help="delete image tags. "
+                 "DISCLAIMER: deleting a tag shared with other tags "
+                 "will delete all tags on same layer."
         )
 
         subparser_delete.add_argument(
             'url',
-            help="Url in the form protocol://host:port\n"
-                 "example: http://localhost:5001"
+            help="Url in the form protocol://host:port. "
+                 "example: http://localhost:5001."
         )
         subparser_delete.add_argument(
             'repo',
-            help='Repository, example: library/alpine'
+            help='Repository. example: library/alpine.'
         )
         subparser_delete.add_argument(
             '-y', '--yes',
             action='store_true',
-            help="Force yes, no confirmation.\n"
-                 "DISCLAIMER: proceed with caution and particulary with --all"
+            help="Force yes, no confirmation. "
+                 "DISCLAIMER: proceed with caution and particulary with --all."
         )
         subparser_delete.add_argument(
             '-n', '--null',
             action='store_true',
             help='Dryrun. '
-                 'Do not run actions, just display actions that will be done'
+                 'Do not run actions, just display actions that will be done.'
         )
         subparser_delete.add_argument(
             '-j', '--json',
             action='store_true',
-            help='Json output'
+            help='Json output.'
         )
         subparser_delete.add_argument(
             '-a', '--all',
             action='store_true',
-            help='DISCLAIMER: proceed with caution, delete all image'
+            help='DISCLAIMER: proceed with caution, delete all image.'
         )
         subparser_delete.add_argument(
             '--from-count',
             type=int,
-            help="delete from count tags\n"
-                 "--from-count=11 to keep last 10 tags"
+            help="delete from given index included, "
+                 "index is based upon 'images' command result "
+                 "that is date desc order, tags grouped. "
+                 "example: --from-count=11 to keep last 10 images."
         )
         subparser_delete.add_argument(
             '--from-date',
             type=str,
-            help="delete from date\n"
-                 "--from-date=2018-06-30 to keep tags from 2018-07-01\n"
-                 "--from-date=2018-06-30 13:59:59"
-                 " to keep tags from 2018-06-30 14:00:00 (2:00 PM)"
+            help="delete from date. Date in desc order. "
+                 "example: --from-date=2018-06-30 to keep tags from 2018-07-01"
+                 ", --from-date=2018-06-30 13:59:59"
+                 " to keep tags from 2018-06-30 14:00:00 (2:00 PM)."
         )
         subparser_delete.add_argument(
             '--include',
             type=str,
-            help="delete tags including python regexp\n"
-                 '--include="^staging"'
+            help="delete tags that include python regexp. "
+                 'example: --include="^staging".'
         )
         # exclude desactivated: for layers with multiple tags,
         # deletion of an unexcluded tag could cause deletion of an excluded tag
         # subparser_delete.add_argument(
         #     '--exclude',
         #     type=str,
-        #     help="delete tags excluding python regexp\n"
+        #     help="delete tags that exclude python regexp, "
         #          "if regexp does not select anything, exclude does nothing "
-        #          "(no implicit --all)\n"
-        #          '--exclude="^stable"'
+        #          "(no implicit --all). "
+        #          'example: --exclude="^stable".'
         # )
         subparser_delete.add_argument(
             '--single-tag',
             type=str,
-            help="to use in conjonction with another delete option.\n"
-                 "delete layers with only a single tag left\n"
-                 "that single tag matching a given python regexp.\n"
-                 "exemple: delete old previous commit-tags not attached"
-                 " to a release tag below 2018-07-01\n"
-                 '--from-date=2018-06-30 '
-                 '--single-tag="^master-"'
-                 "\nexemple: delete old commit-tags not attached"
-                 " to a release since 21th\n"
-                 '--from-count=21 '
-                 '--single-tag="^master-"'
+            help="to use with any another delete option. "
+                 "Delete layers with only a single tag left, "
+                 "that single tag matching a given python regexp. "
+                 "example: delete old previous commit-tags not attached "
+                 "to a release tag below 2018-07-01 "
+                 '--from-date=2018-06-30 --single-tag="^master-". '
+                 "example: delete old commit-tags not attached "
+                 "to a release since 21th "
+                 '--from-count=21 --single-tag="^master-". --from-count using'
+                 " same index rule as alone --from-count option."
         )
 
         subparser_delete.set_defaults(
