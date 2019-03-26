@@ -330,16 +330,32 @@ class DeleteCommandHandler(CommandHandler):
         from_count,
         single_tag=''
     ):
-        tags, filtered_tags, _ = self._get_tags(repository, single_tag)
+        tags, filtered_tags, group_images_date_desc = self._get_tags(
+            repository,
+            single_tag
+        )
 
         deleted = []
         if from_count:
-            if from_count < len(tags):
-                to_delete = tags[from_count - 1:]
-                for tag_data in to_delete:
-                    if not filtered_tags or tag_data['tag'] in filtered_tags:
-                        self._delete_image(repository, tag_data['tag'])
-                        deleted.append(tag_data['tag'])
+            if from_count <= len(group_images_date_desc):
+                if from_count > 1:
+                    group_images_date_desc_to_delete = \
+                        group_images_date_desc[from_count - 1:]
+                else:
+                    group_images_date_desc_to_delete = group_images_date_desc
+                for group_entry in group_images_date_desc_to_delete:
+                    if filtered_tags:
+                        layer_tags = [
+                            img.tag for img in group_entry[0]
+                            if img.tag in filtered_tags
+                        ]
+                    else:
+                        layer_tags = [img.tag for img in group_entry[0]]
+
+                    if layer_tags:
+                        # just delete the fist one, will delete cotags
+                        self._delete_image(repository, layer_tags[0])
+                        deleted += layer_tags
 
         return self._parse_codeleted(deleted, tags)
 
