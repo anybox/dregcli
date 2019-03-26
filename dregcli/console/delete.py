@@ -290,7 +290,7 @@ class DeleteCommandHandler(CommandHandler):
         return new_deleted
 
     def _all(self, repository, single_tag=''):
-        tags, filtered_tags = self._get_tags(repository, single_tag)
+        tags, filtered_tags, _ = self._get_tags(repository, single_tag)
 
         deleted = []
         for tag_data in tags:
@@ -307,7 +307,7 @@ class DeleteCommandHandler(CommandHandler):
         single_tag='',
         exclude=False
     ):
-        tags, filtered_tags = self._get_tags(repository, single_tag)
+        tags, filtered_tags, _ = self._get_tags(repository, single_tag)
         include_excluted_tag_names = Tools.search(
             [tag_data['tag'] for tag_data in tags],
             regexp_expr,

@@ -1,3 +1,4 @@
+from operator import itemgetter
 from path import Path
 import datetime
 import functools
@@ -274,6 +275,24 @@ class Repository(RegistryComponent):
             tags_by_date_new.append(tags_data_new)
 
         return groups, tags_by_date_new
+
+    def group_images_date_desc(self, groups, result_tag=False):
+        """
+        regroup images by layer in desc order
+        :param result_tag: True to store only tag name instead of Image
+            in result
+        :return [[[image(Image),], date], ...] \
+            or [[[tag(str),], date], ...] if result_tag
+        """
+        tags_date = []
+
+        for key in groups:
+            tags_date.append([
+                [result_tag and img.tag or img for img in groups[key]],
+                groups[key][0].get_date()
+            ])
+
+        return sorted(tags_date, key=itemgetter(1), reverse=True)
 
     def group_tags_layer_single_tags_filter(
         self,

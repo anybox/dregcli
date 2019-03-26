@@ -1,5 +1,4 @@
 import json
-from operator import itemgetter
 from tabulate import tabulate
 
 from .handler import CommandHandler
@@ -46,14 +45,10 @@ class ImagesCommandHandler(CommandHandler):
         try:
             repository = Repository(self.client, repo)
             groups, _ = repository.group_tags()
-
-            tags_date = []
-            for key in groups:
-                tags_date.append([
-                    [img.tag for img in groups[key]],
-                    groups[key][0].get_date()
-                ])
-            tags_date_desc = sorted(tags_date, key=itemgetter(1), reverse=True)
+            tags_date_desc = repository.group_images_date_desc(
+                groups,
+                result_tag=True
+            )
 
             if json_output:
                 res = json.dumps({
