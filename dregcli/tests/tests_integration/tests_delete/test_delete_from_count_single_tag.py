@@ -47,7 +47,7 @@ class TestDeleteFromCountSingleTag:
             sorted(fixture_delete_tags)
 
         # delete from index desc order
-        from_index = 11  # fixture_delete_tags, from 'alpha' in desc order
+        from_index = 7  # delete from 'alpha'/master-*-1383 in desc order
         handler = DeleteCommandHandler()
         deleted = handler.run(
             fixture_registry_url,

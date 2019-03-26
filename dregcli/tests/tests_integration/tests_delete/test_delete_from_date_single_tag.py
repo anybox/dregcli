@@ -48,7 +48,7 @@ class TestDeleteFromDateSingleTag:
             sorted(fixture_delete_tags)
 
         # delete from index desc order
-        from_index = 10  # fixture_delete_tags, from 'alpha' in desc order
+        from_index = 7  # delete from 'alpha'/master-*-1383 in desc order
         from_date = tags_by_date_desc[from_index]['date']
         from_data_str = from_date.strftime('%Y-%m-%d %H:%M:%S.%f')
 
