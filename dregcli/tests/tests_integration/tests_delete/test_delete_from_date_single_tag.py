@@ -48,16 +48,16 @@ class TestDeleteFromDateSingleTag:
             sorted(fixture_delete_tags)
 
         # delete from index desc order
-        from_index = 7  # delete from 'alpha'/master-*-1383 in desc order
-        from_date = tags_by_date_desc[from_index]['date']
-        from_data_str = from_date.strftime('%Y-%m-%d %H:%M:%S.%f')
+        # delete from 'alpha'/master-*-1383 in desc order
+        # see docstring of fixture_delete_tags
+        from_date = '2019-01-30 22:20:20'
 
         handler = DeleteCommandHandler()
         deleted = handler.run(
             fixture_registry_url,
             fixture_repository,
             False,
-            from_date=from_data_str,
+            from_date=from_date,
             single_tag='^master-'
         )
 
