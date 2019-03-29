@@ -1,20 +1,20 @@
-FROM python:3.6-alpine
+FROM python:3.7-alpine
 LABEL company="Anybox SAS"
       maintainer "Vincent GREINER <vgreiner.anybox.fr>"
 
-COPY ./requirements.txt /app/requirements.txt
-COPY ./requirements.tests.txt /app/requirements.tests.txt
-COPY ./setup.py /app/setup.py
+COPY ./requirements.txt /app/
+COPY ./requirements.tests.txt /app/
+COPY ./setup.py /app/
 COPY ./dregcli /app/dregcli/
 
-WORKDIR /app
+RUN python3 -m venv /app/.env
+RUN /app/.env/bin/pip install --upgrade pip \
+    && /app/.env/bin/pip install -r /app/requirements.txt \
+    && /app/.env/bin/pip install -r /app/requirements.tests.txt \
+    && cd /app && /app/.env/bin/python setup.py develop
 
-# setup
-RUN python3 -m venv .env
-RUN .env/bin/pip install --upgrade pip \
-    && .env/bin/pip install -r requirements.txt \
-    && .env/bin/pip install -r requirements.tests.txt \
-    && .env/bin/python setup.py develop
 RUN rm /app/requirements.txt && rm /app/requirements.tests.txt && rm /app/setup.py
 
-CMD ["sh", "-c", "source .env/bin/activate && dregcli"]
+COPY ./docker_entrypoint.sh /
+RUN chmod u+x /docker_entrypoint.sh
+ENTRYPOINT ["/docker_entrypoint.sh"]

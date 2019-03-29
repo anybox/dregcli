@@ -10,7 +10,7 @@ def parse_requirements(file):
     return required
 
 
-version = '0.1.alpha'
+version = '0.1a0'
 requires = parse_requirements('requirements.txt')
 tests_requires = parse_requirements('requirements.tests.txt')
 
