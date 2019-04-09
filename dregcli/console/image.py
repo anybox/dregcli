@@ -53,16 +53,22 @@ class ImageCommandHandler(CommandHandler):
 
         subparser_image.set_defaults(
             func=lambda args: cls().run(
-                args.url, args.repo, args.tag, args.manifest, args.json,
-                args.delete, args.yes,
-                user=args.user
+                args.url,
+                args.repo,
+                args.tag,
+                args.manifest,
+                args.json,
+                args.delete,
+                args.yes,
+                user=args.user,
+                debug=args.debug
             )
         )
         return subparser_image
 
     def run(self, url, repo, tag, manifest, json_output, delete, yes,
-            user=False):
-        super().run(url, json_output, user=user)
+            user=False, debug=False):
+        super().run(url, json_output, user=user, debug=debug)
 
         if delete and manifest:
             print('--delete is incompatible with --manifest')

@@ -32,14 +32,17 @@ class TagsCommandHandler(CommandHandler):
 
         subparser_tags.set_defaults(
             func=lambda args: cls().run(
-                args.url, args.repo, args.json,
-                user=args.user
+                args.url,
+                args.repo,
+                args.json,
+                user=args.user,
+                debug=args.debug
             )
         )
         return subparser_tags
 
-    def run(self, url, repo, json_output, user=False):
-        super().run(url, json_output, user=user)
+    def run(self, url, repo, json_output, user=False, debug=False):
+        super().run(url, json_output, user=user, debug=debug)
 
         tags_by_date = []
         try:

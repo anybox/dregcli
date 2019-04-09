@@ -40,11 +40,20 @@ class TestClient:
                 and not client.request_kwargs
 
         client = Client(fixture_registry_url)
-        assert_client(False, )
+        assert_client(False)
         client = Client(fixture_registry_url, verbose=False)
         assert_client(False)
         client = Client(fixture_registry_url, verbose=True)
         assert_client(True)
+
+    @pytest.mark.usefixtures('fixture_registry_url')
+    def test_debug(self, fixture_registry_url):
+        client = Client(fixture_registry_url)
+        assert not client._debug
+        client.set_debug(True)
+        assert client._debug
+        client.set_debug(False)
+        assert not client._debug
 
     @pytest.mark.usefixtures('fixture_registry_url')
     def test_display(self, fixture_registry_url, capsys):

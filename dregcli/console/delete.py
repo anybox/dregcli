@@ -103,8 +103,11 @@ class DeleteCommandHandler(CommandHandler):
 
         subparser_delete.set_defaults(
             func=lambda args: DeleteCommandHandler().run(
-                args.url, args.repo, args.json,
+                args.url,
+                args.repo,
+                args.json,
                 user=args.user,
+                debug=args.debug,
                 dry_run=args.null,
                 yes=args.yes,
                 all=args.all,
@@ -128,6 +131,7 @@ class DeleteCommandHandler(CommandHandler):
         dry_run=False,
         yes=False,
         user=False,
+        debug=False,
         all=False,
         from_count=0,
         from_date=0,
@@ -135,7 +139,7 @@ class DeleteCommandHandler(CommandHandler):
         include='',
         exclude=''
     ):
-        super().run(url, json_output, user=user)
+        super().run(url, json_output, user=user, debug=debug)
         self.dry_run = dry_run
 
         # delete options count, single_tag filter excepted

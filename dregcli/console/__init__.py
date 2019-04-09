@@ -19,6 +19,11 @@ def main():
         '-u', '--user',
         help='user credentials login:password'
     )
+    parser.add_argument(
+        '--debug',
+        action='store_true',
+        help='debug mode (response headers, ...)'
+    )
     subparsers = parser.add_subparsers(help='sub-commands')
 
     RepositoriesCommandHandler.set_parser(subparsers)

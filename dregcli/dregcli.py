@@ -26,10 +26,15 @@ class Client(object):
         assert isinstance(url, str)
         assert isinstance(verbose, bool)
 
+        self._debug = False
+
         self.url = url
         self.verbose = verbose
         self.request_kwargs = dict()
         self.auth = False
+
+    def set_debug(self, debug):
+        self._debug = debug
 
     def set_auth(self, login, password):
         assert isinstance(login, str)

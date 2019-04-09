@@ -26,12 +26,17 @@ class RepositoriesCommandHandler(CommandHandler):
         )
 
         subparser_repositories.set_defaults(
-            func=lambda args: cls().run(args.url, args.json, user=args.user)
+            func=lambda args: cls().run(
+                args.url,
+                args.json,
+                user=args.user,
+                debug=args.debug
+            )
         )
         return subparser_repositories
 
-    def run(self, url, json_output, user=False):
-        super().run(url, json_output, user=user)
+    def run(self, url, json_output, user=False, debug=False):
+        super().run(url, json_output, user=user, debug=debug)
 
         repositories = []
         try:

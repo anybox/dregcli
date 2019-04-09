@@ -28,22 +28,8 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     False,
-                    user=None
-                )
-
-        # user
-        with mock.patch(
-            'sys.argv',
-            ['dregcli', '-u', 'login:pwd', 'reps', fixture_registry_url]
-        ):
-            with mock.patch(
-                'dregcli.console.RepositoriesCommandHandler.run'
-            ) as mo:
-                console_main()
-                mo.assert_called_once_with(
-                    fixture_registry_url,
-                    False,
-                    user='login:pwd'
+                    user=None,
+                    debug=False
                 )
 
         # json
@@ -58,7 +44,44 @@ class TestConsoleCommandLine:
                 mo.assert_called_once_with(
                     fixture_registry_url,
                     True,
-                    user=None
+                    user=None,
+                    debug=False
+                )
+
+    @pytest.mark.usefixtures('fixture_registry_url')
+    def test_user(self, fixture_registry_url):
+        # user
+        with mock.patch(
+            'sys.argv',
+            ['dregcli', '-u', 'login:pwd', 'reps', fixture_registry_url]
+        ):
+            with mock.patch(
+                'dregcli.console.RepositoriesCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    False,
+                    user='login:pwd',
+                    debug=False
+                )
+
+    @pytest.mark.usefixtures('fixture_registry_url')
+    def test_debug(self, fixture_registry_url):
+        # user
+        with mock.patch(
+            'sys.argv',
+            ['dregcli', '--debug', 'reps', fixture_registry_url]
+        ):
+            with mock.patch(
+                'dregcli.console.RepositoriesCommandHandler.run'
+            ) as mo:
+                console_main()
+                mo.assert_called_once_with(
+                    fixture_registry_url,
+                    False,
+                    user=None,
+                    debug=True
                 )
 
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
@@ -80,7 +103,8 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     False,
-                    user=None
+                    user=None,
+                    debug=False
                 )
 
         # json
@@ -102,7 +126,8 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     True,
-                    user=None
+                    user=None,
+                    debug=False
                 )
 
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
@@ -124,7 +149,8 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     False,
-                    user=None
+                    user=None,
+                    debug=False
                 )
 
         # json
@@ -146,7 +172,8 @@ class TestConsoleCommandLine:
                     fixture_registry_url,
                     fixture_repository,
                     True,
-                    user=None
+                    user=None,
+                    debug=False
                 )
 
     @pytest.mark.usefixtures(
@@ -182,7 +209,8 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     False,
-                    user=None
+                    user=None,
+                    debug=False
                 )
 
         # manifest
@@ -209,7 +237,8 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     False,
-                    user=None
+                    user=None,
+                    debug=False
                 )
 
         # json
@@ -236,7 +265,8 @@ class TestConsoleCommandLine:
                     True,
                     False,
                     False,
-                    user=None
+                    user=None,
+                    debug=False
                 )
 
         # delete
@@ -263,7 +293,8 @@ class TestConsoleCommandLine:
                     False,
                     True,
                     False,
-                    user=None
+                    user=None,
+                    debug=False
                 )
 
         # always yes
@@ -290,7 +321,8 @@ class TestConsoleCommandLine:
                     False,
                     False,
                     True,
-                    user=None
+                    user=None,
+                    debug=False
                 )
 
     @pytest.mark.usefixtures('fixture_registry_url', 'fixture_repository')
@@ -324,7 +356,8 @@ class TestConsoleCommandLine:
                     from_date=0,
                     single_tag='',
                     include='',
-                    # exclude=''
+                    # exclude='',
+                    debug=False
                 )
 
         # json
@@ -355,6 +388,7 @@ class TestConsoleCommandLine:
                     single_tag='',
                     include='',
                     # exclude=''
+                    debug=False
                 )
 
         # null
@@ -385,6 +419,7 @@ class TestConsoleCommandLine:
                     single_tag='',
                     include='',
                     # exclude=''
+                    debug=False
                 )
 
         # yes
@@ -415,6 +450,7 @@ class TestConsoleCommandLine:
                     single_tag='',
                     include='',
                     # exclude=''
+                    debug=False
                 )
 
         # all
@@ -445,6 +481,7 @@ class TestConsoleCommandLine:
                     single_tag='',
                     include='',
                     # exclude=''
+                    debug=False
                 )
 
         # from_count
@@ -475,6 +512,7 @@ class TestConsoleCommandLine:
                     single_tag='',
                     include='',
                     # exclude=''
+                    debug=False
                 )
 
         # from_date
@@ -505,6 +543,7 @@ class TestConsoleCommandLine:
                     single_tag='',
                     include='',
                     # exclude=''
+                    debug=False
                 )
 
         # include
@@ -536,6 +575,7 @@ class TestConsoleCommandLine:
                     single_tag='',
                     include=include_option_val,
                     # exclude=''
+                    debug=False
                 )
 
         # exclude desactivated: for layers with multiple tags,
@@ -570,4 +610,5 @@ class TestConsoleCommandLine:
         #             single_tag='',
         #             include='',
         #             exclude=exclude_option_val
+        #             debug=False
         #         )
