@@ -87,6 +87,8 @@ class Client(object):
         self.display(verb, url)
 
         response = method(url, headers=headers)
+        if self._debug:
+            print(response.headers)
         if response.status_code != expected_code:
             if not self.auth:  # raise only if no auth
                 msg = "Status code error {code}".format(
@@ -100,6 +102,8 @@ class Client(object):
                 url,
                 headers=self._auth_decorate_headers(headers)
             )
+            if self._debug:
+                print(response2.headers)
             if response2.status_code != expected_code:
                 msg = "Status code error {code}".format(
                     code=response2.status_code
@@ -138,6 +142,8 @@ class Client(object):
             service=service,
             scope=scope,
         )
+        if self._debug:
+            print('get token', get_token_url)
         get_token_response = requests.get(
             get_token_url,
             auth=requests.auth.HTTPBasicAuth(
@@ -145,6 +151,8 @@ class Client(object):
                 self.auth['password']
             )
         )
+        if self._debug:
+            print(get_token_response.headers)
         if get_token_response.status_code != 200:
             self.auth['token'] = ''
             msg = "Get token request: status code error {code}".format(
