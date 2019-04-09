@@ -206,7 +206,12 @@ def fixture_digest():
 
 @pytest.fixture()
 def fixture_config_payload():
-    return {'config': {'digest': 'config_digest'}}
+    return {
+        'schemaVersion': 2,
+        'config': {
+            'digest': 'config_digest'
+        }
+    }
 
 
 @pytest.fixture()
@@ -230,6 +235,19 @@ def fixture_image_date_str():
 @pytest.fixture()
 def fixture_blob_payload(fixture_image_date_str):
     return {'created': fixture_image_date_str}
+
+
+@pytest.fixture()
+def fixture_schema1_history(fixture_image_date_str):
+    return {
+        'schemaVersion': 1,
+        'v1Compatibility': {
+            'history': [
+                {'created': fixture_image_date_str},
+                {'created': '2019-01-03T12:41:55.621302432Z'},
+            ]
+        }
+    }
 
 
 @pytest.fixture()

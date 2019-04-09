@@ -17,6 +17,7 @@ from fixtures import (
     fixture_image_date,
     fixture_image_date_str,
     fixture_blob_payload,
+    fixture_schema1_history,
     fixture_delete_url,
 )
 from dregcli.dregcli import DRegCliException, Client, Repository, Image
@@ -38,8 +39,6 @@ class TestImage:
         fixture_digest,
         fixture_config_payload,
     ):
-        data = {'config': {'digest': 'config_digest'}}
-
         image = Image(
             Client(fixture_registry_url),
             fixture_repositories["repositories"][0],
@@ -48,9 +47,11 @@ class TestImage:
             data=fixture_config_payload
         )
         assert image and \
-            image.data == data and \
+            image.data == fixture_config_payload and \
             image.tag == fixture_tags[0] and \
             image.digest == fixture_digest and \
+            image.schema_version == \
+            fixture_config_payload['schemaVersion'] and \
             image.config_digest == fixture_config_payload['config']['digest']
 
     @pytest.mark.usefixtures(
@@ -62,7 +63,7 @@ class TestImage:
         'fixture_image_date',
         'fixture_blob_payload'
     )
-    def test_get_date(
+    def test_get_date_schema2(
         self,
         fixture_registry_url,
         fixture_repositories,
@@ -102,6 +103,36 @@ class TestImage:
             with pytest.raises(DRegCliException) as excinfo:
                 image.get_date()
             assert str(excinfo.value) == "Image date not found"
+
+    @pytest.mark.usefixtures(
+        'fixture_registry_url',
+        'fixture_repositories',
+        'fixture_tags',
+        'fixture_digest',
+        'fixture_schema1_history',
+        'fixture_image_date'
+    )
+    def test_get_date_schema1(
+        self,
+        fixture_registry_url,
+        fixture_repositories,
+        fixture_tags,
+        fixture_digest,
+        fixture_schema1_history,
+        fixture_image_date
+    ):
+        image = Image(
+            Client(fixture_registry_url),
+            fixture_repositories["repositories"][0],
+            fixture_tags[0],
+            digest=fixture_digest,
+            data=fixture_schema1_history
+        )
+        date = image.get_date()
+        # regarding fixture_schema1_history fixture_image_date_str should be
+        # the latest
+        assert date and date == fixture_image_date
+        assert image.date == date
 
     @pytest.mark.usefixtures(
         'fixture_registry_url',

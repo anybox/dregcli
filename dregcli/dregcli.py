@@ -398,12 +398,16 @@ class Image(RegistryComponent):
 
         assert isinstance(tag, str) and tag
         self.tag = tag
-        self.config_digest = self.data.get('config', {}).get('digest', '')
-        self.date = False
 
-        self.display_debug('image config data', self.data.get('config', {}))
-        self.display_debug('image config digest',
-                           self.data.get('config', {}).get('digest', ''))
+        self.schema_version = self.data.get('schemaVersion', 0)
+        self.display_debug('schema version', self.schema_version)
+
+        if self.schema_version > 1:
+            # API V2 schema 2: we grab digest from config digest key
+            self.config_digest = self.data.get('config', {}).get('digest', '')
+            self.display_debug('image config digest', self.config_digest)
+
+        self.date = False
 
     def __str__(self):
         return "{name}:{tag}".format(name=self.name, tag=self.tag)
@@ -420,25 +424,49 @@ class Image(RegistryComponent):
         """
         get image date from config blob
         """
-        url = str(
-            Path(self.client.url) /
-            Client.Meta.api_version /
-            self.name /
-            Repository.Meta.blobs /
-            self.config_digest
-        )
+        if self.schema_version == 1:
+            # API V2 schema 1: we grab date from v1 compatibility history
+            # https://stackoverflow.com/questions/32605556/
+            # how-to-find-the-creation-date-of-an-image-in-a-private-docker
+            # -registry-api-v2
+            history = self.data.get('v1Compatibility', {}).get('history', [])
+            dates = [
+                self._parse_date(h.get('created')) for h in history
+                if h.get('created') is not None
+            ]
+            dates.sort()
 
-        headers = Repository.Meta.manifests_headers  # important: accept header
-        response = self.client._request(
-            url,
-            headers=headers,
-            expected_code=200
-        )
+            if len(dates):
+                self.date = dates[-1]
 
-        created_date = response.json().get('created', False)
-        if not created_date:
-            raise DRegCliException("Image date not found")
-        self.date = self._parse_date(created_date)
+        elif self.schema_version > 1:
+            # API V2 schema 2: we grab date from config digest blob data
+            # https://github.com/docker/distribution/issues/1995
+
+            url = str(
+                Path(self.client.url) /
+                Client.Meta.api_version /
+                self.name /
+                Repository.Meta.blobs /
+                self.config_digest
+            )
+
+            # important: accept header
+            headers = Repository.Meta.manifests_headers
+            response = self.client._request(
+                url,
+                headers=headers,
+                expected_code=200
+            )
+            self.display_debug('image {tag} get date'.format(tag=self.tag),
+                               response.text)
+
+            created_date = response.json().get('created', False)
+            if not created_date:
+                raise DRegCliException("Image date not found")
+
+            self.date = self._parse_date(created_date)
+
         return self.date
 
     def delete(self):
