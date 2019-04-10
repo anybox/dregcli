@@ -239,14 +239,26 @@ def fixture_blob_payload(fixture_image_date_str):
 
 @pytest.fixture()
 def fixture_schema1_history(fixture_image_date_str):
+    # TO NOTE THAT v1Compatibility in response is a dict encoded as string
+    created = '{"created": "' + fixture_image_date_str + '"}'
+
     return {
         'schemaVersion': 1,
-        'v1Compatibility': {
-            'history': [
-                {'created': fixture_image_date_str},
-                {'created': '2019-01-03T12:41:55.621302432Z'},
-            ]
-        }
+        'history': [
+            {
+                'v1Compatibility': created,
+            },
+            {
+                'whatever': created,
+            },
+            {
+                'v1Compatibility': '{}',
+            },
+            {
+                'v1Compatibility':
+                    '{"created": "2019-01-03T12:41:55.621302432Z"}',
+            },
+        ]
     }
 
 

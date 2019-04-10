@@ -2,6 +2,7 @@ from operator import itemgetter
 from path import Path
 import datetime
 import functools
+import json
 import os
 import re
 import requests
@@ -429,12 +430,19 @@ class Image(RegistryComponent):
             # https://stackoverflow.com/questions/32605556/
             # how-to-find-the-creation-date-of-an-image-in-a-private-docker
             # -registry-api-v2
-            history = self.data.get('v1Compatibility', {}).get('history', [])
+            history = self.data.get('history', [])
+            # TO NOTE THAT v1Compatibility is a dict encoded as string
+            v1comp_entries = [
+                json.loads(h.get('v1Compatibility', '{}'))
+                for h in history
+            ]
             dates = [
-                self._parse_date(h.get('created')) for h in history
-                if h.get('created') is not None
+                self._parse_date(entry.get('created'))
+                for entry in v1comp_entries
+                if entry.get('created')
             ]
             dates.sort()
+#            self.display_debug('dates schema 1', str(dates))
 
             if len(dates):
                 self.date = dates[-1]
@@ -458,8 +466,8 @@ class Image(RegistryComponent):
                 headers=headers,
                 expected_code=200
             )
-            self.display_debug('image {tag} get date'.format(tag=self.tag),
-                               response.text)
+#           self.display_debug('image {tag} get date schema 2'.format(
+#                tag=self.tag), response.text)
 
             created_date = response.json().get('created', False)
             if not created_date:
