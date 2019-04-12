@@ -1,0 +1,54 @@
+language: python
+sudo: true
+dist: xenial
+
+python:
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.7-dev"
+  - "3.8-dev"
+  - "nightly"
+  - "pypy3.5"
+
+virtualenv:
+  system_site_packages: true
+
+    # env:
+    #   global:
+    #     - DREGCLI_VENV=./
+    # 
+    #
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+
+install:
+  - sudo apt-get update -q
+  - sudo apt-get install -y qemu-utils btrfs-tools
+
+before_script:
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+  - pip install -r requirements.tests.txt
+
+jobs:
+  include:
+    - stage: "Tests"
+      name: "Unit Tests"
+      script:
+        - py.test --pep8 --cov=dregcli --cov-report=html -v --ignore dregcli/tests/tests_integration/
+    - name: "Integration Tests"
+      script:
+        - dregcli/tests/tests_integration/start.sh
