@@ -2,24 +2,10 @@ language: python
 sudo: true
 dist: xenial
 
-python:
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.7-dev"
-  - "3.8-dev"
-  - "nightly"
-  - "pypy3.5"
 
 virtualenv:
   system_site_packages: false
 
-    # env:
-    #   global:
-    #     - DREGCLI_VENV=./
-    # 
-    #
 services:
   - docker
 
@@ -36,13 +22,23 @@ install:
   - sudo apt-get update -q
   - sudo apt-get install -y qemu-utils btrfs-tools
 
-before_script:
-  - pip install --upgrade pip
-  - pip install -r requirements.txt
-  - pip install -r requirements.tests.txt
-  - pip install -e .
-
 jobs:
+  python:
+    - "3.4"
+    - "3.5"
+    - "3.6"
+    - "3.7"
+    - "3.7-dev"
+    - "3.8-dev"
+    - "nightly"
+    - "pypy3.5"
+
+  before_script:
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install -r requirements.tests.txt
+    - pip install -e .
+
   include:
     - stage: "Tests"
       name: "Unit Tests"
