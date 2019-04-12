@@ -149,3 +149,6 @@ jobs:
       python: "pypy3.5"
       script:
         - dregcli/tests/tests_integration/start.sh
+
+after_success:
+  coveralls --data_file=.coverage --config_file=.coveragerc
