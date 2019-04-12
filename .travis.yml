@@ -2,7 +2,6 @@ language: python
 sudo: true
 dist: xenial
 
-
 virtualenv:
   system_site_packages: false
 
@@ -24,26 +23,76 @@ install:
 
 jobs:
   python:
-    - "3.4"
-    - "3.5"
-    - "3.6"
-    - "3.7"
     - "3.7-dev"
     - "3.8-dev"
-    - "nightly"
     - "pypy3.5"
 
-  before_script:
-    - pip install --upgrade pip
-    - pip install -r requirements.txt
-    - pip install -r requirements.tests.txt
-    - pip install -e .
 
   include:
-    - stage: "Tests"
+    - stage: "Tests: 3.4"
       name: "Unit Tests"
+      python: "3.4"
+      before_script:
+        - pip install --upgrade pip
+        - pip install -r requirements.txt
+        - pip install -r requirements.tests.txt
+        - pip install -e .
       script:
         - py.test --pep8 --cov=dregcli --cov-report=html -v --ignore dregcli/tests/tests_integration/
     - name: "Integration Tests"
+      python: "3.4"
+      before_script:
+        - pip install --upgrade pip
+        - pip install -r requirements.txt
+        - pip install -r requirements.tests.txt
+        - pip install -e .
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+    - stage: "Tests: 3.5"
+      name: "Unit Tests"
+      python: "3.5"
+      before_script:
+        - pip install --upgrade pip
+        - pip install -r requirements.txt
+        - pip install -r requirements.tests.txt
+        - pip install -e .
+      script:
+        - py.test --pep8 --cov=dregcli --cov-report=html -v --ignore dregcli/tests/tests_integration/
+
+    - name: "Integration Tests"
+      python: "3.5"
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+    - stage: "Tests: 3.6"
+      name: "Unit Tests"
+      python: "3.6"
+      before_script:
+        - pip install --upgrade pip
+        - pip install -r requirements.txt
+        - pip install -r requirements.tests.txt
+        - pip install -e .
+      script:
+        - py.test --pep8 --cov=dregcli --cov-report=html -v --ignore dregcli/tests/tests_integration/
+
+    - name: "Integration Tests"
+      python: "3.6"
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+    - stage: "Tests: 3.7"
+      name: "Unit Tests"
+      python: "3.7"
+      before_script:
+        - pip install --upgrade pip
+        - pip install -r requirements.txt
+        - pip install -r requirements.tests.txt
+        - pip install -e .
+      script:
+        - py.test --pep8 --cov=dregcli --cov-report=html -v --ignore dregcli/tests/tests_integration/
+
+    - name: "Integration Tests"
+      python: "3.7"
       script:
         - dregcli/tests/tests_integration/start.sh
