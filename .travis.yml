@@ -1,0 +1,84 @@
+language: python
+sudo: true
+dist: xenial
+
+python: 
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.7-dev"
+  - "3.8-dev"
+  - "pypy3.5"
+
+virtualenv:
+  system_site_packages: false
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+
+before_script:
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+  - pip install -r requirements.tests.txt
+  - pip install -e .
+script:
+  - py.test --pep8 --cov=dregcli --cov-report=html -v --ignore dregcli/tests/tests_integration/
+
+jobs:
+  include:
+    - stage: "Integration Tests"
+
+      name: "Python: 3.4"
+      if: branch = master AND type != pull_request
+      python: "3.4"
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+    - name: "Python: 3.5"
+      if: branch = master AND type != pull_request
+      python: "3.5"
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+    - name: "Python: 3.6"
+      if: branch = master AND type != pull_request
+      python: "3.6"
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+    - name: "Python: 3.7"
+      if: branch = master AND type != pull_request
+      python: "3.7"
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+    - name: "Python: 3.7-dev"
+      if: branch = master AND type != pull_request
+      python: "3.7-dev"
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+    - name: "Python: 3.8-dev"
+      if: branch = master AND type != pull_request
+      python: "3.8-dev"
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+    - name: "Python: pypy3.5"
+      if: branch = master AND type != pull_request
+      python: "pypy3.5"
+      script:
+        - dregcli/tests/tests_integration/start.sh
+
+after_success:
+  coveralls --data_file=.coverage --config_file=.coveragerc

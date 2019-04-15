@@ -21,7 +21,17 @@ setup(
     long_description="""
     This is a command line utility tool for docker registry API v2
     """,
-    classifiers=[],
+    classifiers=[
+        'Development Status :: 3 - Alpha  ',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'License :: OSI Approved :: MIT License',
+    ],
     author='Vincent GREINER',
     author_email='vgreiner@anybox.fr',
     url='https://github.com/anybox/dregcli',

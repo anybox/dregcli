@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/anybox/dregcli.svg?branch=master)](https://travis-ci.org/anybox/dregcli)
+[![Coverage Status](https://coveralls.io/repos/github/anybox/dregcli/badge.svg?branch=master)](https://coveralls.io/github/anybox/dregcli?branch=master)
 # dregcli
 
 WIP: Docker registry API v2 client, and console tool
