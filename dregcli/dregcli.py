@@ -277,10 +277,18 @@ class Repository(RegistryComponent):
         )
             (for tags_by_date see get_tags_by_date() return)
         """
-        def get_layers_digests_compose_key(layers):
+        def get_layers_digests_compose_key(image):
             digests = []
-            for layer in layers:
-                digests.append(layer['digest'])
+
+            if image.schema_version == 1:
+                # API V2 schema 1
+                for layer in image.data['fsLayers']:
+                    digests.append(layer['blobSum'])
+            else:
+                # API V2 schema 2
+                for layer in image.data['layers']:
+                    digests.append(layer['digest'])
+
             return '/'.join(sorted(digests))
 
         groups = {}
@@ -288,8 +296,7 @@ class Repository(RegistryComponent):
 
         # group by common layer
         for tag_data in tags_by_date:
-            group_key = get_layers_digests_compose_key(
-                tag_data['image'].data['layers'])
+            group_key = get_layers_digests_compose_key(tag_data['image'])
             groups.setdefault(group_key, []).append(tag_data['image'])
 
         # per tag dispatch co-tags (in common layer)
