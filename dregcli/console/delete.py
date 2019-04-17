@@ -247,7 +247,7 @@ class DeleteCommandHandler(CommandHandler):
                 # master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385 old-prod
                 # representing same image
 
-    def _get_tags(self, repository, single_tag):
+    def _get_tags(self, repository, single_tag=False):
         """
         :single_tag: single_tag regexp (layer with unique tag to keep on)
         :rtype tuple
@@ -358,7 +358,7 @@ class DeleteCommandHandler(CommandHandler):
                         layer_tags = [img.tag for img in group_entry[0]]
 
                     if layer_tags:
-                        # just delete the fist one, will delete cotags
+                        # just delete the first one, will delete cotags
                         self._delete_image(repository, layer_tags[0])
                         deleted += layer_tags
 

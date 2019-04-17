@@ -49,10 +49,10 @@ class TestDeleteFromCount:
         # remove from staging/master-*-1388, see fixture_delete_tags docstring
         from_count = 3
         should_left = [
+            'latest',
+            # prod layer
             'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
             'prod',
-            'master-1c48755c0b257ccd106badcb973a36528f833fc0-1387',
-            'old-staging',
         ]
 
         handler = DeleteCommandHandler()

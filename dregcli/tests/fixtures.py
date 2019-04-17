@@ -56,16 +56,18 @@ def fixture_delete_tags():
     dregcli images:
     Tags                       Date
     -------------------------- -------------------
+    latest                     2019-04-09 23:20:18
     prod,master-*-1386         2019-03-07 22:20:00
     master-*-1387,old-staging  2019-03-07 22:19:53
     master-*-1388,staging      2019-03-07 22:19:46
-    latest                     2019-03-07 22:19:40
     master-*-1385,old-prod     2019-01-30 22:20:40
     master-*-1384              2019-01-30 22:20:30
     master-*-1383,alpha        2019-01-30 22:20:20
     master-*-1382              2019-01-30 22:20:12
     """
     return [
+        'latest',
+
         # prod layer
         'master-b2a7d05ca36cdd3e8eb092f857580b3ed0f7159a-1386',
         'prod',
@@ -77,8 +79,6 @@ def fixture_delete_tags():
         # staging layer
         'master-128a1e13dbe96705917020261ee23d097606bda2-1388',
         'staging',
-
-        'latest',
 
         # old-prod layer
         'master-6da64c000cf59c30e4841371e0dac3dd02c31aaa-1385',

@@ -103,7 +103,7 @@ mainTest 'CONSOLE' test_console.py
 mainTest 'DREGCLI' test_dregcli.py
 
 #
-# single_tagBAGE ALL
+# DELETE ALL
 #
 deleteTest 'ALL' test_delete_all.py
 deleteTest 'ALL COTAGS RESULT' test_delete_all_cotags.py
